@@ -156,6 +156,21 @@ const server = app.listen(PORT, () => {
   if (config.nodeEnv === 'development') {
     console.log(`🔍 Health check: http://localhost:${PORT}/api/health`);
   }
+  
+  // Keep-alive para Render Free Tier
+  if (config.nodeEnv === 'production') {
+    const keepAliveInterval = 14 * 60 * 1000; // 14 minutos
+    setInterval(() => {
+      const https = require('https');
+      https.get(`${config.api.baseUrl}/api/health`, (res) => {
+        console.log(`⏰ Keep-alive ping - Status: ${res.statusCode}`);
+      }).on('error', (err) => {
+        console.log(`❌ Keep-alive error:`, err.message);
+      });
+    }, keepAliveInterval);
+    
+    console.log(`⏰ Keep-alive ativado - Ping a cada 14 minutos`);
+  }
 });
 
 // Graceful shutdown

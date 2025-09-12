@@ -59,12 +59,12 @@ const Dashboard = () => {
   // Função para gerar prêmios aleatórios (otimizada com useCallback)
   const generateRandomPrize = useCallback(() => {
     const prizes = [
-      { name: 'R$500,00', value: 'R$ 500,00', rarity: 'rarity-5.png', image: 'https://ik.imagekit.io/azx3nlpdu/700.png?updatedAt=1752856623225', bgColor: 'rgb(255, 215, 0)' },
-      { name: 'JORDAN 4', value: 'R$ 1.500,00', rarity: 'rarity-5.png', image: 'https://png.pngtree.com/png-vector/20250227/ourmid/pngtree-jumpman-air-jordan-sports-shoes-nike-retro-4-cement-white-outdoor-png-image_15609615.png', bgColor: 'rgb(255, 215, 0)' },
-      { name: 'R$2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: 'https://loterias.mega-raspadinha.com/AssetDelivery/upload/686f5580105cc-2_reais.png', bgColor: 'rgb(176, 190, 197)' },
-      { name: 'R$5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: 'https://loterias.mega-raspadinha.com/AssetDelivery/upload/686f5434a5012-5_reais.png', bgColor: 'rgb(176, 190, 197)' },
-      { name: 'NIKE DUNK LOW', value: 'R$ 1.000,00', rarity: 'rarity-5.png', image: 'https://cdn.awsli.com.br/2500x2500/1064/1064602/produto/216321504/nike-dunk-low-retro-white-black-2021-2-1000-x4rm2kzikn.png', bgColor: 'rgb(255, 215, 0)' },
-      { name: 'PS5 1TB', value: 'R$ 5.000,00', rarity: 'rarity-5.png', image: 'https://png.pngtree.com/png-vector/20250221/ourmid/pngtree-top-quality-playstation-5-console-isolated-png-image_15514648.png', bgColor: 'rgb(255, 215, 0)' }
+      { name: 'R$500,00', value: 'R$ 500,00', rarity: 'rarity-5.png', image: './imagens/CAIXA PREMIUM MASTER/500.webp', bgColor: 'rgb(255, 215, 0)' },
+      { name: 'JORDAN 4', value: 'R$ 1.500,00', rarity: 'rarity-5.png', image: './imagens/CAIXA KIT NIKE/jordan.png', bgColor: 'rgb(255, 215, 0)' },
+      { name: 'R$2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: './imagens/CAIXA CONSOLE DOS SONHOS/2reais.png', bgColor: 'rgb(176, 190, 197)' },
+      { name: 'R$5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: './imagens/CAIXA CONSOLE DOS SONHOS/5reais.png', bgColor: 'rgb(176, 190, 197)' },
+      { name: 'NIKE DUNK LOW', value: 'R$ 1.000,00', rarity: 'rarity-5.png', image: './imagens/CAIXA KIT NIKE/nike dunk.webp', bgColor: 'rgb(255, 215, 0)' },
+      { name: 'PS5 1TB', value: 'R$ 5.000,00', rarity: 'rarity-5.png', image: './imagens/CAIXA CONSOLE DOS SONHOS/ps5.png', bgColor: 'rgb(255, 215, 0)' }
     ];
     
     return prizes[Math.floor(Math.random() * prizes.length)];
