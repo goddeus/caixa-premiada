@@ -42,6 +42,16 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
+// Rate limiting mais restritivo para auth
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10, // máximo 10 tentativas de login por IP por janela
+  message: {
+    success: false,
+    message: 'Muitas tentativas de login. Tente novamente em 15 minutos.'
+  }
+});
+
 // Middleware para parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
