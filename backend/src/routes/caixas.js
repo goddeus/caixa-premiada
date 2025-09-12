@@ -4,14 +4,17 @@ const { authenticateToken, optionalAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Criar instância do controller
+const caixasController = new CaixasController();
+
 // Rotas públicas (com auth opcional)
-router.get('/', optionalAuth, CaixasController.list);
-router.get('/stats', optionalAuth, CaixasController.stats);
-router.get('/:id', optionalAuth, CaixasController.getById);
-router.get('/:id/historico', optionalAuth, CaixasController.historico);
+router.get('/', optionalAuth, caixasController.list.bind(caixasController));
+router.get('/stats', optionalAuth, caixasController.stats.bind(caixasController));
+router.get('/:id', optionalAuth, caixasController.getById.bind(caixasController));
+router.get('/:id/historico', optionalAuth, caixasController.historico.bind(caixasController));
 
 // Rotas protegidas
-router.post('/:id/abrir', authenticateToken, CaixasController.abrir);
+router.post('/:id/abrir', authenticateToken, caixasController.abrir.bind(caixasController));
 
 module.exports = router;
 
