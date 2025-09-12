@@ -1,22 +1,25 @@
 FROM node:18-alpine
 
-# Criar diretório da aplicação
+# Instalar OpenSSL para compatibilidade com Prisma
+RUN apk add --no-cache openssl1.1-compat
+
+# Definir diretório de trabalho
 WORKDIR /app
 
-# Copiar package.json e package-lock.json
+# Copiar package files
 COPY package*.json ./
 
 # Instalar dependências
 RUN npm ci --only=production
 
-# Copiar código da aplicação
+# Copiar código fonte
 COPY . .
 
-# Gerar cliente Prisma
+# Gerar Prisma Client
 RUN npx prisma generate
 
 # Expor porta
-EXPOSE 3001
+EXPOSE 10000
 
-# Comando para iniciar a aplicação
+# Comando de inicialização
 CMD ["npm", "start"]
