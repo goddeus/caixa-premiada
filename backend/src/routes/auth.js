@@ -4,15 +4,12 @@ const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Criar instância do controller
-const authController = new AuthController();
+// Rotas públicas (métodos estáticos)
+router.post('/register', AuthController.register);
+router.post('/login', AuthController.login);
 
-// Rotas públicas
-router.post('/register', authController.register.bind(authController));
-router.post('/login', authController.login.bind(authController));
-
-// Rotas protegidas
-router.get('/me', authenticateToken, authController.me.bind(authController));
-router.post('/refresh', authenticateToken, authController.refresh.bind(authController));
+// Rotas protegidas (métodos estáticos)
+router.get('/me', authenticateToken, AuthController.me);
+router.post('/refresh', authenticateToken, AuthController.refresh);
 
 module.exports = router;
