@@ -86,7 +86,6 @@ router.post('/seed-demo-users', async (req, res) => {
             tipo_conta: 'admin',
             saldo_reais: 100.00,
             saldo_demo: 100.00,
-            email_verificado: true,
             ativo: true,
             primeiro_deposito_feito: true,
             rollover_liberado: true
@@ -195,7 +194,6 @@ router.post('/seed-demo-users', async (req, res) => {
             tipo_conta: 'demo',
             saldo_reais: 0.00,
             saldo_demo: 100.00,
-            email_verificado: true,
             ativo: true,
             primeiro_deposito_feito: false,
             rollover_liberado: false
