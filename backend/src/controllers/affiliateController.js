@@ -59,14 +59,15 @@ class AffiliateController {
   static async me(req, res) {
     try {
       const userId = req.user.id;
+      const userEmail = req.user.email;
       
-      const affiliateData = await AffiliateService.getAffiliateData(userId);
+      let affiliateData = await AffiliateService.getAffiliateData(userId);
       
       if (!affiliateData) {
-        return res.status(404).json({
-          success: false,
-          message: 'Usuário não é afiliado'
-        });
+        // Criar conta de afiliado automaticamente para TODAS as contas
+        console.log(`🔄 Criando conta de afiliado para usuário: ${userEmail} (${userId})`);
+        affiliateData = await AffiliateService.createAffiliate(userId);
+        console.log(`✅ Conta de afiliado criada: ${affiliateData.codigo_indicacao}`);
       }
       
       res.json({

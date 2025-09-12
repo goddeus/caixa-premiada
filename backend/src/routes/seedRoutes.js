@@ -276,4 +276,83 @@ router.post('/seed-demo-users', async (req, res) => {
   }
 });
 
+/**
+ * POST /api/seed/update-all-affiliates
+ * Atualizar todas as contas para terem contas de afiliados
+ */
+router.post('/update-all-affiliates', async (req, res) => {
+  try {
+    console.log('🔄 Iniciando atualização de todas as contas para afiliados...');
+    
+    // Buscar todos os usuários que não são afiliados
+    const users = await prisma.user.findMany({
+      where: {
+        affiliate: null // Usuários sem conta de afiliado
+      },
+      select: {
+        id: true,
+        nome: true,
+        email: true
+      }
+    });
+    
+    console.log(`📊 Encontrados ${users.length} usuários sem conta de afiliado`);
+    
+    const results = {
+      created: [],
+      errors: [],
+      summary: {
+        total: users.length,
+        created: 0,
+        errors: 0
+      }
+    };
+    
+    for (const user of users) {
+      try {
+        console.log(`🔄 Criando afiliado para: ${user.email}`);
+        
+        const affiliate = await AffiliateService.createAffiliate(user.id);
+        
+        results.created.push({
+          email: user.email,
+          codigo: affiliate.codigo_indicacao,
+          link: affiliate.link
+        });
+        
+        results.summary.created++;
+        console.log(`✅ Afiliado criado: ${user.email} - Código: ${affiliate.codigo_indicacao}`);
+        
+      } catch (error) {
+        results.errors.push({
+          email: user.email,
+          error: error.message
+        });
+        
+        results.summary.errors++;
+        console.error(`❌ Erro ao criar afiliado para ${user.email}:`, error.message);
+      }
+    }
+    
+    console.log('\n📊 Resumo:');
+    console.log(`✅ Afiliados criados: ${results.summary.created}`);
+    console.log(`❌ Erros: ${results.summary.errors}`);
+    console.log(`📈 Total processados: ${results.summary.total}`);
+    
+    res.status(200).json({
+      success: true,
+      message: `✅ ${results.summary.created} contas de afiliados criadas com sucesso!`,
+      data: results
+    });
+    
+  } catch (error) {
+    console.error('❌ Erro geral na atualização de afiliados:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor',
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;

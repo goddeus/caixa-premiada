@@ -9,6 +9,7 @@ router.get('/validate/:code', AffiliateController.validateCode);
 
 // Rotas protegidas (todas as contas autenticadas)
 router.post('/create', authenticateToken, AffiliateController.create);
+router.get('/', authenticateToken, AffiliateController.me); // Rota principal
 router.get('/me', authenticateToken, AffiliateController.me);
 router.get('/stats', authenticateToken, AffiliateController.stats);
 router.get('/referrals', authenticateToken, AffiliateController.referrals);

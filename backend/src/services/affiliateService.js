@@ -146,10 +146,12 @@ class AffiliateService {
    * Criar código de indicação único para afiliado
    */
   static generateAffiliateCode(userName) {
-    const cleanName = userName.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-    const shortName = cleanName.substring(0, 6);
-    const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
-    return `${shortName}${randomSuffix}`;
+    // Gerar código mais aleatório e único
+    const timestamp = Date.now().toString(36).toUpperCase();
+    const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const userInitials = userName.replace(/[^a-zA-Z]/g, '').substring(0, 2).toUpperCase();
+    
+    return `AFF${userInitials}${randomPart}${timestamp.slice(-4)}`;
   }
   
   /**
@@ -209,7 +211,18 @@ class AffiliateService {
       });
       
       console.log(`✅ Afiliado criado: ${user.email} - Código: ${affiliateCode}`);
-      return affiliate;
+      
+      // Retornar dados completos com link
+      return {
+        ...affiliate,
+        link: `https://slotbox.shop/?ref=${affiliateCode}`,
+        stats: {
+          totalIndicados: 0,
+          indicadosComDeposito: 0,
+          totalComissoes: 0,
+          taxaConversao: 0
+        }
+      };
       
     } catch (error) {
       console.error('Erro ao criar afiliado:', error);
@@ -257,6 +270,7 @@ class AffiliateService {
     
     return {
       ...affiliate,
+      link: `https://slotbox.shop/?ref=${affiliate.codigo_indicacao}`,
       stats: {
         totalIndicados,
         indicadosComDeposito,

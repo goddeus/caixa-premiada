@@ -2,6 +2,125 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
+async function createAdminAndDemoAccounts() {
+  try {
+    // 1. Criar contas ADMIN
+    console.log('👑 Criando contas ADMIN...');
+    const bcrypt = require('bcrypt');
+    const adminPassword = await bcrypt.hash('paineladm@', 12);
+    
+    const adminAccounts = [
+      { nome: 'Eduarda', email: 'eduarda@admin.com', username: 'eduarda' },
+      { nome: 'Junior', email: 'junior@admin.com', username: 'junior' }
+    ];
+
+    for (const adminData of adminAccounts) {
+      const existingAdmin = await prisma.user.findUnique({
+        where: { email: adminData.email }
+      });
+
+      if (!existingAdmin) {
+        const admin = await prisma.user.create({
+          data: {
+            nome: adminData.nome,
+            email: adminData.email,
+            senha_hash: adminPassword,
+            cpf: `0000000000${adminAccounts.indexOf(adminData) + 1}`,
+            is_admin: true,
+            tipo_conta: 'admin',
+            saldo_reais: 100.00,
+            saldo_demo: 100.00,
+            ativo: true,
+            primeiro_deposito_feito: true,
+            rollover_liberado: true
+          }
+        });
+
+        // Criar wallet para admin
+        await prisma.wallet.create({
+          data: {
+            user_id: admin.id,
+            saldo_reais: 100.00,
+            saldo_demo: 100.00,
+            primeiro_deposito_feito: true,
+            rollover_liberado: true
+          }
+        });
+
+        console.log(`✅ Admin criado: ${adminData.email} / paineladm@`);
+      } else {
+        console.log(`ℹ️ Admin já existe: ${adminData.email}`);
+      }
+    }
+
+    // 2. Criar contas DEMO
+    console.log('🎭 Criando contas DEMO...');
+    const demoPassword = await bcrypt.hash('Afiliado@123', 12);
+    
+    const demoAccounts = [
+      { nome: 'João Ferreira', email: 'joao.ferreira@test.com', username: 'joao_f' },
+      { nome: 'Lucas Almeida', email: 'lucas.almeida@test.com', username: 'lucasal' },
+      { nome: 'Pedro Henrique', email: 'pedro.henrique@test.com', username: 'pedroh' },
+      { nome: 'Rafael Costa', email: 'rafael.costa@test.com', username: 'rafa_c' },
+      { nome: 'Bruno Martins', email: 'bruno.martins@test.com', username: 'brunom' },
+      { nome: 'Diego Oliveira', email: 'diego.oliveira@test.com', username: 'diegoo' },
+      { nome: 'Matheus Rocha', email: 'matheus.rocha@test.com', username: 'matheusr' },
+      { nome: 'Thiago Mendes', email: 'thiago.mendes@test.com', username: 'thiagom' },
+      { nome: 'Felipe Carvalho', email: 'felipe.carvalho@test.com', username: 'felipec' },
+      { nome: 'Gustavo Lima', email: 'gustavo.lima@test.com', username: 'gustavol' },
+      { nome: 'André Pereira', email: 'andre.pereira@test.com', username: 'andrep' },
+      { nome: 'Rodrigo Santos', email: 'rodrigo.santos@test.com', username: 'rodrigos' },
+      { nome: 'Marcelo Nunes', email: 'marcelo.nunes@test.com', username: 'marcelon' },
+      { nome: 'Vinícius Araújo', email: 'vinicius.araujo@test.com', username: 'viniciusa' },
+      { nome: 'Eduardo Ramos', email: 'eduardo.ramos@test.com', username: 'eduardor' }
+    ];
+
+    for (const demoData of demoAccounts) {
+      const existingDemo = await prisma.user.findUnique({
+        where: { email: demoData.email }
+      });
+
+      if (!existingDemo) {
+        const demo = await prisma.user.create({
+          data: {
+            nome: demoData.nome,
+            email: demoData.email,
+            senha_hash: demoPassword,
+            cpf: `1111111111${String(demoAccounts.indexOf(demoData) + 1).padStart(2, '0')}`,
+            is_admin: false,
+            tipo_conta: 'demo',
+            saldo_reais: 0.00,
+            saldo_demo: 100.00,
+            ativo: true,
+            primeiro_deposito_feito: false,
+            rollover_liberado: false
+          }
+        });
+
+        // Criar wallet para demo
+        await prisma.wallet.create({
+          data: {
+            user_id: demo.id,
+            saldo_reais: 0.00,
+            saldo_demo: 100.00,
+            primeiro_deposito_feito: false,
+            rollover_liberado: false
+          }
+        });
+
+        console.log(`✅ Demo criado: ${demoData.email} / Afiliado@123`);
+      } else {
+        console.log(`ℹ️ Demo já existe: ${demoData.email}`);
+      }
+    }
+
+    console.log('🎯 Contas admin e demo criadas com sucesso!');
+    
+  } catch (error) {
+    console.error('❌ Erro ao criar contas admin e demo:', error);
+  }
+}
+
 async function initializeDatabase() {
   try {
     console.log('🚀 Inicializando banco de dados...');
@@ -10,41 +129,8 @@ async function initializeDatabase() {
     await prisma.$connect();
     console.log('✅ Conexão estabelecida!');
     
-    // 2. Verificar se admin já existe
-    const existingAdmin = await prisma.user.findFirst({
-      where: { email: 'admin@slotbox.shop' }
-    });
-    
-    if (!existingAdmin) {
-      console.log('👤 Criando conta admin...');
-      const bcrypt = require('bcrypt');
-      const adminPassword = await bcrypt.hash('admin123456', 10);
-      
-      const admin = await prisma.user.create({
-        data: {
-          nome: 'Administrador',
-          email: 'admin@slotbox.shop',
-          senha_hash: adminPassword,
-          cpf: '00000000000',
-          is_admin: true,
-          saldo_reais: 10000.00,
-          primeiro_deposito_feito: true,
-          rollover_liberado: true
-        }
-      });
-      
-      // Criar wallet para admin
-      await prisma.wallet.create({
-        data: {
-          user_id: admin.id,
-          saldo_reais: 10000.00
-        }
-      });
-      
-      console.log('✅ Conta admin criada: admin@slotbox.shop / admin123456');
-    } else {
-      console.log('ℹ️ Conta admin já existe');
-    }
+    // 2. Criar contas admin e demo
+    await createAdminAndDemoAccounts();
     
     // 3. Verificar se caixas existem
     const cases = await prisma.case.findMany();
