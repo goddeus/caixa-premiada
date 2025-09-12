@@ -64,7 +64,8 @@ const authenticateToken = async (req, res, next) => {
     const saldoUnificado = user.tipo_conta === 'afiliado_demo' ? user.saldo_demo : user.saldo_reais;
     
     req.user = {
-      userId: user.id,
+      id: user.id,
+      userId: user.id, // Manter compatibilidade
       email: user.email,
       is_admin: user.is_admin,
       tipo_conta: user.tipo_conta, // Manter internamente para lógica
@@ -154,7 +155,8 @@ const optionalAuth = async (req, res, next) => {
     
     if (user && user.ativo && !user.banido_em) {
       req.user = {
-        userId: user.id,
+        id: user.id,
+        userId: user.id, // Manter compatibilidade
         email: user.email,
         is_admin: user.is_admin,
         tipo_conta: user.tipo_conta

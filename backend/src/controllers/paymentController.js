@@ -13,7 +13,7 @@ class PaymentController {
   static async createDeposit(req, res) {
     try {
       const { valor } = req.body;
-      const userId = req.user.userId;
+      const userId = req.user.id;
       
       // Bloquear depósitos para contas demo (sem mencionar que é demo)
       if (req.user.tipo_conta === 'afiliado_demo') {
@@ -105,7 +105,7 @@ class PaymentController {
   static async createWithdraw(req, res) {
     try {
       const { valor, pix_key } = req.body;
-      const userId = req.user.userId;
+      const userId = req.user.id;
       
       if (!valor || Number(valor) <= 0) {
         return res.status(400).json({
@@ -195,7 +195,7 @@ class PaymentController {
    */
   static async history(req, res) {
     try {
-      const userId = req.user.userId;
+      const userId = req.user.id;
       const { page = 1, limit = 20, tipo } = req.query;
       
       const skip = (Number(page) - 1) * Number(limit);
@@ -255,7 +255,7 @@ class PaymentController {
   static async getPayment(req, res) {
     try {
       const { id } = req.params;
-      const userId = req.user.userId;
+      const userId = req.user.id;
       
       const payment = await prisma.payment.findFirst({
         where: {
@@ -295,7 +295,7 @@ class PaymentController {
   static async checkStatus(req, res) {
     try {
       const { id } = req.params;
-      const userId = req.user.userId;
+      const userId = req.user.id;
       
       const payment = await prisma.payment.findFirst({
         where: {

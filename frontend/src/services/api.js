@@ -1,7 +1,7 @@
 // frontend/src/services/api.js
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://slotbox-api.onrender.com/api';
+const API_BASE_URL = 'https://slotbox-api.onrender.com/api';
 
 console.log('🔧 API Service - Base URL:', API_BASE_URL);
 
@@ -30,13 +30,18 @@ class ApiService {
 
     // Interceptor para tratar respostas
     this.client.interceptors.response.use(
-      (response) => response.data,
+      (response) => {
+        console.log('📡 Resposta da API:', response.data);
+        return response.data;
+      },
       (error) => {
+        console.error('❌ Erro na API:', error.response?.data || error.message);
+        
         if (error.response?.status === 401) {
-          // Token expirado ou inválido
+          // Token expirado ou inválido - apenas limpar dados, não redirecionar
           localStorage.removeItem('token');
           localStorage.removeItem('user');
-          window.location.href = '/';
+          // Não redirecionar automaticamente para não perder logs
         }
         
         const message = error.response?.data?.message || error.message || 'Erro desconhecido';
@@ -48,18 +53,22 @@ class ApiService {
   // ===== AUTENTICAÇÃO =====
   async login(email, senha) {
     const response = await this.client.post('/auth/login', { email, senha });
-    if (response.success && response.data.token) {
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+    if (response.success && (response.data?.token || response.token)) {
+      const token = response.data?.token || response.token;
+      const user = response.data?.user || response.user;
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
     }
     return response;
   }
 
   async register(dados) {
     const response = await this.client.post('/auth/register', dados);
-    if (response.success && response.data.token) {
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+    if (response.success && (response.data?.token || response.token)) {
+      const token = response.data?.token || response.token;
+      const user = response.data?.user || response.user;
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
     }
     return response;
   }

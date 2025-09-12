@@ -48,7 +48,7 @@ const CasePrizeManagement = () => {
       }
 
       console.log('Carregando caixas...');
-      const response = await fetch('/api/admin/caixas', {
+      const response = await fetch('https://slotbox-api.onrender.com/api/admin/caixas', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -79,7 +79,7 @@ const CasePrizeManagement = () => {
       setLoading(true);
       setError(null);
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/admin/caixas/${caseId}/premios`, {
+      const response = await fetch(`https://slotbox-api.onrender.com/api/admin/caixas/${caseId}/premios`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -107,7 +107,7 @@ const CasePrizeManagement = () => {
     try {
       setAuditing(true);
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/admin/caixas/${selectedCase.id}/audit`, {
+      const response = await fetch(`https://slotbox-api.onrender.com/api/admin/caixas/${selectedCase.id}/audit`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -136,7 +136,7 @@ const CasePrizeManagement = () => {
   const updatePrize = async (prizeId, updates) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/admin/premios/${prizeId}`, {
+      const response = await fetch(`https://slotbox-api.onrender.com/api/admin/premios/${prizeId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -277,7 +277,7 @@ const CasePrizeManagement = () => {
       formData.append('prizeId', prizeId);
 
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/admin/premios/upload-image', {
+      const response = await fetch('https://slotbox-api.onrender.com/api/admin/premios/upload-image', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

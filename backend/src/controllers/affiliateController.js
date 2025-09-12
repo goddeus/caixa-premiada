@@ -11,7 +11,7 @@ class AffiliateController {
    */
   static async create(req, res) {
     try {
-      const userId = req.user.userId;
+      const userId = req.user.id;
       
       // Verificar se usuário já é afiliado
       const existingAffiliate = await prisma.affiliate.findUnique({
@@ -58,7 +58,7 @@ class AffiliateController {
    */
   static async me(req, res) {
     try {
-      const userId = req.user.userId;
+      const userId = req.user.id;
       
       const affiliateData = await AffiliateService.getAffiliateData(userId);
       
@@ -89,7 +89,7 @@ class AffiliateController {
    */
   static async stats(req, res) {
     try {
-      const userId = req.user.userId;
+      const userId = req.user.id;
       
       const affiliate = await prisma.affiliate.findUnique({
         where: { user_id: userId }
@@ -189,7 +189,7 @@ class AffiliateController {
    */
   static async referrals(req, res) {
     try {
-      const userId = req.user.userId;
+      const userId = req.user.id;
       const { page = 1, limit = 20 } = req.query;
       
       const affiliate = await prisma.affiliate.findUnique({
@@ -270,7 +270,7 @@ class AffiliateController {
    */
   static async commissions(req, res) {
     try {
-      const userId = req.user.userId;
+      const userId = req.user.id;
       const { page = 1, limit = 20 } = req.query;
       
       const affiliate = await prisma.affiliate.findUnique({
@@ -346,7 +346,7 @@ class AffiliateController {
    */
   static async withdraw(req, res) {
     try {
-      const userId = req.user.userId;
+      const userId = req.user.id;
       const { valor, pix_key, pix_key_type } = req.body;
       
       if (!valor || Number(valor) <= 0) {
@@ -424,7 +424,7 @@ class AffiliateController {
    */
   static async withdrawals(req, res) {
     try {
-      const userId = req.user.userId;
+      const userId = req.user.id;
       const { page = 1, limit = 20 } = req.query;
       
       const affiliate = await prisma.affiliate.findUnique({

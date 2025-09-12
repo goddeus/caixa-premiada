@@ -20,8 +20,8 @@ const PrizeManagement = () => {
       setLoading(true);
       
       const [auditResponse, normalizationResponse] = await Promise.all([
-        api.get('/api/admin/prize-audit/stats'),
-        api.get('/api/admin/prize-audit/normalization-stats')
+        api.get('/prize-audit/stats'),
+        api.get('/prize-audit/normalization-stats')
       ]);
 
       setAuditStats(auditResponse.data.data);
@@ -49,7 +49,7 @@ const PrizeManagement = () => {
       setLoading(true);
       toast.info('Executando auditoria completa...');
       
-      const response = await api.post('/api/admin/prize-audit/run');
+      const response = await api.post('/prize-audit/run');
       
       if (response.data.success) {
         toast.success('Auditoria executada com sucesso!');
@@ -70,7 +70,7 @@ const PrizeManagement = () => {
       setLoading(true);
       toast.info('Normalizando nomes de prêmios...');
       
-      const response = await api.post('/api/admin/prize-audit/normalize');
+      const response = await api.post('/prize-audit/normalize');
       
       if (response.data.success) {
         toast.success('Normalização executada com sucesso!');
@@ -96,7 +96,7 @@ const PrizeManagement = () => {
       setLoading(true);
       toast.info(`Auditando caixa ${selectedCase}...`);
       
-      const response = await api.post(`/api/admin/prize-audit/case/${selectedCase}`);
+      const response = await api.post(`/prize-audit/case/${selectedCase}`);
       
       if (response.data.success) {
         toast.success('Auditoria da caixa executada com sucesso!');

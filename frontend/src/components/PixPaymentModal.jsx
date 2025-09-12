@@ -40,7 +40,7 @@ const PixPaymentModal = ({ isOpen, onClose, paymentData, onPaymentComplete }) =>
     
     setIsChecking(true);
     try {
-      const response = await fetch(`/api/payments/status/${paymentData.payment_id}`, {
+      const response = await fetch(`https://slotbox-api.onrender.com/api/payments/status/${paymentData.payment_id}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }

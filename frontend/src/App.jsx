@@ -4,7 +4,6 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // Pages
-import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import CaseDetails from './pages/CaseDetails';
@@ -24,6 +23,7 @@ import GameHistory from './pages/GameHistory';
 // Components
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
 
 function AppRoutes() {
   const { isAuthenticated, loading } = useAuth();
@@ -59,7 +59,7 @@ function AppRoutes() {
       <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
       <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
       <Route path="/affiliates" element={<ProtectedRoute><Affiliates /></ProtectedRoute>} />
-      <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+      <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
       <Route path="/cases/:id" element={<ProtectedRoute><CaseDetails /></ProtectedRoute>} />
       
       {/* 404 */}

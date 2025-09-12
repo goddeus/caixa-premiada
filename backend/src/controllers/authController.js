@@ -267,7 +267,7 @@ class AuthController {
   static async me(req, res) {
     try {
       const user = await prisma.user.findUnique({
-        where: { id: req.user.userId },
+        where: { id: req.user.id },
         select: {
           id: true,
           nome: true,
@@ -314,7 +314,7 @@ class AuthController {
   static async refresh(req, res) {
     try {
       const user = await prisma.user.findUnique({
-        where: { id: req.user.userId }
+        where: { id: req.user.id }
       });
       
       if (!user || !user.ativo) {

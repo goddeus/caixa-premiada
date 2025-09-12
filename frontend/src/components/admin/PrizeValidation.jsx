@@ -15,7 +15,7 @@ const PrizeValidation = () => {
 
   const loadStats = async () => {
     try {
-      const response = await api.get('/api/prize-validation/estatisticas');
+      const response = await api.get('/prize-validation/estatisticas');
       setStats(response.data.data);
     } catch (error) {
       console.error('Erro ao carregar estatísticas:', error);
@@ -25,7 +25,7 @@ const PrizeValidation = () => {
   const executarVerificacao = async () => {
     setLoading(true);
     try {
-      const response = await api.post('/api/prize-validation/verificar');
+      const response = await api.post('/prize-validation/verificar');
       setValidationResult(response.data.data);
       setShowDetails(true);
       
@@ -47,7 +47,7 @@ const PrizeValidation = () => {
 
     setLoading(true);
     try {
-      const response = await api.post('/api/prize-validation/corrigir-automaticamente');
+      const response = await api.post('/prize-validation/corrigir-automaticamente');
       
       if (response.data.success) {
         alert(`Correção automática concluída! ${response.data.data.total_corrections} correções realizadas.`);

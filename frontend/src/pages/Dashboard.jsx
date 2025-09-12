@@ -117,15 +117,22 @@ const Dashboard = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoginLoading(true);
+    console.log('🎯 Iniciando processo de login...');
 
     try {
+      console.log('📤 Dados enviados:', { email: loginData.email, senha: '***' });
       const result = await login(loginData.email, loginData.senha);
+      console.log('📥 Resultado do login:', result);
+      
       if (result.success) {
+        console.log('✅ Login bem-sucedido, fechando modal...');
         setShowLoginModal(false);
         setLoginData({ email: '', senha: '' });
+      } else {
+        console.log('❌ Login falhou:', result.error);
       }
     } catch (error) {
-      console.error('Erro no login:', error);
+      console.error('💥 Erro no login:', error);
     } finally {
       setLoginLoading(false);
     }
@@ -134,6 +141,7 @@ const Dashboard = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     setRegisterLoading(true);
+    console.log('🎯 Iniciando processo de registro...');
 
     try {
       // Mapear referralCode para ref_code para o backend
@@ -143,8 +151,18 @@ const Dashboard = () => {
       };
       delete dataToSend.referralCode;
       
+      console.log('📤 Dados de registro enviados:', { 
+        nome: dataToSend.nome, 
+        email: dataToSend.email, 
+        cpf: dataToSend.cpf,
+        ref_code: dataToSend.ref_code
+      });
+      
       const result = await register(dataToSend);
+      console.log('📥 Resultado do registro:', result);
+      
       if (result.success) {
+        console.log('✅ Registro bem-sucedido, fechando modal...');
         setShowRegisterModal(false);
         setRegisterData({ 
           nome: '', 
@@ -154,9 +172,11 @@ const Dashboard = () => {
           cpf: '', 
           referralCode: '' 
         });
+      } else {
+        console.log('❌ Registro falhou:', result.error);
       }
     } catch (error) {
-      console.error('Erro no registro:', error);
+      console.error('💥 Erro no registro:', error);
     } finally {
       setRegisterLoading(false);
     }

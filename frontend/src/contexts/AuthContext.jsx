@@ -57,10 +57,12 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, senha) => {
     try {
       setLoading(true);
+      console.log('🔐 Tentando fazer login com:', email);
       const response = await api.login(email, senha);
+      console.log('📥 Resposta do login:', response);
       
       if (response.success) {
-        const { user } = response.data;
+        const { user } = response.data || response;
         
         setUser(user);
         setIsAuthenticated(true);
@@ -71,6 +73,7 @@ export const AuthProvider = ({ children }) => {
         throw new Error(response.message || 'Erro no login');
       }
     } catch (error) {
+      console.error('❌ Erro no login:', error);
       const message = error.message || 'Erro ao fazer login';
       toast.error(message);
       setUser(null);
@@ -84,10 +87,12 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       setLoading(true);
+      console.log('🔐 Tentando fazer registro com:', userData.email);
       const response = await api.register(userData);
+      console.log('📥 Resposta do registro:', response);
       
       if (response.success) {
-        const { user } = response.data;
+        const { user } = response.data || response;
         
         setUser(user);
         setIsAuthenticated(true);
@@ -98,6 +103,7 @@ export const AuthProvider = ({ children }) => {
         throw new Error(response.message || 'Erro no registro');
       }
     } catch (error) {
+      console.error('❌ Erro no registro:', error);
       const message = error.message || 'Erro ao criar conta';
       toast.error(message);
       setUser(null);

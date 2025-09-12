@@ -58,9 +58,9 @@ const GatewayConfig = () => {
     try {
       setLoading(true);
       const [configsRes, supportedRes, activeRes] = await Promise.all([
-        api.get('/api/admin/gateway-config'),
-        api.get('/api/admin/gateway-config/supported'),
-        api.get('/api/admin/gateway-config/active')
+        api.get('/admin/gateway-config'),
+        api.get('/admin/gateway-config/supported'),
+        api.get('/admin/gateway-config/active')
       ]);
 
       setConfigs(configsRes.data.configs || []);
@@ -115,7 +115,7 @@ const GatewayConfig = () => {
       setSaving(true);
       
       const response = await api.post(
-        `/api/admin/gateway-config/${formData.gateway_name}`,
+        `/admin/gateway-config/${formData.gateway_name}`,
         formData
       );
 
@@ -137,7 +137,7 @@ const GatewayConfig = () => {
   const handleToggleGateway = async (gatewayName, isActive) => {
     try {
       const response = await api.patch(
-        `/api/admin/gateway-config/${gatewayName}/toggle`,
+        `/admin/gateway-config/${gatewayName}/toggle`,
         { is_active: isActive }
       );
 
@@ -158,7 +158,7 @@ const GatewayConfig = () => {
       setTesting(prev => ({ ...prev, [gatewayName]: true }));
       
       const response = await api.post(
-        `/api/admin/gateway-config/${gatewayName}/test`
+        `/admin/gateway-config/${gatewayName}/test`
       );
 
       if (response.data.success) {
@@ -181,7 +181,7 @@ const GatewayConfig = () => {
 
     try {
       const response = await api.delete(
-        `/api/admin/gateway-config/${gatewayName}`
+        `/admin/gateway-config/${gatewayName}`
       );
 
       if (response.data.success) {

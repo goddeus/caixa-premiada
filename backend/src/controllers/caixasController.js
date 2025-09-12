@@ -171,7 +171,7 @@ class CaixasController {
     try {
       const { id: caixaId } = req.params;
       const { quantidade = 1, purchaseId } = req.body;
-      const userId = req.user.userId;
+      const userId = req.user.id;
       
       // Validações básicas
       if (!caixaId) {
