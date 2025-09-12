@@ -637,83 +637,7 @@ app.post('/api/payments/withdraw', authenticateToken, async (req, res) => {
   }
 });
 
-// ROTAS DE AFILIADOS
-// GET /api/affiliate - Dados do afiliado
-app.get('/api/affiliate', authenticateToken, async (req, res) => {
-  try {
-    const { PrismaClient } = require('@prisma/client');
-    const prisma = new PrismaClient();
-    
-    const affiliate = await prisma.affiliate.findUnique({
-      where: { user_id: req.user.id },
-      include: {
-        indicados: true,
-        comissoes: true
-      }
-    });
-    
-    await prisma.$disconnect();
-    
-    res.json({
-      success: true,
-      data: affiliate
-    });
-  } catch (error) {
-    console.error('Erro ao buscar dados do afiliado:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor'
-    });
-  }
-});
-
-// POST /api/affiliate/create - Criar conta de afiliado
-app.post('/api/affiliate/create', authenticateToken, async (req, res) => {
-  try {
-    const { PrismaClient } = require('@prisma/client');
-    const prisma = new PrismaClient();
-    
-    // Verificar se já é afiliado
-    const existingAffiliate = await prisma.affiliate.findUnique({
-      where: { user_id: req.user.id }
-    });
-    
-    if (existingAffiliate) {
-      await prisma.$disconnect();
-      return res.status(400).json({
-        success: false,
-        message: 'Usuário já é afiliado'
-      });
-    }
-    
-    // Gerar código único
-    const codigo = `AF${req.user.id.slice(-6).toUpperCase()}`;
-    const link = `https://slotbox.shop/?ref=${codigo}`;
-    
-    // Criar afiliado
-    const affiliate = await prisma.affiliate.create({
-      data: {
-        user_id: req.user.id,
-        codigo_referencia: codigo,
-        link_referencia: link
-      }
-    });
-    
-    await prisma.$disconnect();
-    
-    res.json({
-      success: true,
-      message: 'Conta de afiliado criada com sucesso',
-      data: affiliate
-    });
-  } catch (error) {
-    console.error('Erro ao criar afiliado:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor'
-    });
-  }
-});
+// ROTAS DE AFILIADOS - Movidas para arquivo separado (affiliate.js)
 
 // ROTAS ADMIN
 // Middleware para verificar se é admin
@@ -1604,13 +1528,33 @@ app.use('/api/gateway-config', gatewayConfigRoutes);
 app.use('/api/global-draw', globalDrawRoutes);
 app.use('/api/seed', seedRoutes);
 
-// Middleware para rotas não encontradas
-app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Rota não encontrada'
+// Servir arquivos estáticos do frontend (para produção)
+if (config.nodeEnv === 'production') {
+  const path = require('path');
+  app.use(express.static(path.join(__dirname, '../../frontend/dist')));
+  
+  // Rota para servir o index.html para todas as rotas do frontend (SPA)
+  app.get('*', (req, res) => {
+    // Se for uma rota da API, retornar 404
+    if (req.path.startsWith('/api/')) {
+      return res.status(404).json({
+        success: false,
+        message: 'Rota da API não encontrada'
+      });
+    }
+    
+    // Para todas as outras rotas, servir o index.html do frontend
+    res.sendFile(path.join(__dirname, '../../frontend/dist/index.html'));
   });
-});
+} else {
+  // Em desenvolvimento, apenas retornar 404 para rotas não encontradas
+  app.use('*', (req, res) => {
+    res.status(404).json({
+      success: false,
+      message: 'Rota não encontrada'
+    });
+  });
+}
 
 // Middleware global de tratamento de erros
 app.use((error, req, res, next) => {

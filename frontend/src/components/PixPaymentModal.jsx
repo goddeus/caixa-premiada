@@ -102,10 +102,10 @@ const PixPaymentModal = ({ isOpen, onClose, paymentData, onPaymentComplete }) =>
         </div>
 
         {/* QR Code */}
-        {paymentData.qr_code && (
+        {paymentData.qr_base64 ? (
           <div className="bg-white rounded-lg p-4 mb-6 text-center">
             <img 
-              src={paymentData.qr_code} 
+              src={`data:image/png;base64,${paymentData.qr_base64}`} 
               alt="QR Code PIX" 
               className="w-48 h-48 mx-auto border border-gray-200 rounded"
             />
@@ -113,10 +113,19 @@ const PixPaymentModal = ({ isOpen, onClose, paymentData, onPaymentComplete }) =>
               Escaneie com seu app bancário
             </p>
           </div>
+        ) : (
+          <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4 mb-6 text-center">
+            <p className="text-red-400 font-medium">
+              ❌ Erro ao gerar QR Code
+            </p>
+            <p className="text-sm text-red-300 mt-1">
+              Tente novamente ou use o código PIX abaixo
+            </p>
+          </div>
         )}
 
         {/* Código PIX Copy Paste */}
-        {paymentData.pix_copy_paste && (
+        {paymentData.qr_text && (
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Código PIX (Copiar e Colar)
@@ -124,12 +133,12 @@ const PixPaymentModal = ({ isOpen, onClose, paymentData, onPaymentComplete }) =>
             <div className="flex gap-2">
               <input
                 type="text"
-                value={paymentData.pix_copy_paste}
+                value={paymentData.qr_text}
                 readOnly
                 className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm font-mono"
               />
               <button
-                onClick={() => copyToClipboard(paymentData.pix_copy_paste)}
+                onClick={() => copyToClipboard(paymentData.qr_text)}
                 className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
                   copied 
                     ? 'bg-green-600 text-white' 

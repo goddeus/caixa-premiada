@@ -37,41 +37,45 @@ router.post('/seed-demo-users', async (req, res) => {
         });
 
         if (existingUser) {
-          // Atualizar senha da conta existente
+          // Manter saldo atual se já existe, apenas atualizar senha e permissões
+          const currentSaldoReais = existingUser.saldo_reais || 0;
+          const currentSaldoDemo = existingUser.saldo_demo || 0;
+          
           await prisma.user.update({
             where: { email: adminData.email },
             data: {
               senha_hash: adminPassword,
               is_admin: true,
               tipo_conta: 'admin',
-              saldo_reais: 100.00,
-              saldo_demo: 100.00,
               ativo: true,
               primeiro_deposito_feito: true,
               rollover_liberado: true
             }
           });
 
-          // Atualizar wallet
+          // Atualizar wallet mantendo saldo atual
           await prisma.wallet.upsert({
             where: { user_id: existingUser.id },
             update: {
-              saldo_reais: 100.00,
-              saldo_demo: 100.00,
               primeiro_deposito_feito: true,
               rollover_liberado: true
             },
             create: {
               user_id: existingUser.id,
-              saldo_reais: 100.00,
-              saldo_demo: 100.00,
+              saldo_reais: currentSaldoReais,
+              saldo_demo: currentSaldoDemo,
               primeiro_deposito_feito: true,
               rollover_liberado: true
             }
           });
 
-          createdUsers.admins.push(adminData.email);
-          console.log(`🔄 Admin atualizado: ${adminData.email}`);
+          createdUsers.admins.push({
+            email: adminData.email,
+            status: 'Atualizado (saldo mantido)',
+            saldo_reais: currentSaldoReais,
+            saldo_demo: currentSaldoDemo
+          });
+          console.log(`✅ Admin atualizado: ${adminData.email} (saldo mantido)`);
           continue;
         }
 
@@ -92,7 +96,7 @@ router.post('/seed-demo-users', async (req, res) => {
           }
         });
 
-        // Criar wallet para o admin
+        // Criar wallet para admin
         await prisma.wallet.create({
           data: {
             user_id: admin.id,
@@ -103,19 +107,25 @@ router.post('/seed-demo-users', async (req, res) => {
           }
         });
 
-        createdUsers.admins.push(admin.email);
+        createdUsers.admins.push({
+          email: adminData.email,
+          status: 'Criado',
+          saldo_reais: 100.00,
+          saldo_demo: 100.00
+        });
         console.log(`✅ Admin criado: ${adminData.email}`);
+
       } catch (error) {
-        console.log(`❌ Erro ao criar admin ${adminData.email}:`, error.message);
+        console.error(`❌ Erro ao criar admin ${adminData.email}:`, error.message);
         createdUsers.skipped.push({
           email: adminData.email,
-          reason: `Erro: ${error.message}`
+          reason: error.message
         });
       }
     }
 
     // 2. CRIAR CONTAS DEMO
-    console.log('\n🎭 Criando contas DEMO...');
+    console.log('🎭 Criando contas DEMO...');
     
     const demoPassword = await bcrypt.hash('Afiliado@123', 12);
     
@@ -145,41 +155,43 @@ router.post('/seed-demo-users', async (req, res) => {
         });
 
         if (existingUser) {
-          // Atualizar senha da conta existente
+          // Manter saldo atual se já existe, apenas atualizar senha
+          const currentSaldoDemo = existingUser.saldo_demo || 0;
+          
           await prisma.user.update({
             where: { email: demoData.email },
             data: {
               senha_hash: demoPassword,
               is_admin: false,
               tipo_conta: 'demo',
-              saldo_reais: 0.00,
-              saldo_demo: 100.00,
               ativo: true,
               primeiro_deposito_feito: false,
               rollover_liberado: false
             }
           });
 
-          // Atualizar wallet
+          // Atualizar wallet mantendo saldo atual
           await prisma.wallet.upsert({
             where: { user_id: existingUser.id },
             update: {
-              saldo_reais: 0.00,
-              saldo_demo: 100.00,
               primeiro_deposito_feito: false,
               rollover_liberado: false
             },
             create: {
               user_id: existingUser.id,
               saldo_reais: 0.00,
-              saldo_demo: 100.00,
+              saldo_demo: currentSaldoDemo,
               primeiro_deposito_feito: false,
               rollover_liberado: false
             }
           });
 
-          createdUsers.demos.push(demoData.email);
-          console.log(`🔄 Demo atualizado: ${demoData.email}`);
+          createdUsers.demos.push({
+            email: demoData.email,
+            status: 'Atualizado (saldo mantido)',
+            saldo_demo: currentSaldoDemo
+          });
+          console.log(`✅ Demo atualizado: ${demoData.email} (saldo mantido)`);
           continue;
         }
 
@@ -200,7 +212,7 @@ router.post('/seed-demo-users', async (req, res) => {
           }
         });
 
-        // Criar wallet para o demo
+        // Criar wallet para demo
         await prisma.wallet.create({
           data: {
             user_id: demo.id,
@@ -211,68 +223,54 @@ router.post('/seed-demo-users', async (req, res) => {
           }
         });
 
-        createdUsers.demos.push(demo.email);
+        createdUsers.demos.push({
+          email: demoData.email,
+          status: 'Criado',
+          saldo_demo: 100.00
+        });
         console.log(`✅ Demo criado: ${demoData.email}`);
+
       } catch (error) {
-        console.log(`❌ Erro ao criar demo ${demoData.email}:`, error.message);
+        console.error(`❌ Erro ao criar demo ${demoData.email}:`, error.message);
         createdUsers.skipped.push({
           email: demoData.email,
-          reason: `Erro: ${error.message}`
+          reason: error.message
         });
       }
     }
 
-    await prisma.$disconnect();
-
-    // Preparar resposta
-    const totalCreated = createdUsers.demos.length + createdUsers.admins.length;
+    // 3. RESUMO FINAL
+    const totalAdmins = createdUsers.admins.length;
+    const totalDemos = createdUsers.demos.length;
     const totalSkipped = createdUsers.skipped.length;
+    
+    console.log(`\n📊 Resumo:`);
+    console.log(`👑 Admins: ${totalAdmins} contas`);
+    console.log(`🎭 Demos: ${totalDemos} contas`);
+    console.log(`⏭️ Ignorados: ${totalSkipped} contas`);
 
-    let message;
-    if (totalCreated > 0) {
-      message = `Criadas ${totalCreated} contas (${createdUsers.demos.length} DEMO + ${createdUsers.admins.length} ADMIN). ${totalSkipped} contas já existiam.`;
-    } else {
-      message = 'Nenhuma nova conta foi criada. Todas as contas já existem.';
-    }
+    const message = totalAdmins > 0 || totalDemos > 0 
+      ? `✅ ${totalAdmins} contas ADMIN e ${totalDemos} contas DEMO processadas com sucesso!`
+      : 'ℹ️ Nenhuma nova conta foi criada. Todas as contas já existem.';
 
-    console.log(`\n📊 Resumo: ${message}`);
-
-    res.json({
+    res.status(200).json({
       success: true,
       message: message,
       data: {
-        created: {
-          demos: createdUsers.demos,
-          admins: createdUsers.admins,
-          total: totalCreated
-        },
-        skipped: createdUsers.skipped,
-        credentials: {
-          admins: [
-            { email: 'eduarda@admin.com', senha: 'paineladm@' },
-            { email: 'junior@admin.com', senha: 'paineladm@' }
-          ],
-          demos: [
-            { email: 'joao.ferreira@test.com', senha: 'Afiliado@123' },
-            { email: 'lucas.almeida@test.com', senha: 'Afiliado@123' },
-            { email: 'pedro.henrique@test.com', senha: 'Afiliado@123' }
-          ]
+        created: createdUsers,
+        summary: {
+          total_admins: totalAdmins,
+          total_demos: totalDemos,
+          total_skipped: totalSkipped
         }
       }
     });
 
   } catch (error) {
-    console.error('❌ Erro ao criar contas de seed:', error);
-    
-    try {
-      await prisma.$disconnect();
-    } catch (disconnectError) {
-      console.error('Erro ao desconectar Prisma:', disconnectError);
-    }
-
+    console.error('❌ Erro geral no seed:', error);
     res.status(500).json({
       success: false,
-      message: 'Erro interno do servidor ao criar contas',
+      message: 'Erro interno do servidor',
       error: error.message
     });
   }

@@ -27,7 +27,7 @@ const Affiliates = () => {
   const fetchAffiliateData = async () => {
     try {
       const [affiliateResponse, statsResponse] = await Promise.all([
-        api.get('/affiliate'),
+        api.get('/affiliate/me'),
         api.get('/affiliate/stats')
       ]);
       
