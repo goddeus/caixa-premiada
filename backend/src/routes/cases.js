@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
-const casesController = require('../controllers/casesController');
+const CasesController = require('../controllers/casesController');
+
+// Criar instância do controller
+const casesController = new CasesController();
 
 // GET /cases - Listar todas as caixas disponíveis
 router.get('/', casesController.getCases);
