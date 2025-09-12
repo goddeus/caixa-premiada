@@ -163,9 +163,21 @@ const optionalAuth = async (req, res, next) => {
   next();
 };
 
+/**
+ * Middleware para log de atividades administrativas
+ */
+const logAdminActivity = (action) => {
+  return (req, res, next) => {
+    // Log da atividade administrativa
+    console.log(`[ADMIN] ${req.user?.email || 'Unknown'} - ${action} - ${new Date().toISOString()}`);
+    next();
+  };
+};
+
 module.exports = {
   authenticateToken,
   requireAdmin,
   requireNormalAccount,
-  optionalAuth
+  optionalAuth,
+  logAdminActivity
 };
