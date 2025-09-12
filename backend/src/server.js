@@ -125,40 +125,11 @@ app.use('*', (req, res) => {
   res.status(404).json({ error: 'Rota não encontrada' });
 });
 
-// Setup inicial do banco (executar automaticamente se banco estiver vazio)
-async function checkAndSetupDatabase() {
-  try {
-    const { PrismaClient } = require('@prisma/client');
-    const prisma = new PrismaClient();
-    
-    // Verificar se banco está vazio
-    const userCount = await prisma.user.count();
-    
-    if (userCount === 0) {
-      console.log('🔧 BANCO VAZIO - EXECUTANDO SETUP AUTOMÁTICO...');
-      
-      const { setupDatabase } = require('../setup-database');
-      await setupDatabase();
-      
-      console.log('✅ Setup automático concluído!');
-    } else {
-      console.log(`✅ Banco já configurado (${userCount} usuários)`);
-    }
-    
-    await prisma.$disconnect();
-  } catch (error) {
-    console.error('❌ Erro no setup automático:', error);
-  }
-}
-
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
   console.log(`🌐 Ambiente: ${process.env.NODE_ENV || 'production'}`);
   console.log(`🔗 Frontend: ${process.env.FRONTEND_URL || 'https://slotbox.shop'}`);
-  
-  // Executar setup automático após iniciar servidor
-  setTimeout(checkAndSetupDatabase, 2000);
 });
 
 module.exports = app;
