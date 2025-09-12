@@ -766,40 +766,7 @@ app.put('/api/admin/users/:userId', authenticateToken, requireAdmin, async (req,
   }
 });
 
-// GET /api/admin/affiliates - Listar afiliados
-app.get('/api/admin/affiliates', authenticateToken, requireAdmin, async (req, res) => {
-  try {
-    const { PrismaClient } = require('@prisma/client');
-    const prisma = new PrismaClient();
-    
-    const affiliates = await prisma.affiliate.findMany({
-      include: {
-        user: {
-          select: {
-            nome: true,
-            email: true
-          }
-        },
-        indicados: true,
-        comissoes: true
-      },
-      orderBy: { criado_em: 'desc' }
-    });
-    
-    await prisma.$disconnect();
-    
-    res.json({
-      success: true,
-      data: affiliates
-    });
-  } catch (error) {
-    console.error('Erro ao listar afiliados:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor'
-    });
-  }
-});
+// ROTAS DE AFILIADOS - Movidas para arquivo separado (affiliate.js)
 
 // GET /api/admin/financial - Dados financeiros
 app.get('/api/admin/financial', authenticateToken, requireAdmin, async (req, res) => {

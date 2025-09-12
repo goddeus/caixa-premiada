@@ -34,6 +34,10 @@ mkdir "deploy-files"
 xcopy "frontend\dist\*" "deploy-files\" /E /I /Y
 
 echo.
+echo [5/5] Copiando arquivo .htaccess para Hostinger...
+copy "frontend\public\.htaccess" "deploy-files\.htaccess"
+
+echo.
 echo ========================================
 echo BUILD CONCLUIDO COM SUCESSO!
 echo ========================================

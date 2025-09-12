@@ -7,12 +7,12 @@ const router = express.Router();
 // Validação pública de código (método estático)
 router.get('/validate/:code', AffiliateController.validateCode);
 
-// Rotas protegidas (apenas contas normais) (métodos estáticos)
-router.post('/create', authenticateToken, requireNormalAccount, AffiliateController.create);
-router.get('/me', authenticateToken, requireNormalAccount, AffiliateController.me);
-router.get('/stats', authenticateToken, requireNormalAccount, AffiliateController.stats);
-router.get('/referrals', authenticateToken, requireNormalAccount, AffiliateController.referrals);
-router.get('/commissions', authenticateToken, requireNormalAccount, AffiliateController.commissions);
+// Rotas protegidas (todas as contas autenticadas)
+router.post('/create', authenticateToken, AffiliateController.create);
+router.get('/me', authenticateToken, AffiliateController.me);
+router.get('/stats', authenticateToken, AffiliateController.stats);
+router.get('/referrals', authenticateToken, AffiliateController.referrals);
+router.get('/commissions', authenticateToken, AffiliateController.commissions);
 router.post('/withdraw', authenticateToken, requireNormalAccount, AffiliateController.withdraw);
 router.get('/withdrawals', authenticateToken, requireNormalAccount, AffiliateController.withdrawals);
 

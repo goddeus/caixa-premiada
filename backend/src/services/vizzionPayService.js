@@ -110,10 +110,23 @@ class VizzionPayService {
       });
       
       console.log(`✅ Pagamento PIX VizzionPay criado: ${payment.id} - R$ ${valorNumerico} - User: ${user.email}`);
-      
-      return {
+      console.log(`📊 Dados VizzionPay:`, {
         qr_base64: vizzionData.qr_code_base64 || vizzionData.qr_code,
         qr_text: vizzionData.qr_code_text || vizzionData.pix_copy_paste,
+        gateway_id: vizzionData.id || vizzionData.transaction_id
+      });
+      
+      // Fallback se não houver QRCode
+      const qrBase64 = vizzionData.qr_code_base64 || vizzionData.qr_code || null;
+      const qrText = vizzionData.qr_code_text || vizzionData.pix_copy_paste || `PIX: ${this.pixKey} - Valor: R$ ${valorNumerico}`;
+      
+      if (!qrBase64) {
+        console.warn(`⚠️ QRCode não gerado para pagamento ${payment.id}`);
+      }
+      
+      return {
+        qr_base64: qrBase64,
+        qr_text: qrText,
         gateway_id: vizzionData.id || vizzionData.transaction_id,
         transaction_id: payment.id,
         expires_at: payment.expira_em,
