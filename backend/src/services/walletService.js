@@ -23,13 +23,13 @@ class WalletService {
       throw new Error('Usuário não encontrado');
     }
 
-    // Para contas demo, retornar saldo_demo como saldo principal
+    // Para contas demo, usar saldo_demo; para normais, usar saldo_reais
+    // IMPORTANTE: Não mostrar diferença na interface - contas demo devem parecer normais
     const saldoPrincipal = user.tipo_conta === 'afiliado_demo' ? user.saldo_demo : user.saldo_reais;
 
     return {
       saldo: saldoPrincipal,
-      saldo_demo: user.saldo_demo,
-      tipo_conta: user.tipo_conta,
+      // OCULTAR tipo_conta para não mostrar que é demo
       atualizado_em: new Date(),
       usuario: {
         nome: user.nome,
@@ -161,9 +161,9 @@ class WalletService {
       }
     });
 
-    // Bloquear saque para contas demo
+    // Bloquear saque para contas demo (sem mencionar que é demo)
     if (user.tipo_conta === 'afiliado_demo') {
-      throw new Error('Saque indisponível nesta conta (modo demonstração).');
+      throw new Error('Saque temporariamente indisponível. Tente novamente mais tarde.');
     }
 
     if (parseFloat(user.saldo_reais) < amount) {

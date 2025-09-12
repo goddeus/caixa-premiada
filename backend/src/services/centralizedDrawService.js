@@ -298,17 +298,31 @@ class CentralizedDrawService {
       await prisma.$transaction(async (tx) => {
         // 1. Debitar preço da caixa do usuário (apenas se não foi debitado antes)
         if (!skipDebit) {
-          await tx.user.update({
-            where: { id: userId },
-            data: { saldo_reais: { decrement: caixa.preco } }
-          });
+          if (isDemoAccount) {
+            await tx.user.update({
+              where: { id: userId },
+              data: { saldo_demo: { decrement: caixa.preco } }
+            });
+          } else {
+            await tx.user.update({
+              where: { id: userId },
+              data: { saldo_reais: { decrement: caixa.preco } }
+            });
+          }
         }
 
         // 2. Creditar prêmio no usuário
-        await tx.user.update({
-          where: { id: userId },
-          data: { saldo_reais: { increment: prize.valor } }
-        });
+        if (isDemoAccount) {
+          await tx.user.update({
+            where: { id: userId },
+            data: { saldo_demo: { increment: prize.valor } }
+          });
+        } else {
+          await tx.user.update({
+            where: { id: userId },
+            data: { saldo_reais: { increment: prize.valor } }
+          });
+        }
 
         // 3. Atualizar sessão
         await tx.userSession.update({

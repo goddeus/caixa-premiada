@@ -15,6 +15,14 @@ class PaymentController {
       const { valor } = req.body;
       const userId = req.user.userId;
       
+      // Bloquear depósitos para contas demo (sem mencionar que é demo)
+      if (req.user.tipo_conta === 'afiliado_demo') {
+        return res.status(400).json({
+          success: false,
+          message: 'Depósito temporariamente indisponível. Tente novamente mais tarde.'
+        });
+      }
+      
       if (!valor || Number(valor) <= 0) {
         return res.status(400).json({
           success: false,

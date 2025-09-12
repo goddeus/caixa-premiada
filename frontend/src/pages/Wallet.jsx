@@ -46,7 +46,7 @@ const Wallet = () => {
 
     try {
       setLoading(true);
-      const endpoint = depositMethod === 'pix' ? '/payments/deposit/pix' : '/payments/deposit/boleto';
+      const endpoint = '/payments/deposit'; // Endpoint unificado
       const response = await api.post(endpoint, { valor: parseFloat(depositAmount) });
       
       setPaymentData(response.data);

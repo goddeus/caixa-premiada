@@ -4,7 +4,7 @@
   "description": "Backend da plataforma Caixa Premiada",
   "main": "src/server.js",
   "scripts": {
-    "start": "npx prisma db push && node recreate-essential-accounts.js && node src/server.js",
+    "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "seed": "node prisma/seed.js",
     "build": "npx prisma generate",

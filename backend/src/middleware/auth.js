@@ -60,12 +60,15 @@ const authenticateToken = async (req, res, next) => {
     }
     
     // Adicionar informações do usuário ao request
+    // Para contas demo, usar saldo_demo como saldo_reais para unificar interface
+    const saldoUnificado = user.tipo_conta === 'afiliado_demo' ? user.saldo_demo : user.saldo_reais;
+    
     req.user = {
       userId: user.id,
       email: user.email,
       is_admin: user.is_admin,
-      tipo_conta: user.tipo_conta,
-      saldo_reais: user.saldo_reais,
+      tipo_conta: user.tipo_conta, // Manter internamente para lógica
+      saldo_reais: saldoUnificado, // Saldo unificado
       saldo_demo: user.saldo_demo
     };
     
