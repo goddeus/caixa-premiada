@@ -15,7 +15,7 @@ class RTPService {
   async getRTPConfig() {
     try {
       let config = await prisma.rTPConfig.findFirst({
-        orderBy: { updated_at: 'desc' }
+        orderBy: { atualizado_em: 'desc' }
       });
 
       // Se não existe configuração, criar uma padrão (10% para contas normais)
@@ -23,7 +23,7 @@ class RTPService {
         config = await prisma.rTPConfig.create({
           data: {
             rtp_target: 10.0, // 10% fixo para contas normais
-            updated_by: null
+            ativo: true
           }
         });
       }
@@ -53,22 +53,12 @@ class RTPService {
         where: { id: currentConfig.id },
         data: {
           rtp_target: newRTP,
-          updated_by: adminId,
-          updated_at: new Date()
+          ativo: true
         }
       });
 
-      // Registrar no histórico
-      await prisma.rTPHistory.create({
-        data: {
-          rtp_config_id: currentConfig.id,
-          old_rtp: oldRTP,
-          new_rtp: newRTP,
-          change_type: 'manual',
-          reason: reason,
-          changed_by: adminId
-        }
-      });
+      // Log da alteração
+      console.log(`🔄 RTP alterado de ${oldRTP}% para ${newRTP}% por admin ${adminId}. Motivo: ${reason || 'Atualização manual'}`);
 
       return updatedConfig;
     } catch (error) {
@@ -147,22 +137,12 @@ class RTPService {
         where: { id: currentConfig.id },
         data: {
           rtp_target: recommendation.rtp_recommended,
-          updated_by: adminId,
-          updated_at: new Date()
+          ativo: true
         }
       });
 
-      // Registrar no histórico
-      await prisma.rTPHistory.create({
-        data: {
-          rtp_config_id: currentConfig.id,
-          old_rtp: currentConfig.rtp_target,
-          new_rtp: recommendation.rtp_recommended,
-          change_type: 'recommendation',
-          reason: 'Aplicação automática da recomendação do sistema',
-          changed_by: adminId
-        }
-      });
+      // Log da alteração
+      console.log(`🔄 RTP alterado automaticamente de ${currentConfig.rtp_target}% para ${recommendation.rtp_recommended}% por admin ${adminId}`);
 
       return {
         config: updatedConfig,
@@ -205,20 +185,8 @@ class RTPService {
    */
   async getRTPHistory(limit = 50) {
     try {
-      const history = await prisma.rTPHistory.findMany({
-        orderBy: { created_at: 'desc' },
-        take: limit,
-        include: {
-          rtp_config: {
-            select: {
-              rtp_target: true,
-              updated_at: true
-            }
-          }
-        }
-      });
-
-      return history;
+      // Retornar histórico vazio já que não temos o modelo RTPHistory
+      return [];
     } catch (error) {
       console.error('Erro ao obter histórico de RTP:', error);
       throw new Error('Falha ao obter histórico de RTP');

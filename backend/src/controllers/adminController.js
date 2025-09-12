@@ -680,26 +680,6 @@ class AdminController {
           include: {
             user: {
               select: { id: true, nome: true, email: true, criado_em: true }
-            },
-            affiliate_history: {
-              select: { 
-                id: true,
-                valor_deposito: true,
-                comissao_gerada: true,
-                status: true,
-                data: true,
-                indicado: {
-                  select: { nome: true, email: true }
-                }
-              }
-            },
-            withdrawals: {
-              select: {
-                id: true,
-                valor: true,
-                status: true,
-                criado_em: true
-              }
             }
           }
         }),

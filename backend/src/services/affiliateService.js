@@ -204,6 +204,7 @@ class AffiliateService {
         data: {
           user_id: userId,
           codigo_indicacao: affiliateCode,
+          link_referencia: `https://slotbox.shop/?ref=${affiliateCode}`,
           ganhos: 0,
           saldo_disponivel: 0,
           total_sacado: 0
@@ -234,50 +235,64 @@ class AffiliateService {
    * Buscar dados do afiliado
    */
   static async getAffiliateData(userId) {
-    const affiliate = await prisma.affiliate.findUnique({
-      where: { user_id: userId },
-      include: {
-        user: {
-          select: { nome: true, email: true }
-        },
-        indicados: {
-          include: {
-            indicado: {
-              select: { nome: true, email: true }
-            }
-          },
-          orderBy: { criado_em: 'desc' }
-        },
-        comissoes: {
-          include: {
-            user: {
-              select: { nome: true, email: true }
-            }
-          },
-          orderBy: { criado_em: 'desc' }
+    try {
+      const affiliate = await prisma.affiliate.findUnique({
+        where: { user_id: userId },
+        include: {
+          user: {
+            select: { nome: true, email: true }
+          }
         }
+      });
+      
+      if (!affiliate) {
+        return null;
       }
-    });
-    
-    if (!affiliate) {
-      return null;
+      
+      // Buscar estatísticas separadamente para evitar problemas de relacionamento
+      const [totalIndicados, indicadosComDeposito, totalComissoes] = await Promise.all([
+        prisma.affiliateHistory.count({
+          where: { affiliate_id: affiliate.id }
+        }),
+        prisma.affiliateHistory.count({
+          where: { 
+            affiliate_id: affiliate.id,
+            deposito_valido: true
+          }
+        }),
+        prisma.affiliateCommission.aggregate({
+          where: { affiliate_id: affiliate.id },
+          _sum: { valor: true }
+        })
+      ]);
+      
+      return {
+        id: affiliate.id,
+        user_id: affiliate.user_id,
+        codigo_indicacao: affiliate.codigo_indicacao,
+        link_referencia: affiliate.link_referencia,
+        total_indicados: affiliate.total_indicados,
+        total_comissoes: affiliate.total_comissoes,
+        comissoes_pagas: affiliate.comissoes_pagas,
+        ganhos: affiliate.ganhos,
+        saldo_disponivel: affiliate.saldo_disponivel,
+        total_sacado: affiliate.total_sacado,
+        ativo: affiliate.ativo,
+        criado_em: affiliate.criado_em,
+        atualizado_em: affiliate.atualizado_em,
+        user: affiliate.user,
+        link: `https://slotbox.shop/?ref=${affiliate.codigo_indicacao}`,
+        stats: {
+          totalIndicados,
+          indicadosComDeposito,
+          totalComissoes: totalComissoes._sum.valor || 0,
+          taxaConversao: totalIndicados > 0 ? (indicadosComDeposito / totalIndicados * 100).toFixed(1) : 0
+        }
+      };
+    } catch (error) {
+      console.error('Erro ao buscar dados do afiliado:', error);
+      throw error;
     }
-    
-    // Calcular estatísticas
-    const totalIndicados = affiliate.indicados.length;
-    const indicadosComDeposito = affiliate.indicados.filter(h => h.deposito_valido).length;
-    const totalComissoes = affiliate.comissoes.reduce((sum, c) => sum + Number(c.valor), 0);
-    
-    return {
-      ...affiliate,
-      link: `https://slotbox.shop/?ref=${affiliate.codigo_indicacao}`,
-      stats: {
-        totalIndicados,
-        indicadosComDeposito,
-        totalComissoes,
-        taxaConversao: totalIndicados > 0 ? (indicadosComDeposito / totalIndicados * 100).toFixed(1) : 0
-      }
-    };
   }
   
   /**
