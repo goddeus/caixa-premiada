@@ -1,5 +1,5 @@
 -- Script de importação para MySQL/SQLite
--- Gerado em: 2025-09-12T17:37:15.890Z
+-- Gerado em: 2025-09-12T17:47:46.465Z
 
 -- Usuários
 INSERT INTO users (id, nome, email, senha_hash, cpf, saldo, is_admin, criado_em) VALUES 

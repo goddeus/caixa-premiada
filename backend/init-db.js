@@ -57,42 +57,42 @@ async function initializeDatabase() {
           nome: 'CAIXA FINAL DE SEMANA',
           descricao: 'Caixa especial do final de semana',
           preco: 2.00,
-          imagem_url: '/imagens/caixa premium.png',
+          imagem: '/imagens/caixa premium.png',
           ativo: true
         },
         {
           nome: 'CAIXA KIT NIKE',
           descricao: 'Caixa com produtos Nike',
           preco: 5.00,
-          imagem_url: '/imagens/nike.png',
+          imagem: '/imagens/nike.png',
           ativo: true
         },
         {
           nome: 'CAIXA SAMSUNG',
           descricao: 'Caixa com produtos Samsung',
           preco: 10.00,
-          imagem_url: '/imagens/caixa samsung.png',
+          imagem: '/imagens/caixa samsung.png',
           ativo: true
         },
         {
           nome: 'CAIXA APPLE',
           descricao: 'Caixa com produtos Apple',
           preco: 20.00,
-          imagem_url: '/imagens/caixa apple.png',
+          imagem: '/imagens/caixa apple.png',
           ativo: true
         },
         {
           nome: 'CAIXA CONSOLE DOS SONHOS',
           descricao: 'Caixa com consoles de videogame',
           preco: 50.00,
-          imagem_url: '/imagens/console.png',
+          imagem: '/imagens/console.png',
           ativo: true
         },
         {
           nome: 'CAIXA PREMIUM MASTER',
           descricao: 'Caixa premium com os melhores prêmios',
           preco: 100.00,
-          imagem_url: '/imagens/caixa premium.png',
+          imagem: '/imagens/caixa premium.png',
           ativo: true
         }
       ];

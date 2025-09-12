@@ -101,7 +101,7 @@ app.post('/api/auth/login', async (req, res) => {
     }
 
     const { PrismaClient } = require('@prisma/client');
-    const bcrypt = require('bcrypt');
+    const bcrypt = require('bcryptjs');
     const jwt = require('jsonwebtoken');
     
     const prisma = new PrismaClient();
@@ -186,7 +186,7 @@ app.post('/api/auth/register', async (req, res) => {
     }
 
     const { PrismaClient } = require('@prisma/client');
-    const bcrypt = require('bcrypt');
+    const bcrypt = require('bcryptjs');
     const jwt = require('jsonwebtoken');
     
     const prisma = new PrismaClient();
@@ -1466,7 +1466,7 @@ app.get('/api/health', (req, res) => {
 app.post('/api/init-db', async (req, res) => {
   try {
     const { PrismaClient } = require('@prisma/client');
-    const bcrypt = require('bcrypt');
+    const bcrypt = require('bcryptjs');
     const prisma = new PrismaClient();
     
     // Verificar se admin já existe
