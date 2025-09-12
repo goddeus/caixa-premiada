@@ -27,7 +27,7 @@ class AdminController {
         
         // Usuários ativos (com saldo > 0)
         prisma.user.count({
-          where: { saldo: { gt: 0 } }
+          where: { saldo_reais: { gt: 0 } }
         }),
         
         // Total de saques confirmados
@@ -158,18 +158,18 @@ class AdminController {
         } else if (status === 'banned') {
           where.ativo = false;
         } else if (status === 'with_balance') {
-          where.saldo = { gt: 0 };
+          where.saldo_reais = { gt: 0 };
         } else if (status === 'without_balance') {
-          where.saldo = { lte: 0 };
+          where.saldo_reais = { lte: 0 };
         }
       }
       
       if (min_balance !== null && min_balance !== '') {
-        where.saldo = { ...where.saldo, gte: parseFloat(min_balance) };
+        where.saldo_reais = { ...where.saldo_reais, gte: parseFloat(min_balance) };
       }
       
       if (max_balance !== null && max_balance !== '') {
-        where.saldo = { ...where.saldo, lte: parseFloat(max_balance) };
+        where.saldo_reais = { ...where.saldo_reais, lte: parseFloat(max_balance) };
       }
 
       console.log('🔍 Admin getUsers - Filtros aplicados:', where);
@@ -185,7 +185,7 @@ class AdminController {
             nome: true,
             email: true,
             cpf: true,
-            saldo: true,
+            saldo_reais: true,
             ativo: true,
             banido_em: true,
             motivo_ban: true,
@@ -231,7 +231,7 @@ class AdminController {
   async updateUser(req, res) {
     try {
       const { userId } = req.params;
-      const { nome, email, saldo, ativo, motivo_ban } = req.body;
+      const { nome, email, saldo_reais, ativo, motivo_ban } = req.body;
 
       // Buscar usuário atual
       const currentUser = await prisma.user.findUnique({
@@ -240,7 +240,7 @@ class AdminController {
           id: true,
           nome: true,
           email: true,
-          saldo: true,
+          saldo_reais: true,
           ativo: true,
           motivo_ban: true
         }
@@ -258,12 +258,12 @@ class AdminController {
       
       if (nome !== undefined) updateData.nome = nome;
       if (email !== undefined) updateData.email = email;
-      if (saldo !== undefined) {
-        const newSaldo = parseFloat(saldo);
-        const oldSaldo = parseFloat(currentUser.saldo);
+      if (saldo_reais !== undefined) {
+        const newSaldo = parseFloat(saldo_reais);
+        const oldSaldo = parseFloat(currentUser.saldo_reais);
         const saldoDifference = newSaldo - oldSaldo;
         
-        updateData.saldo = newSaldo;
+        updateData.saldo_reais = newSaldo;
         
         // Se o admin está adicionando saldo, considerar como "giro" para rollover
         if (saldoDifference > 0) {
@@ -301,7 +301,7 @@ class AdminController {
           id: true,
           nome: true,
           email: true,
-          saldo: true,
+          saldo_reais: true,
           ativo: true,
           banido_em: true,
           motivo_ban: true,
@@ -1222,7 +1222,7 @@ class AdminController {
           id: true, 
           nome: true, 
           email: true, 
-          saldo: true, 
+          saldo_reais: true, 
           total_giros: true, 
           rollover_liberado: true, 
           rollover_minimo: true 
@@ -1248,7 +1248,7 @@ class AdminController {
           }
         },
         select: {
-          saldo: true,
+          saldo_reais: true,
           total_giros: true,
           rollover_liberado: true,
           rollover_minimo: true

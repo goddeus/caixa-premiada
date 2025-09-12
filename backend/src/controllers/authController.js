@@ -74,7 +74,6 @@ class AuthController {
           email: email.toLowerCase(),
           senha_hash: senhaHash,
           cpf: cpf.replace(/\D/g, ''),
-          saldo: 0,
           saldo_reais: 0,
           saldo_demo: 0,
           tipo_conta: 'normal',

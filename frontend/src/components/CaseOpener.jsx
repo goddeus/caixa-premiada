@@ -90,7 +90,7 @@ const CaseOpener = ({
 
   const simulateCase = () => {
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate('/');
       return;
     }
     
@@ -133,7 +133,7 @@ const CaseOpener = ({
 
   const openCase = async () => {
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate('/');
       return;
     }
 

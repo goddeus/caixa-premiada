@@ -92,7 +92,7 @@ class ProfileController {
           totalDepositado,
           totalRetirado,
           ganhoCashback: Math.max(0, ganhoCashback), // Não pode ser negativo
-          saldoAtual: user.saldo
+          saldoAtual: user.saldo_reais
         }
       });
     } catch (error) {

@@ -36,7 +36,7 @@ class ApiService {
           // Token expirado ou inválido
           localStorage.removeItem('token');
           localStorage.removeItem('user');
-          window.location.href = '/login';
+          window.location.href = '/';
         }
         
         const message = error.response?.data?.message || error.message || 'Erro desconhecido';

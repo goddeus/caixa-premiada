@@ -110,7 +110,7 @@ class BulkPurchaseService {
         } else {
           await tx.user.update({
             where: { id: userId },
-            data: { saldo: saldoAposDebito }
+            data: { saldo_reais: saldoAposDebito }
           });
         }
 

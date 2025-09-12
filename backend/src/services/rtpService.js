@@ -18,11 +18,11 @@ class RTPService {
         orderBy: { updated_at: 'desc' }
       });
 
-      // Se não existe configuração, criar uma padrão
+      // Se não existe configuração, criar uma padrão (10% para contas normais)
       if (!config) {
         config = await prisma.rTPConfig.create({
           data: {
-            rtp_target: 50.0,
+            rtp_target: 10.0, // 10% fixo para contas normais
             updated_by: null
           }
         });

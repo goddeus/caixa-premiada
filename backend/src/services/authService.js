@@ -181,7 +181,7 @@ class AuthService {
 
     // Para contas demo, usar saldo_demo como saldo principal
     if (user.tipo_conta === 'afiliado_demo') {
-      user.saldo = user.saldo_demo;
+      user.saldo_reais = user.saldo_demo;
     }
 
     return user;

@@ -300,14 +300,14 @@ class CentralizedDrawService {
         if (!skipDebit) {
           await tx.user.update({
             where: { id: userId },
-            data: { saldo: { decrement: caixa.preco } }
+            data: { saldo_reais: { decrement: caixa.preco } }
           });
         }
 
         // 2. Creditar prêmio no usuário
         await tx.user.update({
           where: { id: userId },
-          data: { saldo: { increment: prize.valor } }
+          data: { saldo_reais: { increment: prize.valor } }
         });
 
         // 3. Atualizar sessão
@@ -452,15 +452,15 @@ class CentralizedDrawService {
         throw new Error('Saldo insuficiente para abrir esta caixa');
       }
 
-      // 3. Simular prêmio com RTP fixo de 85% e chances maiores de prêmios altos
-      const rtpDemo = 0.85; // 85% fixo para contas demo (mais alto que contas normais)
+      // 3. Simular prêmio com RTP fixo de 70% para contas demo
+      const rtpDemo = 0.70; // 70% fixo para contas demo (conforme especificação)
       const valorEsperado = valorCaixa * rtpDemo;
 
-      console.log(`🎯 RTP Demo: 85%, Preço original: R$ ${valorCaixa.toFixed(2)}, Valor esperado: R$ ${valorEsperado.toFixed(2)}`);
+      console.log(`🎯 RTP Demo: 70%, Preço original: R$ ${valorCaixa.toFixed(2)}, Valor esperado: R$ ${valorEsperado.toFixed(2)}`);
 
-      // 4. Decidir se ganha ou não (85% de chance de ganhar)
+      // 4. Decidir se ganha ou não (70% de chance de ganhar algum prêmio)
       const chanceGanhar = Math.random();
-      const ganha = chanceGanhar < 0.85;
+      const ganha = chanceGanhar < 0.70;
 
       let premioSelecionado;
 

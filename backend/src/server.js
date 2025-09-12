@@ -142,6 +142,29 @@ app.get('/api/db-test', async (req, res) => {
   }
 });
 
+// Rota de teste do VizzionPay
+app.get('/api/vizzionpay-test', (req, res) => {
+  try {
+    res.json({
+      success: true,
+      message: 'VizzionPay configurações',
+      config: {
+        apiKey: config.vizzionpay.apiKey ? '***configurado***' : 'NÃO CONFIGURADO',
+        baseUrl: config.vizzionpay.baseUrl || 'NÃO CONFIGURADO',
+        webhookSecret: config.vizzionpay.webhookSecret ? '***configurado***' : 'NÃO CONFIGURADO',
+        pixKey: config.vizzionpay.pixKey || 'NÃO CONFIGURADO',
+        pixKeyType: config.vizzionpay.pixKeyType || 'NÃO CONFIGURADO'
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao verificar configurações VizzionPay',
+      error: error.message
+    });
+  }
+});
+
 // Rota raiz
 app.get('/', (req, res) => {
   res.json({

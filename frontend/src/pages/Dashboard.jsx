@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
@@ -8,6 +8,7 @@ import Footer from '../components/Footer';
 const Dashboard = () => {
   const { user, isAuthenticated, login, logout, register, setTestBalance, isDemoAccount, canWithdraw } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [winnersTodayAmount, setWinnersTodayAmount] = useState(42118.00);
   const [liveWinners, setLiveWinners] = useState([]);
@@ -135,7 +136,14 @@ const Dashboard = () => {
     setRegisterLoading(true);
 
     try {
-      const result = await register(registerData);
+      // Mapear referralCode para ref_code para o backend
+      const dataToSend = {
+        ...registerData,
+        ref_code: registerData.referralCode
+      };
+      delete dataToSend.referralCode;
+      
+      const result = await register(dataToSend);
       if (result.success) {
         setShowRegisterModal(false);
         setRegisterData({ 

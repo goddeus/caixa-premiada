@@ -51,7 +51,7 @@ export function Navigation() {
               ) : (
                 <>
                   <Link
-                    to="/login"
+                    to="/"
                     className="text-gray-600 hover:text-gray-900 transition-colors"
                   >
                     Entrar

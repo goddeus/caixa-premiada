@@ -148,7 +148,7 @@ class TransactionsController {
       await prisma.user.update({
         where: { id: userId },
         data: {
-          saldo: { increment: parseFloat(valor) }
+          saldo_reais: { increment: parseFloat(valor) }
         }
       });
 
@@ -175,7 +175,7 @@ class TransactionsController {
         transaction,
         novo_saldo: await prisma.user.findUnique({
           where: { id: userId },
-          select: { saldo: true }
+          select: { saldo_reais: true }
         })
       });
 

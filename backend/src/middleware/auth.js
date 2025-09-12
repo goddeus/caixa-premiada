@@ -32,7 +32,9 @@ const authenticateToken = async (req, res, next) => {
         banido_em: true,
         motivo_ban: true,
         is_admin: true,
-        tipo_conta: true
+        tipo_conta: true,
+        saldo_reais: true,
+        saldo_demo: true
       }
     });
     
@@ -62,7 +64,9 @@ const authenticateToken = async (req, res, next) => {
       userId: user.id,
       email: user.email,
       is_admin: user.is_admin,
-      tipo_conta: user.tipo_conta
+      tipo_conta: user.tipo_conta,
+      saldo_reais: user.saldo_reais,
+      saldo_demo: user.saldo_demo
     };
     
     next();

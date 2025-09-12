@@ -9,6 +9,7 @@ class WalletService {
       select: {
         tipo_conta: true,
         saldo: true,
+        saldo_reais: true,
         saldo_demo: true,
         nome: true,
         email: true,
@@ -23,7 +24,7 @@ class WalletService {
     }
 
     // Para contas demo, retornar saldo_demo como saldo principal
-    const saldoPrincipal = user.tipo_conta === 'afiliado_demo' ? user.saldo_demo : user.saldo;
+    const saldoPrincipal = user.tipo_conta === 'afiliado_demo' ? user.saldo_demo : user.saldo_reais;
 
     return {
       saldo: saldoPrincipal,
@@ -33,9 +34,9 @@ class WalletService {
       usuario: {
         nome: user.nome,
         email: user.email,
-        total_giros: user.total_giros,
-        rollover_liberado: user.rollover_liberado,
-        rollover_minimo: user.rollover_minimo
+        total_giros: user.total_giros || 0,
+        rollover_liberado: user.rollover_liberado || false,
+        rollover_minimo: user.rollover_minimo || 20.0
       }
     };
   }
@@ -165,7 +166,7 @@ class WalletService {
       throw new Error('Saque indisponível nesta conta (modo demonstração).');
     }
 
-    if (parseFloat(user.saldo) < amount) {
+    if (parseFloat(user.saldo_reais) < amount) {
       throw new Error('Saldo insuficiente para o saque');
     }
 
@@ -258,8 +259,8 @@ class WalletService {
       return false;
     }
 
-    // Para contas demo, verificar saldo_demo; para contas normais, verificar saldo
-    const saldoRelevante = user.tipo_conta === 'afiliado_demo' ? user.saldo_demo : user.saldo;
+    // Para contas demo, verificar saldo_demo; para contas normais, verificar saldo_reais
+    const saldoRelevante = user.tipo_conta === 'afiliado_demo' ? user.saldo_demo : user.saldo_reais;
     return parseFloat(saldoRelevante) >= amount;
   }
 
@@ -348,19 +349,23 @@ class WalletService {
 
       // Processar comissão em transação
       await prisma.$transaction(async (tx) => {
-        // 1. Creditar R$ 10 no saldo do afiliado
+        // 1. Creditar R$ 10 no saldo_reais do afiliado
         await tx.user.update({
           where: { id: affiliate.user_id },
           data: {
-            saldo: { increment: commissionAmount }
+            saldo_reais: { increment: commissionAmount }
           }
         });
 
         // 2. Atualizar carteira do afiliado
-        await tx.wallet.update({
+        await tx.wallet.upsert({
           where: { user_id: affiliate.user_id },
-          data: {
+          update: {
             saldo: { increment: commissionAmount }
+          },
+          create: {
+            user_id: affiliate.user_id,
+            saldo: commissionAmount
           }
         });
 

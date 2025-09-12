@@ -39,13 +39,11 @@ function AppRoutes() {
 
   return (
     <Routes>
-      {/* Public routes */}
-      <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" />} />
-      <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to="/dashboard" />} />
-      
-      {/* Dashboard route - accessible to all */}
+      {/* Dashboard route - accessible to all (login via modal) */}
       <Route path="/" element={<Dashboard />} />
       <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/login" element={<Navigate to="/" />} />
+      <Route path="/register" element={<Navigate to="/" />} />
       
       {/* Case routes - accessible to all but with proper auth check */}
       <Route path="/nike-case" element={<NikeCase />} />

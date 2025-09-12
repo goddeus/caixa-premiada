@@ -121,12 +121,12 @@ class CasesController {
       console.log('💰 Total a ser cobrado:', totalCost);
       
       // Verificar saldo do usuário
-      if (parseFloat(req.user.saldo) < totalCost) {
+      if (parseFloat(req.user.saldo_reais) < totalCost) {
         return res.status(400).json({ error: 'Saldo insuficiente' });
       }
 
       // Registrar saldo antes da compra para auditoria
-      const saldoAntes = parseFloat(req.user.saldo);
+      const saldoAntes = parseFloat(req.user.saldo_reais);
 
       const results = [];
       let totalWon = 0;
@@ -187,11 +187,11 @@ class CasesController {
       // Atualizar saldo do usuário (já foi debitado pelo centralizedDrawService)
       const updatedUser = await prisma.user.findUnique({
         where: { id: userId },
-        select: { saldo: true }
+        select: { saldo_reais: true, saldo_demo: true, tipo_conta: true }
       });
 
       // SISTEMA DE AUDITORIA: Registrar compra múltipla
-      const saldoDepois = parseFloat(updatedUser.saldo);
+      const saldoDepois = updatedUser.tipo_conta === 'afiliado_demo' ? parseFloat(updatedUser.saldo_demo) : parseFloat(updatedUser.saldo_reais);
       const discrepanciaDetectada = Math.abs(totalCost - (precoUnitario * quantity)) > 0.01;
       
       await prisma.purchaseAudit.create({
@@ -287,20 +287,20 @@ class CasesController {
 
       console.log('💰 Preço unitário da caixa (DB):', precoUnitario);
       console.log('💰 Total a ser cobrado:', totalPreco);
-      console.log('💰 Saldo atual do usuário:', req.user.saldo);
+      console.log('💰 Saldo atual do usuário:', req.user.saldo_reais);
       
-      if (parseFloat(req.user.saldo) < totalPreco) {
+      if (parseFloat(req.user.saldo_reais) < totalPreco) {
         return res.status(400).json({ error: 'Saldo insuficiente' });
       }
 
       // Registrar saldo antes da compra para auditoria
-      const saldoAntes = parseFloat(req.user.saldo);
+      const saldoAntes = parseFloat(req.user.saldo_reais);
 
       // Debitar valor da caixa imediatamente
       await prisma.$transaction(async (tx) => {
         await tx.user.update({
           where: { id: userId },
-          data: { saldo: { decrement: totalPreco } }
+          data: { saldo_reais: { decrement: totalPreco } }
         });
 
         await tx.transaction.create({
@@ -318,10 +318,10 @@ class CasesController {
       // SISTEMA DE AUDITORIA: Registrar compra
       const updatedUser = await prisma.user.findUnique({
         where: { id: userId },
-        select: { saldo: true }
+        select: { saldo_reais: true, saldo_demo: true, tipo_conta: true }
       });
       
-      const saldoDepois = parseFloat(updatedUser.saldo);
+      const saldoDepois = updatedUser.tipo_conta === 'afiliado_demo' ? parseFloat(updatedUser.saldo_demo) : parseFloat(updatedUser.saldo_reais);
       const discrepanciaDetectada = Math.abs(totalPreco - precoUnitario) > 0.01;
       
       await prisma.purchaseAudit.create({
@@ -451,7 +451,7 @@ class CasesController {
       console.log('💰 Total a ser cobrado:', totalPreco);
 
       // Verificar saldo do usuário
-      if (parseFloat(req.user.saldo) < totalPreco) {
+      if (parseFloat(req.user.saldo_reais) < totalPreco) {
         return res.status(400).json({ error: 'Saldo insuficiente' });
       }
 
@@ -479,14 +479,14 @@ class CasesController {
         // Buscar saldo atualizado
         const updatedUser = await prisma.user.findUnique({
           where: { id: userId },
-          select: { saldo: true }
+          select: { saldo_reais: true, saldo_demo: true, tipo_conta: true }
         });
 
         res.json({
           prizes: caseData.prizes,
           wonPrize: wonPrize,
           message: drawResult.message,
-          userBalance: updatedUser.saldo,
+          userBalance: updatedUser.tipo_conta === 'afiliado_demo' ? updatedUser.saldo_demo : updatedUser.saldo_reais,
           is_demo: true
         });
         return;
@@ -496,7 +496,7 @@ class CasesController {
       console.log('👤 Conta normal - processando prêmio...');
 
       // Registrar saldo antes da compra para auditoria
-      const saldoAntes = parseFloat(req.user.saldo);
+      const saldoAntes = parseFloat(req.user.saldo_reais);
 
       // CORREÇÃO: NÃO debitar aqui - o centralizedDrawService já faz isso
       console.log('💸 O centralizedDrawService já debita o valor da caixa automaticamente');
@@ -537,11 +537,11 @@ class CasesController {
       // Buscar saldo atualizado após o centralizedDrawService
       const updatedUser = await prisma.user.findUnique({
         where: { id: userId },
-        select: { saldo: true }
+        select: { saldo_reais: true, saldo_demo: true, tipo_conta: true }
       });
 
       // SISTEMA DE AUDITORIA: Registrar compra
-      const saldoDepois = parseFloat(updatedUser.saldo);
+      const saldoDepois = updatedUser.tipo_conta === 'afiliado_demo' ? parseFloat(updatedUser.saldo_demo) : parseFloat(updatedUser.saldo_reais);
       const discrepanciaDetectada = Math.abs(totalPreco - precoUnitario) > 0.01;
       
       await prisma.purchaseAudit.create({
@@ -580,7 +580,7 @@ class CasesController {
       }
 
       // CORREÇÃO: Usar saldo atualizado do centralizedDrawService
-      console.log('💰 Saldo após processamento:', updatedUser.saldo);
+      console.log('💰 Saldo após processamento:', updatedUser.tipo_conta === 'afiliado_demo' ? updatedUser.saldo_demo : updatedUser.saldo_reais);
 
       // O centralizedDrawService já processou tudo, então só retornar o resultado
       console.log('📤 Enviando resposta com prêmio:', {
@@ -706,7 +706,7 @@ class CasesController {
       // Verificar saldo após crédito
       const userAfterCredit = await prisma.user.findUnique({
         where: { id: userId },
-        select: { saldo: true }
+        select: { saldo_reais: true, saldo_demo: true, tipo_conta: true }
       });
       console.log('💰 Saldo após crédito:', userAfterCredit.saldo);
 

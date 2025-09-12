@@ -37,6 +37,7 @@ class AffiliateController {
         data: {
           id: affiliate.id,
           codigo_indicacao: affiliate.codigo_indicacao,
+          link_referencia: `https://slotbox.shop/?ref=${affiliate.codigo_indicacao}`,
           ganhos: affiliate.ganhos,
           saldo_disponivel: affiliate.saldo_disponivel
         }
@@ -155,6 +156,7 @@ class AffiliateController {
         success: true,
         data: {
           codigo_indicacao: affiliate.codigo_indicacao,
+          link_referencia: `https://slotbox.shop/?ref=${affiliate.codigo_indicacao}`,
           saldo_disponivel: Number(affiliate.saldo_disponivel),
           total_ganhos: Number(affiliate.ganhos),
           total_sacado: Number(affiliate.total_sacado),
