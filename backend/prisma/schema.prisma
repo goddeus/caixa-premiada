@@ -54,481 +54,210 @@ model User {
   login_history LoginHistory[]
   rtp_sessions UserRTPSession[]
   sessions    UserSession[]
-  purchase_audits PurchaseAudit[]
-  
-  @@map("users")
 }
 
 model Wallet {
-  id           String   @id @default(uuid())
-  user_id      String   @unique
-  saldo        Float    @default(0)
-  atualizado_em DateTime @default(now()) @updatedAt
-  
-  // Relacionamentos
-  user         User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  
-  @@map("wallets")
-}
-
-model Case {
   id          String   @id @default(uuid())
-  nome        String
-  preco       Float
-  imagem_url  String
+  user_id     String   @unique
+  saldo       Float    @default(0)
+  saldo_reais Float    @default(0)
+  saldo_demo  Float    @default(0)
+  total_giros Float    @default(0)
+  rollover_liberado Boolean @default(false)
+  rollover_minimo Float @default(20.00)
+  primeiro_deposito_feito Boolean @default(false)
   criado_em   DateTime @default(now())
-  ativo       Boolean  @default(true)
-  
-  // Relacionamentos
-  prizes      Prize[]
-  rtp_sessions UserRTPSession[]
-  illustrative_prizes IllustrativePrize[]
-  
-  @@map("cases")
-}
+  atualizado_em DateTime @updatedAt
 
-model Prize {
-  id           String   @id @default(uuid())
-  case_id      String
-  valor        Float
-  valor_reais  Float    @default(0) // Valor real creditado (separado do visual)
-  probabilidade Float
-  nome         String?
-  imagem_url   String?
-  ilustrativo  Boolean  @default(false) // Flag para prêmios apenas ilustrativos (> R$ 5.000)
-  
-  // Novas colunas para sistema de tipos
-  tipo         String   @default("produto") // cash, produto, ilustrativo
-  label        String   @default("")
-  imagem_id    String   @default("")
-  ativo        Boolean  @default(true)
-  sorteavel    Boolean  @default(true) // Se o prêmio pode ser sorteado
-  
   // Relacionamentos
-  case         Case     @relation(fields: [case_id], references: [id], onDelete: Cascade)
-  
-  @@map("prizes")
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
 
 model Transaction {
   id          String   @id @default(uuid())
   user_id     String
-  session_id  String?  // Relacionamento com UserSession
-  tipo        String
+  tipo        String   // 'deposito', 'saque', 'aposta', 'premio', 'comissao'
   valor       Float
-  status      String @default("pendente")
-  criado_em   DateTime @default(now())
+  saldo_antes Float
+  saldo_depois Float
   descricao   String?
-  case_id     String?
-  prize_id    String?
-  
+  status      String   @default('pendente') // 'pendente', 'aprovado', 'rejeitado'
+  referencia  String?  // ID da transação externa
+  criado_em   DateTime @default(now())
+  processado_em DateTime?
+
   // Relacionamentos
   user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  session     UserSession? @relation(fields: [session_id], references: [id], onDelete: Cascade)
-  
-  @@map("transactions")
 }
 
-model Affiliate {
-  id               String   @id @default(uuid())
-  user_id          String   @unique
-  codigo_indicacao String   @unique
-  ganhos           Float    @default(0)
-  saldo_disponivel Float    @default(0)
-  total_sacado     Float    @default(0)
-  atualizado_em    DateTime @default(now()) @updatedAt
-  
-  // Relacionamentos
-  user             User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  affiliate_history AffiliateHistory[]
-  withdrawals      AffiliateWithdrawal[]
-  commissions      AffiliateCommission[]
-  
-  @@map("affiliates")
-}
-
-model AffiliateHistory {
-  id               String   @id @default(uuid())
-  affiliate_id     String
-  indicado_id      String
-  deposito_valido  Boolean  @default(false)
-  valor_deposito   Float?
-  comissao_gerada  Float?
-  status           String   @default("pendente") // pendente, pago, cancelado
-  data             DateTime @default(now())
-  
-  // Relacionamentos
-  affiliate        Affiliate @relation(fields: [affiliate_id], references: [id], onDelete: Cascade)
-  indicado         User     @relation("Indicado", fields: [indicado_id], references: [id], onDelete: Cascade)
-  
-  @@map("affiliate_history")
-}
-
-// Nova tabela para configuração centralizada de RTP
-model RTPConfig {
-  id                String   @id @default(uuid())
-  rtp_target        Float    @default(50.0) // RTP alvo em % (10-90%)
-  rtp_recommended   Float?   // RTP recomendado pelo sistema
-  created_at        DateTime @default(now())
-  updated_at        DateTime @default(now()) @updatedAt
-  updated_by        String?  // ID do admin que fez a alteração
-  
-  // Relacionamentos
-  history           RTPHistory[]
-  
-  @@map("rtp_config")
-}
-
-// Modelo para controle centralizado do caixa líquido da plataforma
-model CaixaLiquido {
-  id                String   @id @default(uuid())
-  total_depositos   Float    @default(0)
-  fundos_teste     Float    @default(0)
-  total_saques      Float    @default(0)
-  total_comissoes  Float    @default(0)
-  caixa_liquido     Float    @default(0)
-  ultima_atualizacao DateTime @default(now()) @updatedAt
-  
-  @@map("caixa_liquido")
-}
-
-// Modelo para logs detalhados de sorteios globais
-model DrawLog {
-  id                String   @id @default(uuid())
-  user_id           String
-  case_id           String
-  rtp_config        Float    // RTP configurado no momento do sorteio
-  caixa_liquido_before Float // Caixa líquido antes do sorteio
-  caixa_liquido_after Float  // Caixa líquido após o sorteio
-  prize_selected_id String?  // ID do prêmio selecionado
-  prize_value       Float    // Valor do prêmio
-  protection_applied Boolean @default(false) // Se proteção foi aplicada
-  retry_count       Int      @default(0) // Número de tentativas
-  processing_time_ms Int    // Tempo de processamento em ms
-  success           Boolean  @default(false) // Se o sorteio foi bem-sucedido
-  error_message     String?  // Mensagem de erro se houver
-  created_at        DateTime @default(now())
-  
-  @@map("draw_logs")
-}
-
-// Histórico de alterações do RTP para auditoria
-model RTPHistory {
-  id                String   @id @default(uuid())
-  rtp_config_id     String
-  old_rtp           Float
-  new_rtp           Float
-  change_type       String   // 'manual' ou 'recommendation'
-  reason            String?
-  changed_by        String?  // ID do admin que fez a alteração
-  created_at        DateTime @default(now())
-  
-  // Relacionamentos
-  rtp_config        RTPConfig @relation(fields: [rtp_config_id], references: [id], onDelete: Cascade)
-  
-  @@map("rtp_history")
-}
-
-model AffiliateWithdrawal {
-  id               String   @id @default(uuid())
-  affiliate_id     String
-  valor            Float
-  pix_key          String
-  pix_key_type     String
-  status           String   @default("pendente") // pendente, processado, cancelado
-  criado_em        DateTime @default(now())
-  processado_em    DateTime?
-  
-  // Relacionamentos
-  affiliate        Affiliate @relation(fields: [affiliate_id], references: [id], onDelete: Cascade)
-  
-  @@map("affiliate_withdrawals")
-}
-
-model AffiliateCommission {
-  id               String   @id @default(uuid())
-  affiliate_id     String
-  referred_user_id String
-  valor            Float
-  status           String   @default("creditado") // creditado, pago, cancelado
-  criado_em        DateTime @default(now())
-  
-  // Relacionamentos
-  affiliate        Affiliate @relation(fields: [affiliate_id], references: [id], onDelete: Cascade)
-  referred_user    User      @relation("ReferredUser", fields: [referred_user_id], references: [id], onDelete: Cascade)
-  
-  @@map("affiliate_commissions")
-}
-
-model Payment {
-  id                String   @id @default(uuid())
-  user_id           String
-  tipo              String   // deposito, saque
-  valor             Float
-  status            String   @default("pendente") // pendente, processando, concluido, cancelado, falhou
-  metodo_pagamento  String   // pix, boleto, cartao
-  gateway_id        String?  // ID da transação no gateway
-  gateway_response  String?  // Resposta completa do gateway (JSON)
-  pix_key           String?  // Para saques
-  pix_key_type      String?  // Para saques
-  qr_code           String?  // QR Code para PIX
-  pix_copy_paste    String?  // Código PIX copia e cola
-  boleto_url        String?  // URL do boleto
-  boleto_barcode    String?  // Código de barras do boleto
-  
-  // Campos específicos do VizzionPay
-  vizzionpay_transaction_id String? // ID da transação no VizzionPay
-  vizzionpay_status         String? // Status retornado pelo VizzionPay
-  vizzionpay_callback_data  String? // Dados completos do callback
-  
-  criado_em         DateTime @default(now())
-  processado_em     DateTime?
-  expira_em         DateTime?
-  
-  // Relacionamentos
-  user              User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  
-  @@map("payments")
-}
-
-
-// Modelo para logs de atividades administrativas
-model AdminLog {
-  id          String   @id @default(uuid())
-  admin_id    String   // ID do administrador que executou a ação
-  acao        String   // Tipo de ação executada
-  descricao   String   // Descrição da ação
-  dados_antes String?  // Dados antes da alteração (JSON)
-  dados_depois String? // Dados após a alteração (JSON)
-  usuario_afetado_id String? // ID do usuário afetado pela ação
-  ip_address  String?  // IP de onde veio a ação
-  user_agent  String?  // User agent do navegador
-  criado_em   DateTime @default(now())
-  
-  @@map("admin_logs")
-}
-
-// Modelo para configurações do sistema
-model SystemConfig {
-  id          String   @id @default(uuid())
-  chave       String   @unique
-  valor       String
-  descricao   String?
-  tipo        String   @default("string") // string, number, boolean, json
-  atualizado_em DateTime @default(now()) @updatedAt
-  
-  @@map("system_configs")
-}
-
-// Modelo para banners/personalização
-model Banner {
-  id          String   @id @default(uuid())
-  nome        String
-  tipo        String   // header, footer, sidebar, popup
-  imagem_url  String
-  link_url    String?
-  ativo       Boolean  @default(true)
-  ordem       Int      @default(0)
-  criado_em   DateTime @default(now())
-  atualizado_em DateTime @default(now()) @updatedAt
-  
-  @@map("banners")
-}
-
-// Modelo para histórico de login dos usuários
-model LoginHistory {
-  id          String   @id @default(uuid())
-  user_id     String
-  ip_address  String
-  user_agent  String?
-  sucesso     Boolean  @default(true)
-  criado_em   DateTime @default(now())
-  
-  // Relacionamentos
-  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  
-  @@map("login_history")
-}
-
-// Modelo para controle de RTP por sessão de usuário
-model UserRTPSession {
-  id                String   @id @default(uuid())
-  user_id           String
-  case_id           String
-  session_start     DateTime @default(now())
-  session_end       DateTime?
-  total_gasto       Float    @default(0) // Total gasto pelo usuário nesta sessão
-  total_premios     Float    @default(0) // Total de prêmios recebidos nesta sessão
-  rtp_atual         Float    @default(0) // RTP atual da sessão (total_premios / total_gasto * 100)
-  rtp_limite        Float    @default(50.0) // Limite de RTP configurado
-  limite_atingido   Boolean  @default(false) // Se atingiu o limite de RTP
-  ultima_atualizacao DateTime @default(now()) @updatedAt
-  
-  // Relacionamentos
-  user              User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  case              Case     @relation(fields: [case_id], references: [id], onDelete: Cascade)
-  
-  @@map("user_rtp_sessions")
-}
-
-// Modelo para prêmios ilustrativos (não sortáveis)
-model IllustrativePrize {
-  id                String   @id @default(uuid())
-  case_id           String
-  nome              String
-  valor             Float
-  imagem_url        String?
-  descricao         String?
-  ativo             Boolean  @default(true)
-  criado_em         DateTime @default(now())
-  
-  // Relacionamentos
-  case              Case     @relation(fields: [case_id], references: [id], onDelete: Cascade)
-  
-  @@map("illustrative_prizes")
-}
-
-model UserSession {
-  id                    String   @id @default(uuid())
-  user_id               String
-  deposito_inicial      Float    // Valor do depósito que iniciou a sessão
-  limite_retorno        Float    // deposito_inicial * (RTP/100)
-  valor_premios_recebidos Float  @default(0) // Total de prêmios já creditados nesta sessão
-  valor_gasto_caixas    Float    @default(0) // Total gasto em abertura de caixas
-  rtp_configurado       Float    // RTP que estava configurado quando a sessão foi criada
-  ativo                 Boolean  @default(true)
-  criado_em             DateTime @default(now())
-  finalizado_em         DateTime?
-  
-  // Relacionamentos
-  user                  User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  transactions          Transaction[]
-  purchase_audits       PurchaseAudit[]
-  
-  @@map("user_sessions")
-}
-
-// Modelo para auditoria de compras
-model PurchaseAudit {
-  id                    String   @id @default(uuid())
-  purchase_id           String   @unique // ID único da compra para idempotência
-  idempotency_key       String?  @unique // Chave adicional de idempotência
-  user_id               String
-  session_id            String?
-  caixas_compradas      String   // JSON com array de {caixaId, quantidade, preco}
-  total_preco           Float    // Total cobrado do usuário
-  soma_premios          Float    @default(0) // Total de prêmios creditados
-  saldo_antes           Float    // Saldo do usuário antes da compra
-  saldo_depois          Float    // Saldo do usuário após a compra
-  status                String   @default("concluido") // concluido, investigar, erro
-  tipo_conta            String   @default("normal") // normal, afiliado_demo
-  premios_detalhados    String?  // JSON com detalhes dos prêmios sorteados
-  erro_detalhes         String?  // Detalhes do erro se houver
-  criado_em             DateTime @default(now())
-  
-  // Relacionamentos
-  user                  User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  session               UserSession? @relation(fields: [session_id], references: [id], onDelete: Cascade)
-  
-  @@map("purchase_audit")
-}
-
-// Modelo para logs de anomalias de preço
-model PurchaseAnomaly {
-  id                    String   @id @default(uuid())
-  user_id               String
-  caixa_id              String
-  quantidade            Int
-  preco_esperado        Float    // Preço que deveria ser cobrado
-  preco_cobrado         Float    // Preço que foi realmente cobrado
-  diferenca             Float    // Diferença entre esperado e cobrado
-  descricao             String   // Descrição da anomalia
-  criado_em             DateTime @default(now())
-  
-  @@map("purchase_anomalies")
-}
-
-// Modelo para configurações de gateway de pagamento
-model GatewayConfig {
-  id                    String   @id @default(uuid())
-  gateway_name          String   @unique // vizzionpay, mercadopago, pagseguro
-  is_active             Boolean  @default(false) // Se o gateway está ativo
-  api_key               String?  // Chave de API
-  public_key            String?  // Chave pública
-  webhook_secret        String?  // Chave secreta do webhook
-  base_url              String?  // URL base da API
-  pix_key               String?  // Chave PIX para depósitos
-  pix_key_type          String?  // Tipo da chave PIX (email, cpf, telefone, aleatoria)
-  webhook_url           String?  // URL do webhook configurada
-  redirect_url          String?  // URL de redirecionamento
-  sandbox_mode          Boolean  @default(true) // Se está em modo sandbox/teste
-  min_deposit           Float    @default(20.00) // Valor mínimo para depósito
-  max_deposit           Float    @default(10000.00) // Valor máximo para depósito
-  min_withdraw          Float    @default(50.00) // Valor mínimo para saque
-  max_withdraw          Float    @default(5000.00) // Valor máximo para saque
-  deposit_fee           Float    @default(0.00) // Taxa de depósito (%)
-  withdraw_fee          Float    @default(0.00) // Taxa de saque (%)
-  deposit_timeout       Int      @default(3600) // Timeout para depósito (segundos)
-  withdraw_timeout      Int      @default(86400) // Timeout para saque (segundos)
-  supported_methods     String   @default("pix") // Métodos suportados (JSON array)
-  config_data           String?  // Dados adicionais de configuração (JSON)
-  created_at            DateTime @default(now())
-  updated_at            DateTime @default(now()) @updatedAt
-  updated_by            String?  // ID do admin que fez a última atualização
-  
-  @@map("gateway_configs")
-}
-
-// Tabela para transações demo (isoladas)
 model TransactionDemo {
   id          String   @id @default(uuid())
   user_id     String
-  tipo        String
+  tipo        String   // 'aposta', 'premio'
   valor       Float
-  nota        String?
-  created_at  DateTime @default(now())
-  
+  saldo_antes Float
+  saldo_depois Float
+  descricao   String?
+  criado_em   DateTime @default(now())
+
   // Relacionamentos
   user        User     @relation("DemoTransactions", fields: [user_id], references: [id], onDelete: Cascade)
-  
-  @@map("transactions_demo")
 }
 
-// Configuração global de RTP
-model GlobalRTPConfig {
-  id              String   @id @default(uuid())
-  rtp_global      Float    @default(10.0) // RTP global em %
-  rtp_demo        Float    @default(70.0) // RTP para contas demo
-  limite_sessao_demo Float @default(100.0) // Limite por sessão demo
-  updated_at      DateTime @default(now()) @updatedAt
-  updated_by      String?
-  
-  @@map("global_rtp_config")
-}
+model Case {
+  id          String   @id @default(uuid())
+  nome        String
+  descricao   String?
+  preco       Float
+  imagem      String?
+  ativo       Boolean  @default(true)
+  criado_em   DateTime @default(now())
+  atualizado_em DateTime @updatedAt
 
-// Logs detalhados de sorteio
-model DrawDetailedLog {
-  id                      String   @id @default(uuid())
-  user_id                 String
-  case_id                 String
-  session_id              String?
-  purchase_id             String?
-  rtp_config              Float
-  expected_value          Float
-  scaling_factor          Float
-  random_value            Float
-  result_type             String   // 'PAID' ou 'ILLUSTRATIVE'
-  prize_id                String?
-  prize_value             Float    @default(0)
-  session_remaining_before Float
-  session_remaining_after Float
-  processing_time_ms      Int
-  created_at              DateTime @default(now())
-  
   // Relacionamentos
-  user                    User     @relation("DetailedDrawLogs", fields: [user_id], references: [id], onDelete: Cascade)
-  
-  @@map("draw_detailed_logs")
+  prizes      Prize[]
 }
 
+model Prize {
+  id          String   @id @default(uuid())
+  case_id     String
+  nome        String
+  descricao   String?
+  valor       Float
+  probabilidade Float  // 0.0 a 1.0
+  imagem      String?
+  ativo       Boolean  @default(true)
+  criado_em   DateTime @default(now())
 
+  // Relacionamentos
+  case        Case     @relation(fields: [case_id], references: [id], onDelete: Cascade)
+}
+
+model Affiliate {
+  id          String   @id @default(uuid())
+  user_id     String   @unique
+  codigo_referencia String @unique
+  link_referencia String @unique
+  total_indicados Int   @default(0)
+  total_comissoes Float @default(0)
+  comissoes_pagas Float @default(0)
+  ativo       Boolean  @default(true)
+  criado_em   DateTime @default(now())
+  atualizado_em DateTime @updatedAt
+
+  // Relacionamentos
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  indicados   AffiliateHistory[] @relation("Afiliado")
+  comissoes   AffiliateCommission[] @relation("Afiliado")
+}
+
+model AffiliateHistory {
+  id          String   @id @default(uuid())
+  affiliate_id String
+  indicado_id String
+  valor_deposito Float
+  comissao    Float
+  status      String   @default('pendente') // 'pendente', 'pago'
+  criado_em   DateTime @default(now())
+  pago_em     DateTime?
+
+  // Relacionamentos
+  affiliate   Affiliate @relation("Afiliado", fields: [affiliate_id], references: [id], onDelete: Cascade)
+  indicado    User      @relation("Indicado", fields: [indicado_id], references: [id], onDelete: Cascade)
+}
+
+model AffiliateCommission {
+  id          String   @id @default(uuid())
+  affiliate_id String
+  user_id     String
+  valor       Float
+  status      String   @default('pendente') // 'pendente', 'pago'
+  criado_em   DateTime @default(now())
+  pago_em     DateTime?
+
+  // Relacionamentos
+  affiliate   Affiliate @relation("Afiliado", fields: [affiliate_id], references: [id], onDelete: Cascade)
+  user        User      @relation("ReferredUser", fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id          String   @id @default(uuid())
+  user_id     String
+  tipo        String   // 'deposito', 'saque'
+  valor       Float
+  metodo      String   // 'pix', 'boleto', 'cartao'
+  status      String   @default('pendente') // 'pendente', 'aprovado', 'rejeitado'
+  referencia  String?  // ID da transação externa
+  dados_pagamento Json? // Dados específicos do método de pagamento
+  criado_em   DateTime @default(now())
+  processado_em DateTime?
+
+  // Relacionamentos
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model LoginHistory {
+  id          String   @id @default(uuid())
+  user_id     String
+  ip_address  String?
+  user_agent  String?
+  sucesso     Boolean
+  criado_em   DateTime @default(now())
+
+  // Relacionamentos
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model UserRTPSession {
+  id          String   @id @default(uuid())
+  user_id     String
+  session_id  String
+  rtp_target  Float    @default(10.0)
+  total_apostado Float @default(0)
+  total_ganho Float    @default(0)
+  rtp_atual   Float    @default(0)
+  ativo       Boolean  @default(true)
+  criado_em   DateTime @default(now())
+  finalizado_em DateTime?
+
+  // Relacionamentos
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model UserSession {
+  id          String   @id @default(uuid())
+  user_id     String
+  session_id  String
+  ativo       Boolean  @default(true)
+  criado_em   DateTime @default(now())
+  expira_em   DateTime
+
+  // Relacionamentos
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model DrawDetailedLog {
+  id          String   @id @default(uuid())
+  user_id     String
+  case_id     String
+  prize_id    String?
+  valor_apostado Float
+  valor_ganho Float
+  rtp_target  Float
+  rtp_atual   Float
+  probabilidade Float
+  ganhou      Boolean
+  session_id  String?
+  criado_em   DateTime @default(now())
+
+  // Relacionamentos
+  user        User     @relation("DetailedDrawLogs", fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model RTPConfig {
+  id          String   @id @default(uuid())
+  rtp_target  Float    @default(10.0)
+  ativo       Boolean  @default(true)
+  criado_em   DateTime @default(now())
+  atualizado_em DateTime @updatedAt
+}
