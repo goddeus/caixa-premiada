@@ -48,3 +48,6 @@
 - ❌ `recreate-essential-accounts.js` (duplica contas)
 
 **Execute o setup UMA VEZ e o sistema funcionará perfeitamente!** 🎉
+
+---
+*Última atualização: 2025-01-12 - Fix para plano gratuito do Render*
