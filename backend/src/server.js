@@ -1462,6 +1462,68 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Rota para inicializar banco (apenas em produção)
+app.post('/api/init-db', async (req, res) => {
+  try {
+    const { PrismaClient } = require('@prisma/client');
+    const bcrypt = require('bcrypt');
+    const prisma = new PrismaClient();
+    
+    // Verificar se admin já existe
+    const existingAdmin = await prisma.user.findFirst({
+      where: { email: 'admin@slotbox.shop' }
+    });
+    
+    if (!existingAdmin) {
+      const adminPassword = await bcrypt.hash('admin123456', 10);
+      
+      const admin = await prisma.user.create({
+        data: {
+          nome: 'Administrador',
+          email: 'admin@slotbox.shop',
+          senha_hash: adminPassword,
+          cpf: '00000000000',
+          is_admin: true,
+          saldo_reais: 10000.00,
+          primeiro_deposito_feito: true,
+          rollover_liberado: true
+        }
+      });
+      
+      await prisma.wallet.create({
+        data: {
+          user_id: admin.id,
+          saldo_reais: 10000.00
+        }
+      });
+      
+      await prisma.$disconnect();
+      
+      res.json({
+        success: true,
+        message: 'Banco inicializado com sucesso!',
+        admin: {
+          email: 'admin@slotbox.shop',
+          senha: 'admin123456'
+        }
+      });
+    } else {
+      await prisma.$disconnect();
+      res.json({
+        success: true,
+        message: 'Banco já foi inicializado anteriormente'
+      });
+    }
+  } catch (error) {
+    console.error('Erro ao inicializar banco:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao inicializar banco',
+      error: error.message
+    });
+  }
+});
+
 // Rota de teste do banco
 app.get('/api/db-test', async (req, res) => {
   try {
