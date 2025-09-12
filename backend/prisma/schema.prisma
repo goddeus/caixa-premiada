@@ -76,13 +76,13 @@ model Wallet {
 model Transaction {
   id          String   @id @default(uuid())
   user_id     String
-  tipo        String   // 'deposito', 'saque', 'aposta', 'premio', 'comissao'
+  tipo        String, 'aposta', 'premio', 'comissao'
   valor       Float
   saldo_antes Float
   saldo_depois Float
   descricao   String?
-  status      String   @default('pendente') // 'pendente', 'aprovado', 'rejeitado'
-  referencia  String?  // ID da transação externa
+  status      String   @default('pendente')
+  referencia  String?
   criado_em   DateTime @default(now())
   processado_em DateTime?
 
@@ -157,7 +157,7 @@ model AffiliateHistory {
   indicado_id String
   valor_deposito Float
   comissao    Float
-  status      String   @default('pendente') // 'pendente', 'pago'
+  status      String   @default('pendente')
   criado_em   DateTime @default(now())
   pago_em     DateTime?
 
@@ -171,7 +171,7 @@ model AffiliateCommission {
   affiliate_id String
   user_id     String
   valor       Float
-  status      String   @default('pendente') // 'pendente', 'pago'
+  status      String   @default('pendente')
   criado_em   DateTime @default(now())
   pago_em     DateTime?
 
@@ -183,12 +183,12 @@ model AffiliateCommission {
 model Payment {
   id          String   @id @default(uuid())
   user_id     String
-  tipo        String   // 'deposito', 'saque'
+  tipo        String
   valor       Float
-  metodo      String   // 'pix', 'boleto', 'cartao'
-  status      String   @default('pendente') // 'pendente', 'aprovado', 'rejeitado'
-  referencia  String?  // ID da transação externa
-  dados_pagamento Json? // Dados específicos do método de pagamento
+  metodo      String
+  status      String   @default('pendente')
+  referencia  String?
+  dados_pagamento Json?
   criado_em   DateTime @default(now())
   processado_em DateTime?
 
