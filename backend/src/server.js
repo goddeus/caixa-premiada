@@ -115,6 +115,33 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Rota de teste do banco
+app.get('/api/db-test', async (req, res) => {
+  try {
+    const { PrismaClient } = require('@prisma/client');
+    const prisma = new PrismaClient();
+    
+    // Teste simples de conexão
+    await prisma.$connect();
+    
+    res.json({
+      success: true,
+      message: 'Database conectado com sucesso',
+      database_url: config.database.url ? 'Configurado' : 'Não configurado'
+    });
+    
+    await prisma.$disconnect();
+  } catch (error) {
+    console.error('Erro de conexão com o banco:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro de conexão com o banco',
+      error: error.message,
+      database_url: config.database.url ? 'Configurado' : 'Não configurado'
+    });
+  }
+});
+
 // Rota raiz
 app.get('/', (req, res) => {
   res.json({
