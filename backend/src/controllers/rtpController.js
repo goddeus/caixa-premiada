@@ -129,4 +129,4 @@ class RTPController {
   }
 }
 
-module.exports = new RTPController();
+module.exports = RTPController;

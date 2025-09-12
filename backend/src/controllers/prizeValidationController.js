@@ -112,5 +112,5 @@ class PrizeValidationController {
   }
 }
 
-module.exports = new PrizeValidationController();
+module.exports = PrizeValidationController;
 

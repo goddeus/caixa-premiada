@@ -124,4 +124,4 @@ class CashFlowController {
   }
 }
 
-module.exports = new CashFlowController();
+module.exports = CashFlowController;

@@ -169,4 +169,4 @@ class PrizeAuditController {
   }
 }
 
-module.exports = new PrizeAuditController();
+module.exports = PrizeAuditController;

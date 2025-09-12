@@ -229,4 +229,4 @@ class ProfileController {
   }
 }
 
-module.exports = new ProfileController();
+module.exports = ProfileController;

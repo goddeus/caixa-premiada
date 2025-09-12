@@ -348,4 +348,4 @@ class GatewayConfigController {
   }
 }
 
-module.exports = new GatewayConfigController();
+module.exports = GatewayConfigController;

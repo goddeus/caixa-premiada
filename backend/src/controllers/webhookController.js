@@ -115,4 +115,4 @@ class WebhookController {
   }
 }
 
-module.exports = new WebhookController();
+module.exports = WebhookController;

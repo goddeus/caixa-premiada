@@ -329,4 +329,4 @@ class PrizeSyncController {
   }
 }
 
-module.exports = new PrizeSyncController();
+module.exports = PrizeSyncController;

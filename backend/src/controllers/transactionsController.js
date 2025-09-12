@@ -186,4 +186,4 @@ class TransactionsController {
   }
 }
 
-module.exports = new TransactionsController();
+module.exports = TransactionsController;

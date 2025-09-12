@@ -1,0 +1,261 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+/// @seed="node prisma/seed.js"
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(uuid())
+  nome        String
+  email       String   @unique
+  senha_hash  String
+  cpf         String   @unique
+  saldo       Float    @default(0)
+  saldo_reais Float    @default(0) // Saldo em reais (separado do demo)
+  codigo_indicacao_usado String? // Código usado para se cadastrar
+  criado_em   DateTime @default(now())
+  is_admin    Boolean  @default(false)
+  ativo       Boolean  @default(true) // Para banir/desbanir usuários
+  banido_em   DateTime? // Data em que foi banido
+  motivo_ban  String?   // Motivo do banimento
+  ultimo_login DateTime? // Último login do usuário
+  
+  // Sistema de Rollover
+  total_giros Float    @default(0) // Total apostado pelo usuário
+  rollover_liberado Boolean @default(false) // Se atingiu o rollover mínimo
+  rollover_minimo Float @default(20.00) // Valor mínimo para liberar saques
+  primeiro_deposito_feito Boolean @default(false) // Se já fez o primeiro depósito
+  
+  // Sistema de Contas Demo
+  tipo_conta  String   @default("normal") // normal, afiliado_demo
+  affiliate_id String? // ID do afiliado que indicou este usuário
+  saldo_demo  Float    @default(0) // Saldo para contas demo (isolado do saldo real)
+  
+  // Relacionamentos
+  wallet      Wallet?
+  transactions Transaction[]
+  transactions_demo TransactionDemo[] @relation("DemoTransactions")
+  draw_detailed_logs DrawDetailedLog[] @relation("DetailedDrawLogs")
+  affiliate   Affiliate?
+  affiliate_history AffiliateHistory[] @relation("Indicado")
+  affiliate_commissions AffiliateCommission[] @relation("ReferredUser")
+  payments    Payment[]
+  login_history LoginHistory[]
+  rtp_sessions UserRTPSession[]
+  sessions    UserSession[]
+}
+
+model Wallet {
+  id          String   @id @default(uuid())
+  user_id     String   @unique
+  saldo       Float    @default(0)
+  saldo_reais Float    @default(0)
+  saldo_demo  Float    @default(0)
+  total_giros Float    @default(0)
+  rollover_liberado Boolean @default(false)
+  rollover_minimo Float @default(20.00)
+  primeiro_deposito_feito Boolean @default(false)
+  criado_em   DateTime @default(now())
+  atualizado_em DateTime @updatedAt
+
+  // Relacionamentos
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model Transaction {
+  id          String   @id @default(uuid())
+  user_id     String
+  tipo        String
+  valor       Float
+  saldo_antes Float
+  saldo_depois Float
+  descricao   String?
+  status      String   @default("pendente")
+  referencia  String?
+  criado_em   DateTime @default(now())
+  processado_em DateTime?
+
+  // Relacionamentos
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model TransactionDemo {
+  id          String   @id @default(uuid())
+  user_id     String
+  tipo        String   // 'aposta', 'premio'
+  valor       Float
+  saldo_antes Float
+  saldo_depois Float
+  descricao   String?
+  criado_em   DateTime @default(now())
+
+  // Relacionamentos
+  user        User     @relation("DemoTransactions", fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model Case {
+  id          String   @id @default(uuid())
+  nome        String
+  descricao   String?
+  preco       Float
+  imagem      String?
+  ativo       Boolean  @default(true)
+  criado_em   DateTime @default(now())
+  atualizado_em DateTime @updatedAt
+
+  // Relacionamentos
+  prizes      Prize[]
+}
+
+model Prize {
+  id          String   @id @default(uuid())
+  case_id     String
+  nome        String
+  descricao   String?
+  valor       Float
+  probabilidade Float  // 0.0 a 1.0
+  imagem      String?
+  ativo       Boolean  @default(true)
+  criado_em   DateTime @default(now())
+
+  // Relacionamentos
+  case        Case     @relation(fields: [case_id], references: [id], onDelete: Cascade)
+}
+
+model Affiliate {
+  id          String   @id @default(uuid())
+  user_id     String   @unique
+  codigo_referencia String @unique
+  link_referencia String @unique
+  total_indicados Int   @default(0)
+  total_comissoes Float @default(0)
+  comissoes_pagas Float @default(0)
+  ativo       Boolean  @default(true)
+  criado_em   DateTime @default(now())
+  atualizado_em DateTime @updatedAt
+
+  // Relacionamentos
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  indicados   AffiliateHistory[] @relation("Afiliado")
+  comissoes   AffiliateCommission[] @relation("Afiliado")
+}
+
+model AffiliateHistory {
+  id          String   @id @default(uuid())
+  affiliate_id String
+  indicado_id String
+  valor_deposito Float
+  comissao    Float
+  status      String   @default("pendente")
+  criado_em   DateTime @default(now())
+  pago_em     DateTime?
+
+  // Relacionamentos
+  affiliate   Affiliate @relation("Afiliado", fields: [affiliate_id], references: [id], onDelete: Cascade)
+  indicado    User      @relation("Indicado", fields: [indicado_id], references: [id], onDelete: Cascade)
+}
+
+model AffiliateCommission {
+  id          String   @id @default(uuid())
+  affiliate_id String
+  user_id     String
+  valor       Float
+  status      String   @default("pendente")
+  criado_em   DateTime @default(now())
+  pago_em     DateTime?
+
+  affiliate   Affiliate @relation("Afiliado", fields: [affiliate_id], references: [id], onDelete: Cascade)
+  user        User      @relation("ReferredUser", fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id          String   @id @default(uuid())
+  user_id     String
+  tipo        String
+  valor       Float
+  metodo      String
+  status      String   @default("pendente")
+  referencia  String?
+  dados_pagamento Json?
+  criado_em   DateTime @default(now())
+  processado_em DateTime?
+
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model LoginHistory {
+  id          String   @id @default(uuid())
+  user_id     String
+  ip_address  String?
+  user_agent  String?
+  sucesso     Boolean
+  criado_em   DateTime @default(now())
+
+  // Relacionamentos
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model UserRTPSession {
+  id          String   @id @default(uuid())
+  user_id     String
+  session_id  String
+  rtp_target  Float    @default(10.0)
+  total_apostado Float @default(0)
+  total_ganho Float    @default(0)
+  rtp_atual   Float    @default(0)
+  ativo       Boolean  @default(true)
+  criado_em   DateTime @default(now())
+  finalizado_em DateTime?
+
+  // Relacionamentos
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model UserSession {
+  id          String   @id @default(uuid())
+  user_id     String
+  session_id  String
+  ativo       Boolean  @default(true)
+  criado_em   DateTime @default(now())
+  expira_em   DateTime
+
+  // Relacionamentos
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model DrawDetailedLog {
+  id          String   @id @default(uuid())
+  user_id     String
+  case_id     String
+  prize_id    String?
+  valor_apostado Float
+  valor_ganho Float
+  rtp_target  Float
+  rtp_atual   Float
+  probabilidade Float
+  ganhou      Boolean
+  session_id  String?
+  criado_em   DateTime @default(now())
+
+  // Relacionamentos
+  user        User     @relation("DetailedDrawLogs", fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model RTPConfig {
+  id          String   @id @default(uuid())
+  rtp_target  Float    @default(10.0)
+  ativo       Boolean  @default(true)
+  criado_em   DateTime @default(now())
+  atualizado_em DateTime @updatedAt
+}

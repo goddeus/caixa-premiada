@@ -908,5 +908,5 @@ class CasesController {
   }
 }
 
-module.exports = new CasesController();
+module.exports = CasesController;
 

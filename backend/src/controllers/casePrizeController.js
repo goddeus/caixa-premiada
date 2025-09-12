@@ -308,4 +308,4 @@ class CasePrizeController {
   }
 }
 
-module.exports = new CasePrizeController();
+module.exports = CasePrizeController;

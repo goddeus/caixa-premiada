@@ -120,4 +120,4 @@ class PrizeController {
   }
 }
 
-module.exports = new PrizeController();
+module.exports = PrizeController;
