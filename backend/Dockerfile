@@ -1,7 +1,10 @@
-FROM node:18-alpine
+FROM node:18-slim
 
-# Instalar OpenSSL para compatibilidade com Prisma
-RUN apk add --no-cache openssl1.1-compat
+# Instalar dependências necessárias para Prisma
+RUN apt-get update && apt-get install -y \
+    openssl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 # Definir diretório de trabalho
 WORKDIR /app
