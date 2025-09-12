@@ -5,25 +5,6 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const config = require('./config/index');
 
-// Importar rotas
-const authRoutes = require('./routes/auth');
-const caixasRoutes = require('./routes/caixas');
-const paymentsRoutes = require('./routes/payments');
-const affiliateRoutes = require('./routes/affiliate');
-const adminRoutes = require('./routes/admin');
-const walletRoutes = require('./routes/wallet');
-const transactionsRoutes = require('./routes/transactions');
-const profileRoutes = require('./routes/profile');
-const casesRoutes = require('./routes/cases');
-const prizesRoutes = require('./routes/prizes');
-const bulkPurchaseRoutes = require('./routes/bulkPurchase');
-const imageUploadRoutes = require('./routes/imageUpload');
-const gatewayConfigRoutes = require('./routes/gatewayConfig');
-const casePrizeRoutes = require('./routes/casePrize');
-const prizeAuditRoutes = require('./routes/prizeAudit');
-const prizeSyncRoutes = require('./routes/prizeSync');
-const prizeValidationRoutes = require('./routes/prizeValidation');
-
 const app = express();
 
 // Middleware de segurança
@@ -61,16 +42,6 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-// Rate limiting mais restritivo para auth
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10, // máximo 10 tentativas de login por IP por janela
-  message: {
-    success: false,
-    message: 'Muitas tentativas de login. Tente novamente em 15 minutos.'
-  }
-});
-
 // Middleware para parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -85,25 +56,6 @@ app.use((req, res, next) => {
   console.log(`[${timestamp}] ${req.method} ${req.path} - ${ip}`);
   next();
 });
-
-// Rotas da API
-app.use('/api/auth', authLimiter, authRoutes);
-app.use('/api/caixas', caixasRoutes);
-app.use('/api/payments', paymentsRoutes);
-app.use('/api/affiliate', affiliateRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/wallet', walletRoutes);
-app.use('/api/transactions', transactionsRoutes);
-app.use('/api/profile', profileRoutes);
-app.use('/api/cases', casesRoutes);
-app.use('/api/prizes', prizesRoutes);
-app.use('/api/bulk-purchase', bulkPurchaseRoutes);
-app.use('/api/upload', imageUploadRoutes);
-app.use('/api/gateway-config', gatewayConfigRoutes);
-app.use('/api/admin/case-prizes', casePrizeRoutes);
-app.use('/api/admin/prize-audit', prizeAuditRoutes);
-app.use('/api/admin/prize-sync', prizeSyncRoutes);
-app.use('/api/admin/prize-validation', prizeValidationRoutes);
 
 // Rota de saúde
 app.get('/api/health', (req, res) => {
