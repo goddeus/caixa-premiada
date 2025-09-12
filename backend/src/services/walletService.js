@@ -382,7 +382,7 @@ class WalletService {
         await tx.affiliateCommission.create({
           data: {
             affiliate_id: user.affiliate_id,
-            referred_user_id: userId,
+            user_id: userId,
             valor: commissionAmount,
             status: 'pago'
           }

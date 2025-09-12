@@ -55,7 +55,7 @@ class AffiliateService {
         const existingCommission = await tx.affiliateCommission.findFirst({
           where: {
             affiliate_id: affiliate.id,
-            referred_user_id: userId
+            user_id: userId
           }
         });
         
@@ -70,7 +70,7 @@ class AffiliateService {
         const commission = await tx.affiliateCommission.create({
           data: {
             affiliate_id: affiliate.id,
-            referred_user_id: userId,
+            user_id: userId,
             valor: commissionValue,
             status: 'creditado'
           }
@@ -111,7 +111,7 @@ class AffiliateService {
             indicado_id: userId,
             deposito_valido: true,
             valor_deposito: depositValue,
-            comissao_gerada: commissionValue,
+            comissao: commissionValue,
             status: 'pago'
           }
         });
@@ -129,7 +129,7 @@ class AffiliateService {
    */
   static async isFirstValidDeposit(tx, userId, currentDepositValue) {
     // Buscar depósitos anteriores válidos (>= R$ 20)
-    const previousValidDeposits = await tx.payment.count({
+    const previousValidDeposits = await tx.transaction.count({
       where: {
         user_id: userId,
         tipo: 'deposito',
@@ -227,17 +227,17 @@ class AffiliateService {
         user: {
           select: { nome: true, email: true }
         },
-        affiliate_history: {
+        indicados: {
           include: {
             indicado: {
               select: { nome: true, email: true }
             }
           },
-          orderBy: { data: 'desc' }
+          orderBy: { criado_em: 'desc' }
         },
-        commissions: {
+        comissoes: {
           include: {
-            referred_user: {
+            user: {
               select: { nome: true, email: true }
             }
           },
@@ -251,9 +251,9 @@ class AffiliateService {
     }
     
     // Calcular estatísticas
-    const totalIndicados = affiliate.affiliate_history.length;
-    const indicadosComDeposito = affiliate.affiliate_history.filter(h => h.deposito_valido).length;
-    const totalComissoes = affiliate.commissions.reduce((sum, c) => sum + Number(c.valor), 0);
+    const totalIndicados = affiliate.indicados.length;
+    const indicadosComDeposito = affiliate.indicados.filter(h => h.deposito_valido).length;
+    const totalComissoes = affiliate.comissoes.reduce((sum, c) => sum + Number(c.valor), 0);
     
     return {
       ...affiliate,

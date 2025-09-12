@@ -24,6 +24,7 @@ const prizeValidationRoutes = require('./routes/prizeValidation');
 const imageUploadRoutes = require('./routes/imageUpload');
 const gatewayConfigRoutes = require('./routes/gatewayConfig');
 const globalDrawRoutes = require('./routes/globalDraw');
+const seedRoutes = require('./routes/seedRoutes');
 
 const app = express();
 
@@ -1601,6 +1602,7 @@ app.use('/api/prize-validation', prizeValidationRoutes);
 app.use('/api/image-upload', imageUploadRoutes);
 app.use('/api/gateway-config', gatewayConfigRoutes);
 app.use('/api/global-draw', globalDrawRoutes);
+app.use('/api/seed', seedRoutes);
 
 // Middleware para rotas não encontradas
 app.use('*', (req, res) => {

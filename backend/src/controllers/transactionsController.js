@@ -1,6 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const affiliateService = require('../services/affiliateService');
+const AffiliateService = require('../services/affiliateService');
 
 class TransactionsController {
   // Buscar histórico de transações do usuário
@@ -162,7 +162,11 @@ class TransactionsController {
 
       // Processar comissão de afiliado se aplicável
       try {
-        const commissionResult = await affiliateService.processCommissionOnDeposit(userId, valor);
+        const commissionResult = await AffiliateService.processAffiliateCommission({
+          userId,
+          depositAmount: valor,
+          depositStatus: 'concluido'
+        });
         console.log('Comissão processada:', commissionResult);
       } catch (error) {
         console.log('Erro ao processar comissão (não crítico):', error.message);

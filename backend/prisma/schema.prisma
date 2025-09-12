@@ -136,11 +136,14 @@ model Prize {
 model Affiliate {
   id          String   @id @default(uuid())
   user_id     String   @unique
-  codigo_referencia String @unique
+  codigo_indicacao String @unique
   link_referencia String @unique
   total_indicados Int   @default(0)
   total_comissoes Float @default(0)
   comissoes_pagas Float @default(0)
+  ganhos      Float    @default(0)
+  saldo_disponivel Float @default(0)
+  total_sacado Float   @default(0)
   ativo       Boolean  @default(true)
   criado_em   DateTime @default(now())
   atualizado_em DateTime @updatedAt
@@ -158,6 +161,7 @@ model AffiliateHistory {
   valor_deposito Float
   comissao    Float
   status      String   @default("pendente")
+  deposito_valido Boolean @default(false)
   criado_em   DateTime @default(now())
   pago_em     DateTime?
 

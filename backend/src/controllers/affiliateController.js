@@ -119,7 +119,7 @@ class AffiliateController {
         prisma.affiliateHistory.count({
           where: { 
             affiliate_id: affiliate.id,
-            deposito_valido: true 
+            deposito_valido: true
           }
         }),
         
@@ -143,7 +143,7 @@ class AffiliateController {
         prisma.affiliateHistory.count({
           where: { 
             affiliate_id: affiliate.id,
-            data: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
+            criado_em: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
           }
         })
       ]);
@@ -218,7 +218,7 @@ class AffiliateController {
               }
             }
           },
-          orderBy: { data: 'desc' },
+          orderBy: { criado_em: 'desc' },
           skip,
           take: Number(limit)
         }),
@@ -290,7 +290,7 @@ class AffiliateController {
         prisma.affiliateCommission.findMany({
           where: { affiliate_id: affiliate.id },
           include: {
-            referred_user: {
+            user: {
               select: {
                 nome: true,
                 email: true
@@ -312,8 +312,8 @@ class AffiliateController {
         valor: Number(comm.valor),
         status: comm.status,
         usuario_indicado: {
-          nome: comm.referred_user.nome,
-          email: comm.referred_user.email.replace(/(.{2}).*(@.*)/, '$1***$2')
+          nome: comm.user.nome,
+          email: comm.user.email.replace(/(.{2}).*(@.*)/, '$1***$2')
         },
         data: comm.criado_em
       }));
