@@ -47,7 +47,7 @@ model User {
   transactions Transaction[]
   transactions_demo TransactionDemo[] @relation("DemoTransactions")
   draw_detailed_logs DrawDetailedLog[] @relation("DetailedDrawLogs")
-  affiliate   Affiliate? @relation(fields: [affiliate_id], references: [id])
+  affiliate   Affiliate?
   affiliate_history AffiliateHistory[] @relation("Indicado")
   affiliate_commissions AffiliateCommission[] @relation("ReferredUser")
   payments    Payment[]
