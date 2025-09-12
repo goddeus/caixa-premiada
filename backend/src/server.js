@@ -32,6 +32,34 @@ app.get('/api/test', (req, res) => {
   });
 });
 
+// Rota de teste do banco
+app.get('/api/db-test', async (req, res) => {
+  try {
+    const { PrismaClient } = require('@prisma/client');
+    const prisma = new PrismaClient();
+    
+    // Testar conexão
+    await prisma.$connect();
+    
+    // Contar usuários
+    const userCount = await prisma.user.count();
+    
+    await prisma.$disconnect();
+    
+    res.json({
+      success: true,
+      message: 'Banco funcionando',
+      totalUsers: userCount
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Erro no banco',
+      error: error.message
+    });
+  }
+});
+
 // Middleware de erro global
 app.use((err, req, res, next) => {
   console.error('Erro:', err);
