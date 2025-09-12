@@ -76,12 +76,12 @@ model Wallet {
 model Transaction {
   id          String   @id @default(uuid())
   user_id     String
-  tipo        String, 'aposta', 'premio', 'comissao'
+  tipo        String
   valor       Float
   saldo_antes Float
   saldo_depois Float
   descricao   String?
-  status      String   @default('pendente')
+  status      String   @default("pendente")
   referencia  String?
   criado_em   DateTime @default(now())
   processado_em DateTime?
@@ -157,7 +157,7 @@ model AffiliateHistory {
   indicado_id String
   valor_deposito Float
   comissao    Float
-  status      String   @default('pendente')
+  status      String   @default("pendente")
   criado_em   DateTime @default(now())
   pago_em     DateTime?
 
@@ -171,11 +171,10 @@ model AffiliateCommission {
   affiliate_id String
   user_id     String
   valor       Float
-  status      String   @default('pendente')
+  status      String   @default("pendente")
   criado_em   DateTime @default(now())
   pago_em     DateTime?
 
-  // Relacionamentos
   affiliate   Affiliate @relation("Afiliado", fields: [affiliate_id], references: [id], onDelete: Cascade)
   user        User      @relation("ReferredUser", fields: [user_id], references: [id], onDelete: Cascade)
 }
@@ -186,13 +185,12 @@ model Payment {
   tipo        String
   valor       Float
   metodo      String
-  status      String   @default('pendente')
+  status      String   @default("pendente")
   referencia  String?
   dados_pagamento Json?
   criado_em   DateTime @default(now())
   processado_em DateTime?
 
-  // Relacionamentos
   user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
 
