@@ -68,6 +68,49 @@ app.get('/api/vizzionpay-test', (req, res) => {
   });
 });
 
+// Rota de teste do banco
+app.get('/api/db-test', async (req, res) => {
+  try {
+    const { PrismaClient } = require('@prisma/client');
+    const prisma = new PrismaClient();
+    
+    // Testar conexão
+    await prisma.$connect();
+    
+    // Contar usuários
+    const userCount = await prisma.user.count();
+    
+    // Verificar se existem contas demo
+    const demoCount = await prisma.user.count({
+      where: { tipo_conta: 'afiliado_demo' }
+    });
+    
+    // Verificar se existem admins
+    const adminCount = await prisma.user.count({
+      where: { is_admin: true }
+    });
+    
+    await prisma.$disconnect();
+    
+    res.json({
+      success: true,
+      message: 'Banco funcionando',
+      stats: {
+        totalUsers: userCount,
+        demoAccounts: demoCount,
+        adminAccounts: adminCount,
+        setupComplete: userCount > 0
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Erro no banco',
+      error: error.message
+    });
+  }
+});
+
 // Middleware de erro global
 app.use((err, req, res, next) => {
   console.error('Erro:', err);

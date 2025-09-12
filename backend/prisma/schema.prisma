@@ -11,9 +11,8 @@ generator client {
 /// @seed="node prisma/seed.js"
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
-  relationMode = "prisma"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {

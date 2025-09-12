@@ -12,12 +12,17 @@ async function setupDatabase() {
   console.log('=' .repeat(50));
 
   try {
-    // 1. Aplicar schema
+    // 1. Gerar cliente Prisma
+    console.log('🔧 Gerando cliente Prisma...');
+    execSync('npx prisma generate', { stdio: 'inherit' });
+    console.log('✅ Cliente Prisma gerado!');
+
+    // 2. Aplicar schema
     console.log('📊 Aplicando schema do Prisma...');
     execSync('npx prisma db push', { stdio: 'inherit' });
     console.log('✅ Schema aplicado com sucesso!');
 
-    // 2. Criar contas essenciais
+    // 3. Criar contas essenciais
     console.log('\n👥 Criando contas essenciais...');
     const { createEssentialAccounts } = require('./recreate-essential-accounts');
     await createEssentialAccounts();
