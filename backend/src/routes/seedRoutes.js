@@ -37,11 +37,42 @@ router.post('/seed-demo-users', async (req, res) => {
         });
 
         if (existingUser) {
-          createdUsers.skipped.push({
-            email: adminData.email,
-            reason: 'Já existe'
+          // Atualizar senha da conta existente
+          await prisma.user.update({
+            where: { email: adminData.email },
+            data: {
+              senha_hash: adminPassword,
+              is_admin: true,
+              tipo_conta: 'admin',
+              saldo_reais: 100.00,
+              saldo_demo: 100.00,
+              email_verificado: true,
+              ativo: true,
+              primeiro_deposito_feito: true,
+              rollover_liberado: true
+            }
           });
-          console.log(`⏭️ Admin já existe: ${adminData.email}`);
+
+          // Atualizar wallet
+          await prisma.wallet.upsert({
+            where: { user_id: existingUser.id },
+            update: {
+              saldo_reais: 100.00,
+              saldo_demo: 100.00,
+              primeiro_deposito_feito: true,
+              rollover_liberado: true
+            },
+            create: {
+              user_id: existingUser.id,
+              saldo_reais: 100.00,
+              saldo_demo: 100.00,
+              primeiro_deposito_feito: true,
+              rollover_liberado: true
+            }
+          });
+
+          createdUsers.admins.push(adminData.email);
+          console.log(`🔄 Admin atualizado: ${adminData.email}`);
           continue;
         }
 
@@ -116,11 +147,42 @@ router.post('/seed-demo-users', async (req, res) => {
         });
 
         if (existingUser) {
-          createdUsers.skipped.push({
-            email: demoData.email,
-            reason: 'Já existe'
+          // Atualizar senha da conta existente
+          await prisma.user.update({
+            where: { email: demoData.email },
+            data: {
+              senha_hash: demoPassword,
+              is_admin: false,
+              tipo_conta: 'demo',
+              saldo_reais: 0.00,
+              saldo_demo: 100.00,
+              email_verificado: true,
+              ativo: true,
+              primeiro_deposito_feito: false,
+              rollover_liberado: false
+            }
           });
-          console.log(`⏭️ Demo já existe: ${demoData.email}`);
+
+          // Atualizar wallet
+          await prisma.wallet.upsert({
+            where: { user_id: existingUser.id },
+            update: {
+              saldo_reais: 0.00,
+              saldo_demo: 100.00,
+              primeiro_deposito_feito: false,
+              rollover_liberado: false
+            },
+            create: {
+              user_id: existingUser.id,
+              saldo_reais: 0.00,
+              saldo_demo: 100.00,
+              primeiro_deposito_feito: false,
+              rollover_liberado: false
+            }
+          });
+
+          createdUsers.demos.push(demoData.email);
+          console.log(`🔄 Demo atualizado: ${demoData.email}`);
           continue;
         }
 
