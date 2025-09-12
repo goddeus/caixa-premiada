@@ -4,26 +4,26 @@
 
 **Este setup deve ser executado APENAS UMA VEZ após o primeiro deploy!**
 
-## 🔧 COMO EXECUTAR:
+## 🔧 COMO EXECUTAR (PLANO GRATUITO):
 
-### **1. Após Deploy no Render:**
+### **1. Via Environment Variables (Recomendado):**
 
-1. **Acesse o painel do Render**
-2. **Seu serviço** → **Shell** (aba lateral)
-3. **Execute**:
-   ```bash
-   node setup-database.js
+1. **Render Dashboard** → **Seu serviço**
+2. **Settings** → **Environment Variables**
+3. **Add Environment Variable**:
    ```
-
-### **2. Ou via Logs (Alternativa):**
-
-1. **Settings** → **Environment Variables**
-2. **Adicionar temporariamente**:
+   Key: RUN_SETUP
+   Value: true
    ```
-   RUN_SETUP=true
-   ```
-3. **Deploy** → Aguardar setup
-4. **REMOVER** a variável `RUN_SETUP`
+4. **Save Changes** → **Manual Deploy**
+5. **Aguardar deploy** (2-3 minutos)
+6. **Verificar logs** → Deve aparecer "SETUP CONCLUÍDO"
+7. **⚠️ IMPORTANTE**: **REMOVER** a variável `RUN_SETUP` após setup
+
+### **2. Verificar se funcionou:**
+
+- **Logs** devem mostrar: "🎉 SETUP CONCLUÍDO COM SUCESSO!"
+- **Testar login** com conta demo: `joao.ferreira@test.com` / `Afiliado@123`
 
 ## 📊 O QUE O SETUP FAZ:
 
