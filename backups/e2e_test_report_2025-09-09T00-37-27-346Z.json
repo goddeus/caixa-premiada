@@ -1,0 +1,39 @@
+{
+  "timestamp": "2025-09-09T00:37:27.346Z",
+  "tests": [
+    {
+      "name": "Validação de Prêmios",
+      "status": "passed",
+      "details": [],
+      "errors": 0
+    },
+    {
+      "name": "Filtro de Prêmios Sortáveis",
+      "status": "passed",
+      "details": [
+        {
+          "total_prizes": 60,
+          "sortable": 42,
+          "non_sortable": 18
+        }
+      ]
+    },
+    {
+      "name": "Compra de Caixa",
+      "status": "passed",
+      "details": [
+        {
+          "case_name": "CAIXA KIT NIKE",
+          "total_prizes": 9,
+          "sortable_prizes": 8,
+          "ilustrativos": 1
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "passed": 3,
+    "failed": 0
+  }
+}

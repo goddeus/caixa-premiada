@@ -1,0 +1,987 @@
+{
+  "timestamp": "2025-09-09T00:36:03.389Z",
+  "total_changes": 123,
+  "changes_by_type": {
+    "tipo_corrigido": 52,
+    "flag_ilustrativo_corrigida": 11,
+    "label_gerado": 60
+  },
+  "changes": [
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "9bc28e9f-45da-42c8-afa3-bc3753ed8dbd",
+      "prize_name": "AIR JORDAN",
+      "old_tipo": "produto",
+      "new_tipo": "ilustrativo",
+      "sorteavel": false,
+      "valor": 1500
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "faa2ede0-afdc-4409-ad9f-8dc2a1deed99",
+      "prize_name": "R$ 50,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 50
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "0f5669f1-eec7-46a0-9810-a00e52518cfa",
+      "prize_name": "R$10,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 10
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "99688cb4-b74d-47ac-9707-d3db65033eec",
+      "prize_name": "R$5,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 5
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "91083421-79b3-45fe-873e-29d3668e5e99",
+      "prize_name": "R$2,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 2
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "51ac05bb-5098-4751-99b3-8cad9de0229d",
+      "prize_name": "R$1,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 1
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "1967a2fa-effa-4f22-9530-8b75cb0d6f6d",
+      "prize_name": "PLAYSTATION 5",
+      "old_tipo": "produto",
+      "new_tipo": "ilustrativo",
+      "sorteavel": false,
+      "valor": 5000
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "9984a99d-9222-49f6-87d3-80fd3aa5f985",
+      "prize_name": "XBOX SERIES X",
+      "old_tipo": "produto",
+      "new_tipo": "ilustrativo",
+      "sorteavel": false,
+      "valor": 3500
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "4a248524-6b1c-42ff-be4a-2fbd971d8b51",
+      "prize_name": "STEAM DECK",
+      "old_tipo": "produto",
+      "new_tipo": "ilustrativo",
+      "sorteavel": false,
+      "valor": 2500
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "f0967f34-edaf-4870-b016-6204432f8fb5",
+      "prize_name": "R$100,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 100
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "084cb447-389f-4fb9-8882-a03f649311ad",
+      "prize_name": "R$10,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 10
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "0571c69c-f614-4c3c-8fcb-911b95af5872",
+      "prize_name": "R$5,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 5
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "d4e02fd1-97ce-4ee6-9bfa-f0ac64f8cff5",
+      "prize_name": "R$2,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 2
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "7ace3dad-c19f-4369-a3f4-c099d97669db",
+      "prize_name": "R$1,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 1
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "9927659b-b694-4b69-8792-073896be253d",
+      "prize_name": "IPHONE",
+      "old_tipo": "produto",
+      "new_tipo": "ilustrativo",
+      "sorteavel": false,
+      "valor": 25000
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "1663f104-7232-4730-bdcc-680eb7bfd9dc",
+      "prize_name": "MACBOOK",
+      "old_tipo": "produto",
+      "new_tipo": "ilustrativo",
+      "sorteavel": false,
+      "valor": 15000
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "9a57559d-d886-40b3-916a-27c626504dcb",
+      "prize_name": "IPHONE",
+      "old_tipo": "produto",
+      "new_tipo": "ilustrativo",
+      "sorteavel": false,
+      "valor": 10000
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "c89b8206-9fe1-423a-8201-30964b5e4e0d",
+      "prize_name": "IPHONE",
+      "old_tipo": "produto",
+      "new_tipo": "ilustrativo",
+      "sorteavel": false,
+      "valor": 5000
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "45491d5c-bb6b-4e5c-97be-189b37a28fd9",
+      "prize_name": "PC GAMER",
+      "old_tipo": "produto",
+      "new_tipo": "ilustrativo",
+      "sorteavel": false,
+      "valor": 5000
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "e1dbb6c9-01df-4a81-8813-6b12664c02db",
+      "prize_name": "IPAD",
+      "old_tipo": "produto",
+      "new_tipo": "ilustrativo",
+      "sorteavel": false,
+      "valor": 8000
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "8d9188c2-5d7c-4253-99dc-dc1cd6e6e662",
+      "prize_name": "AIRPODS",
+      "old_tipo": "produto",
+      "new_tipo": "ilustrativo",
+      "sorteavel": false,
+      "valor": 2500
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "f7e2df3c-6dfb-46fc-aad7-850502f2a312",
+      "prize_name": "R$500,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 500
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "97af8b02-7de1-40ca-9571-38ade32311ef",
+      "prize_name": "R$100,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 100
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "2f218259-55b0-4988-bbdd-a4058d50de0e",
+      "prize_name": "R$20,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 20
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "330524a1-f04d-472b-97df-e33084b5be33",
+      "prize_name": "R$10,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 10
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "0d21742b-fabb-4525-a9c6-97db7fa07b28",
+      "prize_name": "R$5,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 5
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "b7cfb5be-842d-4c50-a220-7112ca1084c7",
+      "prize_name": "R$2,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 2
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "e02e01b7-bbd1-462e-9d1d-d145fd6949c3",
+      "prize_name": "IPHONE",
+      "old_tipo": "produto",
+      "new_tipo": "ilustrativo",
+      "sorteavel": false,
+      "valor": 10000
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "e2051b69-1116-42b3-9df0-c57b684731c4",
+      "prize_name": "MACBOOK",
+      "old_tipo": "produto",
+      "new_tipo": "ilustrativo",
+      "sorteavel": false,
+      "valor": 15000
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "27645a1a-42e9-419c-aefb-73c5ab458614",
+      "prize_name": "IPAD",
+      "old_tipo": "produto",
+      "new_tipo": "ilustrativo",
+      "sorteavel": false,
+      "valor": 8000
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "dafd7873-f220-4b72-90dc-a941cbf1400f",
+      "prize_name": "AIRPODS",
+      "old_tipo": "produto",
+      "new_tipo": "ilustrativo",
+      "sorteavel": false,
+      "valor": 2500
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "184b41a3-7284-4d15-b580-2718e6881e24",
+      "prize_name": "APPLE WATCH",
+      "old_tipo": "produto",
+      "new_tipo": "ilustrativo",
+      "sorteavel": false,
+      "valor": 3500
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "1a038c97-7ba6-4be1-80a0-fa6b16cd327e",
+      "prize_name": "R$500,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 500
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "b15077a1-35ef-4e98-9ab4-d9211d254be9",
+      "prize_name": "R$100,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 100
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "44d713a8-0bbf-4697-ae0d-52620bc4ef21",
+      "prize_name": "R$50,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 50
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "a815738f-9196-4657-8d27-e88663e08f6a",
+      "prize_name": "R$20,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 20
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "fae65f54-4974-4916-ba5c-45131f74c4ff",
+      "prize_name": "R$10,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 10
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "85ea408e-6a55-4a7b-a51a-f4e41266a853",
+      "prize_name": "R$5,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 5
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "9f98b2ba-c0cf-419c-8e79-8b8d4f18533e",
+      "prize_name": "R$2,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 2
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "08b640f8-827e-4186-a641-35b537e84bdc",
+      "prize_name": "IPHONE",
+      "old_tipo": "produto",
+      "new_tipo": "ilustrativo",
+      "sorteavel": false,
+      "valor": 5000
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "0e179ccb-9f66-4db1-aaf1-0bf02487df26",
+      "prize_name": "NOTEBOOK",
+      "old_tipo": "produto",
+      "new_tipo": "ilustrativo",
+      "sorteavel": false,
+      "valor": 3000
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "fa753f12-aa89-4cb2-a2a2-7880f7d07185",
+      "prize_name": "R$500,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 500
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "40f4bb7a-b146-4945-bcda-3c171d97b5cd",
+      "prize_name": "R$100,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 100
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "0f40f999-a863-49e6-9d59-0fdfb24efc42",
+      "prize_name": "R$10,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 10
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "184df00e-50db-4b5a-a03d-b28e79712385",
+      "prize_name": "R$5,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 5
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "fb0fe7a8-cf1a-48eb-9a4b-e932b51d2ae5",
+      "prize_name": "R$2,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 2
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "0e20f24f-5e73-48b0-b299-4db442cc0e11",
+      "prize_name": "R$1,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 1
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "c15af70b-8103-43de-974d-41e7e3aed9a5",
+      "prize_name": "R$500,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 500
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "ad0e8d0d-b295-43d4-aa64-1e568b00f977",
+      "prize_name": "R$100,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 100
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "5b18093a-da05-4bd4-8e42-da4840453f2e",
+      "prize_name": "R$ 50,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 50
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "b36450f4-22cc-415d-8586-f286d6ddd08f",
+      "prize_name": "R$2,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 2
+    },
+    {
+      "type": "tipo_corrigido",
+      "prize_id": "6e5a63b3-c750-462d-b0c6-7411dafc685c",
+      "prize_name": "R$1,00",
+      "old_tipo": "produto",
+      "new_tipo": "cash",
+      "sorteavel": true,
+      "valor": 1
+    },
+    {
+      "type": "flag_ilustrativo_corrigida",
+      "prize_id": "9bc28e9f-45da-42c8-afa3-bc3753ed8dbd",
+      "prize_name": "AIR JORDAN",
+      "old_ilustrativo": false,
+      "new_ilustrativo": true,
+      "valor": 1500
+    },
+    {
+      "type": "flag_ilustrativo_corrigida",
+      "prize_id": "1967a2fa-effa-4f22-9530-8b75cb0d6f6d",
+      "prize_name": "PLAYSTATION 5",
+      "old_ilustrativo": false,
+      "new_ilustrativo": true,
+      "valor": 5000
+    },
+    {
+      "type": "flag_ilustrativo_corrigida",
+      "prize_id": "9984a99d-9222-49f6-87d3-80fd3aa5f985",
+      "prize_name": "XBOX SERIES X",
+      "old_ilustrativo": false,
+      "new_ilustrativo": true,
+      "valor": 3500
+    },
+    {
+      "type": "flag_ilustrativo_corrigida",
+      "prize_id": "4a248524-6b1c-42ff-be4a-2fbd971d8b51",
+      "prize_name": "STEAM DECK",
+      "old_ilustrativo": false,
+      "new_ilustrativo": true,
+      "valor": 2500
+    },
+    {
+      "type": "flag_ilustrativo_corrigida",
+      "prize_id": "c89b8206-9fe1-423a-8201-30964b5e4e0d",
+      "prize_name": "IPHONE",
+      "old_ilustrativo": false,
+      "new_ilustrativo": true,
+      "valor": 5000
+    },
+    {
+      "type": "flag_ilustrativo_corrigida",
+      "prize_id": "45491d5c-bb6b-4e5c-97be-189b37a28fd9",
+      "prize_name": "PC GAMER",
+      "old_ilustrativo": false,
+      "new_ilustrativo": true,
+      "valor": 5000
+    },
+    {
+      "type": "flag_ilustrativo_corrigida",
+      "prize_id": "8d9188c2-5d7c-4253-99dc-dc1cd6e6e662",
+      "prize_name": "AIRPODS",
+      "old_ilustrativo": false,
+      "new_ilustrativo": true,
+      "valor": 2500
+    },
+    {
+      "type": "flag_ilustrativo_corrigida",
+      "prize_id": "dafd7873-f220-4b72-90dc-a941cbf1400f",
+      "prize_name": "AIRPODS",
+      "old_ilustrativo": false,
+      "new_ilustrativo": true,
+      "valor": 2500
+    },
+    {
+      "type": "flag_ilustrativo_corrigida",
+      "prize_id": "184b41a3-7284-4d15-b580-2718e6881e24",
+      "prize_name": "APPLE WATCH",
+      "old_ilustrativo": false,
+      "new_ilustrativo": true,
+      "valor": 3500
+    },
+    {
+      "type": "flag_ilustrativo_corrigida",
+      "prize_id": "08b640f8-827e-4186-a641-35b537e84bdc",
+      "prize_name": "IPHONE",
+      "old_ilustrativo": false,
+      "new_ilustrativo": true,
+      "valor": 5000
+    },
+    {
+      "type": "flag_ilustrativo_corrigida",
+      "prize_id": "0e179ccb-9f66-4db1-aaf1-0bf02487df26",
+      "prize_name": "NOTEBOOK",
+      "old_ilustrativo": false,
+      "new_ilustrativo": true,
+      "valor": 3000
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "4b95a0ec-acae-4a4d-963e-e5d776b9d75a",
+      "prize_name": "AIR FORCE 1",
+      "old_label": "",
+      "new_label": "AIR FORCE 1"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "633c4466-8935-49ba-966a-1e71e0da7f5c",
+      "prize_name": "NIKE",
+      "old_label": "",
+      "new_label": "NIKE"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "9bc28e9f-45da-42c8-afa3-bc3753ed8dbd",
+      "prize_name": "AIR JORDAN",
+      "old_label": "",
+      "new_label": "AIR JORDAN"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "a57ce8ce-302b-4e96-abbf-f1d0e161cc58",
+      "prize_name": "NIKE (USADO)",
+      "old_label": "",
+      "new_label": "NIKE (USADO)"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "faa2ede0-afdc-4409-ad9f-8dc2a1deed99",
+      "prize_name": "R$ 50,00",
+      "old_label": "",
+      "new_label": "R$ 50,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "0f5669f1-eec7-46a0-9810-a00e52518cfa",
+      "prize_name": "R$10,00",
+      "old_label": "",
+      "new_label": "R$10,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "99688cb4-b74d-47ac-9707-d3db65033eec",
+      "prize_name": "R$5,00",
+      "old_label": "",
+      "new_label": "R$5,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "91083421-79b3-45fe-873e-29d3668e5e99",
+      "prize_name": "R$2,00",
+      "old_label": "",
+      "new_label": "R$2,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "51ac05bb-5098-4751-99b3-8cad9de0229d",
+      "prize_name": "R$1,00",
+      "old_label": "",
+      "new_label": "R$1,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "1967a2fa-effa-4f22-9530-8b75cb0d6f6d",
+      "prize_name": "PLAYSTATION 5",
+      "old_label": "",
+      "new_label": "PLAYSTATION 5"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "9984a99d-9222-49f6-87d3-80fd3aa5f985",
+      "prize_name": "XBOX SERIES X",
+      "old_label": "",
+      "new_label": "XBOX SERIES X"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "4a248524-6b1c-42ff-be4a-2fbd971d8b51",
+      "prize_name": "STEAM DECK",
+      "old_label": "",
+      "new_label": "STEAM DECK"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "009a1e6f-245d-410c-90ad-7da86115499d",
+      "prize_name": "REDMI",
+      "old_label": "",
+      "new_label": "REDMI"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "14b9b36c-f315-4d28-95f8-d9a61323ca9a",
+      "prize_name": "PLAYSTATION 5 (REMOVIDO)",
+      "old_label": "",
+      "new_label": "PLAYSTATION 5 (REMOVIDO)"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "f0967f34-edaf-4870-b016-6204432f8fb5",
+      "prize_name": "R$100,00",
+      "old_label": "",
+      "new_label": "R$100,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "084cb447-389f-4fb9-8882-a03f649311ad",
+      "prize_name": "R$10,00",
+      "old_label": "",
+      "new_label": "R$10,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "0571c69c-f614-4c3c-8fcb-911b95af5872",
+      "prize_name": "R$5,00",
+      "old_label": "",
+      "new_label": "R$5,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "d4e02fd1-97ce-4ee6-9bfa-f0ac64f8cff5",
+      "prize_name": "R$2,00",
+      "old_label": "",
+      "new_label": "R$2,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "7ace3dad-c19f-4369-a3f4-c099d97669db",
+      "prize_name": "R$1,00",
+      "old_label": "",
+      "new_label": "R$1,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "9927659b-b694-4b69-8792-073896be253d",
+      "prize_name": "IPHONE",
+      "old_label": "",
+      "new_label": "IPHONE"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "1663f104-7232-4730-bdcc-680eb7bfd9dc",
+      "prize_name": "MACBOOK",
+      "old_label": "",
+      "new_label": "MACBOOK"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "9a57559d-d886-40b3-916a-27c626504dcb",
+      "prize_name": "IPHONE",
+      "old_label": "",
+      "new_label": "IPHONE"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "c89b8206-9fe1-423a-8201-30964b5e4e0d",
+      "prize_name": "IPHONE",
+      "old_label": "",
+      "new_label": "IPHONE"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "45491d5c-bb6b-4e5c-97be-189b37a28fd9",
+      "prize_name": "PC GAMER",
+      "old_label": "",
+      "new_label": "PC GAMER"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "e1dbb6c9-01df-4a81-8813-6b12664c02db",
+      "prize_name": "IPAD",
+      "old_label": "",
+      "new_label": "IPAD"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "8d9188c2-5d7c-4253-99dc-dc1cd6e6e662",
+      "prize_name": "AIRPODS",
+      "old_label": "",
+      "new_label": "AIRPODS"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "f7e2df3c-6dfb-46fc-aad7-850502f2a312",
+      "prize_name": "R$500,00",
+      "old_label": "",
+      "new_label": "R$500,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "97af8b02-7de1-40ca-9571-38ade32311ef",
+      "prize_name": "R$100,00",
+      "old_label": "",
+      "new_label": "R$100,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "2f218259-55b0-4988-bbdd-a4058d50de0e",
+      "prize_name": "R$20,00",
+      "old_label": "",
+      "new_label": "R$20,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "330524a1-f04d-472b-97df-e33084b5be33",
+      "prize_name": "R$10,00",
+      "old_label": "",
+      "new_label": "R$10,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "0d21742b-fabb-4525-a9c6-97db7fa07b28",
+      "prize_name": "R$5,00",
+      "old_label": "",
+      "new_label": "R$5,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "b7cfb5be-842d-4c50-a220-7112ca1084c7",
+      "prize_name": "R$2,00",
+      "old_label": "",
+      "new_label": "R$2,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "e02e01b7-bbd1-462e-9d1d-d145fd6949c3",
+      "prize_name": "IPHONE",
+      "old_label": "",
+      "new_label": "IPHONE"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "e2051b69-1116-42b3-9df0-c57b684731c4",
+      "prize_name": "MACBOOK",
+      "old_label": "",
+      "new_label": "MACBOOK"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "27645a1a-42e9-419c-aefb-73c5ab458614",
+      "prize_name": "IPAD",
+      "old_label": "",
+      "new_label": "IPAD"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "dafd7873-f220-4b72-90dc-a941cbf1400f",
+      "prize_name": "AIRPODS",
+      "old_label": "",
+      "new_label": "AIRPODS"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "184b41a3-7284-4d15-b580-2718e6881e24",
+      "prize_name": "APPLE WATCH",
+      "old_label": "",
+      "new_label": "APPLE WATCH"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "1a038c97-7ba6-4be1-80a0-fa6b16cd327e",
+      "prize_name": "R$500,00",
+      "old_label": "",
+      "new_label": "R$500,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "b15077a1-35ef-4e98-9ab4-d9211d254be9",
+      "prize_name": "R$100,00",
+      "old_label": "",
+      "new_label": "R$100,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "44d713a8-0bbf-4697-ae0d-52620bc4ef21",
+      "prize_name": "R$50,00",
+      "old_label": "",
+      "new_label": "R$50,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "a815738f-9196-4657-8d27-e88663e08f6a",
+      "prize_name": "R$20,00",
+      "old_label": "",
+      "new_label": "R$20,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "fae65f54-4974-4916-ba5c-45131f74c4ff",
+      "prize_name": "R$10,00",
+      "old_label": "",
+      "new_label": "R$10,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "85ea408e-6a55-4a7b-a51a-f4e41266a853",
+      "prize_name": "R$5,00",
+      "old_label": "",
+      "new_label": "R$5,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "9f98b2ba-c0cf-419c-8e79-8b8d4f18533e",
+      "prize_name": "R$2,00",
+      "old_label": "",
+      "new_label": "R$2,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "08b640f8-827e-4186-a641-35b537e84bdc",
+      "prize_name": "IPHONE",
+      "old_label": "",
+      "new_label": "IPHONE"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "e4a218ee-c8f2-4b4d-a478-ce0a6fece66c",
+      "prize_name": "SAMSUNG GALAXY",
+      "old_label": "",
+      "new_label": "SAMSUNG GALAXY"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "0e179ccb-9f66-4db1-aaf1-0bf02487df26",
+      "prize_name": "NOTEBOOK",
+      "old_label": "",
+      "new_label": "NOTEBOOK"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "fa753f12-aa89-4cb2-a2a2-7880f7d07185",
+      "prize_name": "R$500,00",
+      "old_label": "",
+      "new_label": "R$500,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "40f4bb7a-b146-4945-bcda-3c171d97b5cd",
+      "prize_name": "R$100,00",
+      "old_label": "",
+      "new_label": "R$100,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "0f40f999-a863-49e6-9d59-0fdfb24efc42",
+      "prize_name": "R$10,00",
+      "old_label": "",
+      "new_label": "R$10,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "184df00e-50db-4b5a-a03d-b28e79712385",
+      "prize_name": "R$5,00",
+      "old_label": "",
+      "new_label": "R$5,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "fb0fe7a8-cf1a-48eb-9a4b-e932b51d2ae5",
+      "prize_name": "R$2,00",
+      "old_label": "",
+      "new_label": "R$2,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "0e20f24f-5e73-48b0-b299-4db442cc0e11",
+      "prize_name": "R$1,00",
+      "old_label": "",
+      "new_label": "R$1,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "319a3765-92a2-45f9-aa1d-fc41959d4789",
+      "prize_name": "SAMSUNG GALAXY (USADO)",
+      "old_label": "",
+      "new_label": "SAMSUNG GALAXY (USADO)"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "02059dee-65bd-48f0-aea4-8e91dd0901fb",
+      "prize_name": "REDMI",
+      "old_label": "",
+      "new_label": "REDMI"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "c15af70b-8103-43de-974d-41e7e3aed9a5",
+      "prize_name": "R$500,00",
+      "old_label": "",
+      "new_label": "R$500,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "ad0e8d0d-b295-43d4-aa64-1e568b00f977",
+      "prize_name": "R$100,00",
+      "old_label": "",
+      "new_label": "R$100,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "5b18093a-da05-4bd4-8e42-da4840453f2e",
+      "prize_name": "R$ 50,00",
+      "old_label": "",
+      "new_label": "R$ 50,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "b36450f4-22cc-415d-8586-f286d6ddd08f",
+      "prize_name": "R$2,00",
+      "old_label": "",
+      "new_label": "R$2,00"
+    },
+    {
+      "type": "label_gerado",
+      "prize_id": "6e5a63b3-c750-462d-b0c6-7411dafc685c",
+      "prize_name": "R$1,00",
+      "old_label": "",
+      "new_label": "R$1,00"
+    }
+  ]
+}

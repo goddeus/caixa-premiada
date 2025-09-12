@@ -1,0 +1,912 @@
+const { PrismaClient } = require('@prisma/client');
+const prizeCalculationService = require('../services/prizeCalculationService');
+// Removido globalDrawService - usando centralizedDrawService
+// CORREÇÃO: Sistema RTP desabilitado para não interferir nos preços
+// const userRTPService = require('../services/userRTPService');
+const prisma = new PrismaClient();
+
+class CasesController {
+  // Listar todas as caixas disponíveis
+  async getCases(req, res) {
+    try {
+      const cases = await prisma.case.findMany({
+        where: { ativo: true },
+        include: {
+          prizes: {
+            where: {
+              ativo: true
+            },
+            select: {
+              id: true,
+              nome: true,
+              valor: true,
+              probabilidade: true,
+              tipo: true,
+              sorteavel: true,
+              imagem_url: true
+            }
+          }
+        },
+        orderBy: { preco: 'asc' }
+      });
+
+      res.json({ cases });
+    } catch (error) {
+      console.error('Erro ao buscar caixas:', error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+
+  // Buscar detalhes de uma caixa específica
+  async getCaseById(req, res) {
+    try {
+      const { id } = req.params;
+
+      const caseData = await prisma.case.findUnique({
+        where: { id: id },
+        include: {
+          prizes: {
+            select: {
+              id: true,
+              nome: true,
+              valor: true,
+              probabilidade: true
+            },
+            orderBy: { valor: 'desc' }
+          }
+        }
+      });
+
+      if (!caseData) {
+        return res.status(404).json({ error: 'Caixa não encontrada' });
+      }
+
+      if (!caseData.ativo) {
+        return res.status(400).json({ error: 'Esta caixa não está disponível' });
+      }
+
+      res.json(caseData);
+    } catch (error) {
+      console.error('Erro ao buscar caixa:', error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+
+
+  // Comprar e abrir múltiplas caixas
+  async buyMultipleCases(req, res) {
+    try {
+      const { id } = req.params;
+      const { quantity } = req.body;
+      const userId = req.user.id;
+      
+      console.log('🔍 Debug buyMultipleCases:');
+      console.log('- Case ID:', id);
+      console.log('- Quantity:', quantity);
+      console.log('- User ID:', userId);
+
+      if (!quantity || quantity < 1 || quantity > 10) {
+        return res.status(400).json({ error: 'Quantidade deve ser entre 1 e 10' });
+      }
+
+      // Buscar a caixa
+      const caseData = await prisma.case.findUnique({
+        where: { id: id },
+        include: {
+          prizes: {
+            select: {
+              id: true,
+              nome: true,
+              valor: true,
+              probabilidade: true
+            }
+          }
+        }
+      });
+
+      if (!caseData) {
+        return res.status(404).json({ error: 'Caixa não encontrada' });
+      }
+
+      if (!caseData.ativo) {
+        return res.status(400).json({ error: 'Esta caixa não está disponível' });
+      }
+
+      // CORREÇÃO: Sempre buscar o preço diretamente da database
+      const precoUnitario = Number(caseData.preco);
+      const totalCost = +(precoUnitario * quantity).toFixed(2);
+
+      console.log('💰 Preço unitário da caixa (DB):', precoUnitario);
+      console.log('💰 Quantidade:', quantity);
+      console.log('💰 Total a ser cobrado:', totalCost);
+      
+      // Verificar saldo do usuário
+      if (parseFloat(req.user.saldo) < totalCost) {
+        return res.status(400).json({ error: 'Saldo insuficiente' });
+      }
+
+      // Registrar saldo antes da compra para auditoria
+      const saldoAntes = parseFloat(req.user.saldo);
+
+      const results = [];
+      let totalWon = 0;
+
+      // Processar cada caixa
+      for (let i = 0; i < quantity; i++) {
+        try {
+          console.log(`🎲 Processando caixa ${i + 1}/${quantity}...`);
+          
+          // CORREÇÃO: Usar sistema de sorteio centralizado que respeita preços originais
+          const centralizedDrawService = require('../services/centralizedDrawService');
+          const drawResult = await centralizedDrawService.sortearPremio(caseData.id, userId);
+          
+          if (!drawResult.success) {
+            console.error(`❌ Erro no sorteio da caixa ${i + 1}:`, drawResult.message);
+            results.push({
+              boxNumber: i + 1,
+              success: false,
+              error: drawResult.message,
+              prize: null
+            });
+            continue;
+          }
+          
+          const wonPrize = drawResult.prize;
+          console.log(`🎁 Caixa ${i + 1} - Prêmio:`, wonPrize.nome, 'R$', wonPrize.valor);
+
+          // Se for prêmio real, somar ao total
+          if (wonPrize.valor > 0) {
+            totalWon += parseFloat(wonPrize.valor);
+          }
+
+          results.push({
+            boxNumber: i + 1,
+            success: true,
+            prize: {
+              id: wonPrize.id,
+              nome: wonPrize.nome,
+              valor: wonPrize.valor,
+              imagem_url: wonPrize.imagem_url,
+              sem_imagem: wonPrize.sem_imagem || false,
+              is_illustrative: wonPrize.valor === 0,
+              message: wonPrize.message || (wonPrize.valor === 0 ? 'Quem sabe na próxima!' : `Parabéns! Você ganhou R$ ${parseFloat(wonPrize.valor).toFixed(2)}!`)
+            }
+          });
+
+        } catch (error) {
+          console.error(`❌ Erro ao processar caixa ${i + 1}:`, error);
+          results.push({
+            boxNumber: i + 1,
+            success: false,
+            error: error.message,
+            prize: null
+          });
+        }
+      }
+
+      // Atualizar saldo do usuário (já foi debitado pelo centralizedDrawService)
+      const updatedUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { saldo: true }
+      });
+
+      // SISTEMA DE AUDITORIA: Registrar compra múltipla
+      const saldoDepois = parseFloat(updatedUser.saldo);
+      const discrepanciaDetectada = Math.abs(totalCost - (precoUnitario * quantity)) > 0.01;
+      
+      await prisma.purchaseAudit.create({
+        data: {
+          purchase_id: `buy_multiple_${userId}_${caseData.id}_${Date.now()}`,
+          user_id: userId,
+          caixas_compradas: JSON.stringify([{
+            caixaId: caseData.id,
+            quantidade: quantity,
+            preco: precoUnitario
+          }]),
+          total_preco: totalCost,
+          saldo_antes: saldoAntes,
+          saldo_depois: saldoDepois,
+          status: discrepanciaDetectada ? 'investigar' : 'concluido'
+        }
+      });
+
+      // Verificar discrepância e registrar anomalia se necessário
+      if (discrepanciaDetectada) {
+        const diferenca = Math.abs(totalCost - (precoUnitario * quantity));
+        await prisma.purchaseAnomaly.create({
+          data: {
+            user_id: userId,
+            caixa_id: caseData.id,
+            quantidade: quantity,
+            preco_esperado: precoUnitario * quantity,
+            preco_cobrado: totalCost,
+            diferenca: diferenca,
+            descricao: `Caixa ${caseData.nome} (${quantity}x) deveria custar ${precoUnitario * quantity} mas foi cobrado ${totalCost}`
+          }
+        });
+        console.log(`⚠️ Discrepância detectada: Caixa ${caseData.nome} (${quantity}x) deveria custar ${precoUnitario * quantity} mas foi cobrado ${totalCost}`);
+      }
+
+      console.log('✅ Compra múltipla concluída');
+      console.log('💰 Total gasto:', totalCost);
+      console.log('🎁 Total ganho:', totalWon);
+      console.log('📊 Resultados:', results.length);
+
+      res.json({
+        success: true,
+        message: `Você abriu ${quantity} caixas!`,
+        totalCost: totalCost,
+        totalWon: totalWon,
+        netResult: totalWon - totalCost,
+        results: results,
+        userBalance: updatedUser.saldo
+      });
+
+    } catch (error) {
+      console.error('❌ Erro em buyMultipleCases:', error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+
+  // Debitar valor da caixa (primeira etapa)
+  async debitCase(req, res) {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+      
+      console.log('🔍 Debug debitCase:');
+      console.log('- Case ID:', id);
+      console.log('- User ID:', userId);
+
+      // Buscar a caixa
+      const caseData = await prisma.case.findUnique({
+        where: { id: id },
+        include: {
+          prizes: {
+            select: {
+              id: true,
+              nome: true,
+              valor: true,
+              probabilidade: true
+            }
+          }
+        }
+      });
+
+      if (!caseData) {
+        return res.status(404).json({ error: 'Caixa não encontrada' });
+      }
+
+      if (!caseData.ativo) {
+        return res.status(400).json({ error: 'Esta caixa não está disponível' });
+      }
+
+      // CORREÇÃO: Sempre buscar o preço diretamente da database
+      const precoUnitario = Number(caseData.preco);
+      const totalPreco = +(precoUnitario * 1).toFixed(2); // 1 caixa
+
+      console.log('💰 Preço unitário da caixa (DB):', precoUnitario);
+      console.log('💰 Total a ser cobrado:', totalPreco);
+      console.log('💰 Saldo atual do usuário:', req.user.saldo);
+      
+      if (parseFloat(req.user.saldo) < totalPreco) {
+        return res.status(400).json({ error: 'Saldo insuficiente' });
+      }
+
+      // Registrar saldo antes da compra para auditoria
+      const saldoAntes = parseFloat(req.user.saldo);
+
+      // Debitar valor da caixa imediatamente
+      await prisma.$transaction(async (tx) => {
+        await tx.user.update({
+          where: { id: userId },
+          data: { saldo: { decrement: totalPreco } }
+        });
+
+        await tx.transaction.create({
+          data: {
+            user_id: userId,
+            case_id: caseData.id,
+            tipo: 'abertura_caixa',
+            valor: -totalPreco,
+            status: 'concluido',
+            descricao: `Abertura de caixa ${caseData.nome}`
+          }
+        });
+      });
+
+      // SISTEMA DE AUDITORIA: Registrar compra
+      const updatedUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { saldo: true }
+      });
+      
+      const saldoDepois = parseFloat(updatedUser.saldo);
+      const discrepanciaDetectada = Math.abs(totalPreco - precoUnitario) > 0.01;
+      
+      await prisma.purchaseAudit.create({
+        data: {
+          purchase_id: `debit_${userId}_${caseData.id}_${Date.now()}`,
+          user_id: userId,
+          caixas_compradas: JSON.stringify([{
+            caixaId: caseData.id,
+            quantidade: 1,
+            preco: precoUnitario
+          }]),
+          total_preco: totalPreco,
+          saldo_antes: saldoAntes,
+          saldo_depois: saldoDepois,
+          status: discrepanciaDetectada ? 'investigar' : 'concluido'
+        }
+      });
+
+      // Verificar discrepância e registrar anomalia se necessário
+      if (discrepanciaDetectada) {
+        const diferenca = Math.abs(totalPreco - precoUnitario);
+        await prisma.purchaseAnomaly.create({
+          data: {
+            user_id: userId,
+            caixa_id: caseData.id,
+            quantidade: 1,
+            preco_esperado: precoUnitario,
+            preco_cobrado: totalPreco,
+            diferenca: diferenca,
+            descricao: `Caixa ${caseData.nome} deveria custar ${precoUnitario} mas foi cobrado ${totalPreco}`
+          }
+        });
+        console.log(`⚠️ Discrepância detectada: Caixa ${caseData.nome} deveria custar ${precoUnitario} mas foi cobrado ${totalPreco}`);
+      }
+
+      console.log('✅ Valor debitado com sucesso');
+
+      // Retornar dados da caixa para o frontend fazer o sorteio
+      return res.json({
+        success: true,
+        case: {
+          id: caseData.id,
+          nome: caseData.nome,
+          preco: totalPreco, // Usar o preço calculado corretamente
+          prizes: caseData.prizes
+        }
+      });
+
+    } catch (error) {
+      console.error('❌ Erro ao debitar caixa:', error);
+      return res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+
+  // Fazer sorteio e creditar prêmio (segunda etapa)
+  async drawPrize(req, res) {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+      
+      console.log('🔍 Debug drawPrize:');
+      console.log('- Case ID:', id);
+      console.log('- User ID:', userId);
+
+      // Usar sistema de sorteio centralizado (pular débito pois já foi feito)
+      console.log('🎯 Fazendo sorteio...');
+      const centralizedDrawService = require('../services/centralizedDrawService');
+      const drawResult = await centralizedDrawService.sortearPremio(id, userId, null, true);
+      
+      if (!drawResult.success) {
+        console.error('❌ Erro no sorteio:', drawResult.message);
+        return res.status(400).json({ error: drawResult.message });
+      }
+
+      // Retornar resultado do sorteio
+      return res.json({
+        success: true,
+        prize: drawResult.prize,
+        message: drawResult.message
+      });
+
+    } catch (error) {
+      console.error('❌ Erro ao sortear prêmio:', error);
+      return res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+
+  // Comprar e abrir uma caixa (método antigo - manter para compatibilidade)
+  async buyCase(req, res) {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+      
+      console.log('🔍 Debug buyCase:');
+      console.log('- Case ID:', id);
+      console.log('- User ID:', userId);
+      console.log('- User object:', req.user);
+
+      // Buscar a caixa
+      const caseData = await prisma.case.findUnique({
+        where: { id: id },
+        include: {
+          prizes: {
+            select: {
+              id: true,
+              nome: true,
+              valor: true,
+              probabilidade: true
+            }
+          }
+        }
+      });
+
+      if (!caseData) {
+        return res.status(404).json({ error: 'Caixa não encontrada' });
+      }
+
+      if (!caseData.ativo) {
+        return res.status(400).json({ error: 'Esta caixa não está disponível' });
+      }
+
+      // CORREÇÃO: Sempre buscar o preço diretamente da database
+      const precoUnitario = Number(caseData.preco);
+      const totalPreco = +(precoUnitario * 1).toFixed(2); // 1 caixa
+
+      console.log('💰 Preço unitário da caixa (DB):', precoUnitario);
+      console.log('💰 Total a ser cobrado:', totalPreco);
+
+      // Verificar saldo do usuário
+      if (parseFloat(req.user.saldo) < totalPreco) {
+        return res.status(400).json({ error: 'Saldo insuficiente' });
+      }
+
+      // Usar sistema de sorteio centralizado (já trata contas demo automaticamente)
+      console.log('🎯 Usando sistema de sorteio centralizado...');
+      const centralizedDrawService = require('../services/centralizedDrawService');
+      const drawResult = await centralizedDrawService.sortearPremio(caseData.id, userId);
+      
+      if (!drawResult.success) {
+        console.error('❌ Erro no sistema de sorteio global:', drawResult.message);
+        return res.status(500).json({ error: 'Erro interno no sistema de sorteio' });
+      }
+      
+      const wonPrize = drawResult.prize;
+      console.log('🎲 Prêmio sorteado:', wonPrize);
+      console.log('🎲 Prêmio ID:', wonPrize.id);
+      console.log('🎲 Prêmio Nome:', wonPrize.nome);
+      console.log('🎲 Prêmio Valor:', wonPrize.valor);
+      console.log('🎭 É conta demo:', drawResult.is_demo || false);
+
+      // Para contas demo, o sistema já processou tudo automaticamente
+      if (drawResult.is_demo) {
+        console.log('🎭 Conta demo - prêmio já processado automaticamente');
+        
+        // Buscar saldo atualizado
+        const updatedUser = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { saldo: true }
+        });
+
+        res.json({
+          prizes: caseData.prizes,
+          wonPrize: wonPrize,
+          message: drawResult.message,
+          userBalance: updatedUser.saldo,
+          is_demo: true
+        });
+        return;
+      }
+
+      // Para contas normais, processar como antes
+      console.log('👤 Conta normal - processando prêmio...');
+
+      // Registrar saldo antes da compra para auditoria
+      const saldoAntes = parseFloat(req.user.saldo);
+
+      // CORREÇÃO: NÃO debitar aqui - o centralizedDrawService já faz isso
+      console.log('💸 O centralizedDrawService já debita o valor da caixa automaticamente');
+      console.log('✅ Valor debitado com sucesso');
+
+      // Atualizar giros do usuário (sistema de rollover)
+      const userUpdate = await prisma.user.update({
+        where: { id: userId },
+        data: {
+          total_giros: {
+            increment: totalPreco
+          }
+        },
+        select: {
+          total_giros: true,
+          rollover_minimo: true,
+          rollover_liberado: true,
+          primeiro_deposito_feito: true
+        }
+      });
+
+      // Verificar se atingiu o rollover mínimo APENAS se já fez o primeiro depósito
+      if (userUpdate.primeiro_deposito_feito && !userUpdate.rollover_liberado && userUpdate.total_giros >= userUpdate.rollover_minimo) {
+        await prisma.user.update({
+          where: { id: userId },
+          data: {
+            rollover_liberado: true
+          }
+        });
+        console.log('🎉 Rollover liberado para o usuário!');
+      }
+
+      console.log(`💰 Total de giros: R$ ${userUpdate.total_giros.toFixed(2)}`);
+
+      // CORREÇÃO: Não registrar transação aqui - o centralizedDrawService já faz isso
+      console.log('📝 Transação já registrada pelo centralizedDrawService');
+
+      // Buscar saldo atualizado após o centralizedDrawService
+      const updatedUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { saldo: true }
+      });
+
+      // SISTEMA DE AUDITORIA: Registrar compra
+      const saldoDepois = parseFloat(updatedUser.saldo);
+      const discrepanciaDetectada = Math.abs(totalPreco - precoUnitario) > 0.01;
+      
+      await prisma.purchaseAudit.create({
+        data: {
+          purchase_id: `buy_${userId}_${caseData.id}_${Date.now()}`,
+          caixas_compradas: JSON.stringify([{
+            caixaId: caseData.id,
+            quantidade: 1,
+            preco: precoUnitario
+          }]),
+          total_preco: totalPreco,
+          saldo_antes: saldoAntes,
+          saldo_depois: saldoDepois,
+          status: discrepanciaDetectada ? 'investigar' : 'concluido',
+          user: {
+            connect: { id: userId }
+          }
+        }
+      });
+
+      // Verificar discrepância e registrar anomalia se necessário
+      if (discrepanciaDetectada) {
+        const diferenca = Math.abs(totalPreco - precoUnitario);
+        await prisma.purchaseAnomaly.create({
+          data: {
+            user_id: userId,
+            caixa_id: caseData.id,
+            quantidade: 1,
+            preco_esperado: precoUnitario,
+            preco_cobrado: totalPreco,
+            diferenca: diferenca,
+            descricao: `Caixa ${caseData.nome} deveria custar ${precoUnitario} mas foi cobrado ${totalPreco}`
+          }
+        });
+        console.log(`⚠️ Discrepância detectada: Caixa ${caseData.nome} deveria custar ${precoUnitario} mas foi cobrado ${totalPreco}`);
+      }
+
+      // CORREÇÃO: Usar saldo atualizado do centralizedDrawService
+      console.log('💰 Saldo após processamento:', updatedUser.saldo);
+
+      // O centralizedDrawService já processou tudo, então só retornar o resultado
+      console.log('📤 Enviando resposta com prêmio:', {
+        id: wonPrize.id,
+        nome: wonPrize.nome,
+        valor: wonPrize.valor
+      });
+      
+      res.json({
+        prizes: caseData.prizes,
+        wonPrize: wonPrize,
+        message: `Parabéns! Você ganhou R$ ${parseFloat(wonPrize.valor).toFixed(2)}!`,
+        is_demo: false,
+        userBalance: updatedUser.saldo
+      });
+
+    } catch (error) {
+      console.error('Erro ao comprar caixa:', error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+
+  async creditPrize(req, res) {
+    try {
+      const { id } = req.params;
+      const { prizeId, prizeValue } = req.body; // Receber dados do prêmio
+      const userId = req.user.id;
+
+      console.log('🔍 Debug creditPrize:');
+      console.log('- Case ID:', id);
+      console.log('- Prize ID:', prizeId);
+      console.log('- Prize Value:', prizeValue);
+      console.log('- User ID:', userId);
+      console.log('- Prize ID type:', typeof prizeId);
+      console.log('- Prize ID string:', JSON.stringify(prizeId));
+      console.log('- Prize ID length:', prizeId?.length);
+
+
+      // Buscar dados da caixa
+      const caseData = await prisma.case.findUnique({
+        where: { id: id },
+        include: {
+          prizes: true
+        }
+      });
+
+      if (!caseData) {
+        console.log('❌ Caixa não encontrada');
+        return res.status(404).json({ error: 'Caixa não encontrada' });
+      }
+
+      // Buscar o prêmio específico
+      console.log('🔍 Buscando prêmio com ID:', prizeId);
+      console.log('🔍 Tipo do prizeId:', typeof prizeId);
+      console.log('🔍 Prêmios disponíveis:', caseData.prizes.map(p => ({ id: p.id, nome: p.nome, tipo_id: typeof p.id })));
+      
+      // Tentar encontrar o prêmio com diferentes comparações
+      let wonPrize = caseData.prizes.find(p => p.id === prizeId);
+      if (!wonPrize) {
+        console.log('🔍 Tentando comparação com String...');
+        wonPrize = caseData.prizes.find(p => p.id === String(prizeId));
+      }
+      if (!wonPrize) {
+        console.log('🔍 Tentando comparação com toString...');
+        wonPrize = caseData.prizes.find(p => String(p.id) === String(prizeId));
+      }
+      
+      // Log adicional para debug
+      console.log('🔍 Resultado da busca:');
+      console.log('- Prêmio encontrado:', !!wonPrize);
+      if (wonPrize) {
+        console.log('- Prêmio encontrado ID:', wonPrize.id);
+        console.log('- Prêmio encontrado Nome:', wonPrize.nome);
+        console.log('- Prêmio encontrado Valor:', wonPrize.valor);
+      }
+      if (!wonPrize) {
+        console.log('🎭 Prêmio ilustrativo detectado - não precisa creditar');
+        return res.json({
+          success: true,
+          message: 'Prêmio ilustrativo - sem valor monetário',
+          needsPrizeCredit: false
+        });
+      }
+      
+      console.log('🎲 Prêmio para crédito:', wonPrize);
+
+      // Creditar prêmio ao saldo do usuário
+      console.log('🎁 Creditando prêmio...');
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: {
+          saldo: {
+            increment: parseFloat(wonPrize.valor)
+          }
+        },
+        select: {
+          saldo: true
+        }
+      });
+      
+      // Sincronizar com a tabela wallet
+      await prisma.wallet.update({
+        where: { user_id: userId },
+        data: {
+          saldo: updatedUser.saldo
+        }
+      });
+      console.log('✅ Prêmio creditado com sucesso');
+
+      // Registrar transação do prêmio
+      await prisma.transaction.create({
+        data: {
+          user_id: userId,
+          case_id: caseData.id,
+          prize_id: wonPrize.id,
+          tipo: 'premio',
+          valor: parseFloat(wonPrize.valor),
+          status: 'concluido',
+          descricao: `Prêmio ganho na caixa ${caseData.nome}: ${wonPrize.nome}`
+        }
+      });
+
+      // Verificar saldo após crédito
+      const userAfterCredit = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { saldo: true }
+      });
+      console.log('💰 Saldo após crédito:', userAfterCredit.saldo);
+
+      res.json({
+        prizes: caseData.prizes,
+        wonPrize: wonPrize,
+        message: `Prêmio de R$ ${parseFloat(wonPrize.valor).toFixed(2)} creditado com sucesso!`,
+        credited: true
+      });
+
+    } catch (error) {
+      console.error('Erro ao creditar prêmio:', error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+
+  // Função de sorteio ponderado
+
+  // Histórico de aberturas do usuário
+  async getUserHistory(req, res) {
+    try {
+      const userId = req.user.id;
+      const { page = 1, limit = 20 } = req.query;
+      
+      const skip = (page - 1) * limit;
+      
+      const transactions = await prisma.transaction.findMany({
+        where: {
+          user_id: userId,
+          tipo: 'premio'
+        },
+        include: {
+          case: {
+            select: {
+              nome: true,
+              imagem_url: true
+            }
+          },
+          prize: {
+            select: {
+              nome: true,
+              valor: true
+            }
+          }
+        },
+        orderBy: {
+          criado_em: 'desc'
+        },
+        skip: parseInt(skip),
+        take: parseInt(limit)
+      });
+      
+      const total = await prisma.transaction.count({
+        where: {
+          user_id: userId,
+          tipo: 'premio'
+        }
+      });
+      
+      res.json({
+        transactions,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / limit)
+        }
+      });
+    } catch (error) {
+      console.error('Erro ao buscar histórico:', error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+
+  // Listar prêmios de todas as caixas (para debug)
+  async getPremios(req, res) {
+    try {
+      const caixas = await prisma.case.findMany({
+        where: { ativo: true },
+        include: {
+          prizes: {
+            select: {
+              id: true,
+              nome: true,
+              valor: true,
+              probabilidade: true
+            }
+          }
+        },
+        orderBy: { preco: 'asc' }
+      });
+
+      const resultado = caixas.map(caixa => ({
+        nome: caixa.nome,
+        preco: caixa.preco,
+        premios: caixa.prizes.map(premio => ({
+          nome: premio.nome,
+          valor: premio.valor,
+          probabilidade: `${(premio.probabilidade * 100).toFixed(2)}%`
+        }))
+      }));
+
+      res.json({
+        success: true,
+        caixas: resultado
+      });
+
+    } catch (error) {
+      console.error('Erro ao listar prêmios:', error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+
+  // Mapear ID do frontend para ID real do banco
+  async mapFrontendId(req, res) {
+    try {
+      const { frontendId } = req.params;
+      
+      const mapping = {
+        'weekend-case': 'b39feef0-d72f-4423-a561-da5fd543b15e',
+        'nike-case': 'f6e19259-443b-484c-b7a1-9f670ad2e0b8',
+        'samsung-case': 'f6db398c-0c14-403a-bb88-76e11c0bdcaa',
+        'console-case': '605b9275-c22b-4e73-a290-95ff7997baf5',
+        'apple-case': '34776309-0312-4c18-aba6-577823331d52',
+        'premium-master-case': 'ef8d6aee-d210-4567-9029-bde0280d396e'
+      };
+      
+      const realId = mapping[frontendId];
+      if (!realId) {
+        return res.status(404).json({ error: 'Caixa não encontrada' });
+      }
+      
+      // Verificar se a caixa existe no banco
+      const caseData = await prisma.case.findUnique({
+        where: { id: realId },
+        select: { id: true, nome: true, preco: true, ativo: true }
+      });
+      
+      if (!caseData) {
+        return res.status(404).json({ error: 'Caixa não encontrada no banco de dados' });
+      }
+      
+      res.json({ 
+        success: true,
+        frontendId, 
+        realId,
+        caseData
+      });
+      
+    } catch (error) {
+      console.error('Erro ao mapear ID da caixa:', error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+
+  // Obter estatísticas de RTP do usuário
+  async getUserRTPStats(req, res) {
+    try {
+      const userId = req.user.id;
+      const { caseId } = req.params;
+
+      if (caseId) {
+        // Estatísticas para uma caixa específica
+        const sessionStats = await userRTPService.getSessionStats(userId, caseId);
+        res.json({ success: true, data: sessionStats });
+      } else {
+        // Estatísticas gerais do usuário
+        const userStats = await userRTPService.getUserRTPStats(userId);
+        res.json({ success: true, data: userStats });
+      }
+    } catch (error) {
+      console.error('Erro ao obter estatísticas RTP:', error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+
+  // Finalizar sessão RTP do usuário
+  async endRTPSession(req, res) {
+    try {
+      const userId = req.user.id;
+      const { caseId } = req.params;
+
+      const session = await userRTPService.getOrCreateRTPSession(userId, caseId);
+      await userRTPService.endSession(session.id);
+
+      res.json({ 
+        success: true, 
+        message: 'Sessão RTP finalizada com sucesso',
+        session_stats: {
+          total_gasto: session.total_gasto,
+          total_premios: session.total_premios,
+          rtp_final: session.rtp_atual
+        }
+      });
+    } catch (error) {
+      console.error('Erro ao finalizar sessão RTP:', error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+}
+
+module.exports = new CasesController();
+
