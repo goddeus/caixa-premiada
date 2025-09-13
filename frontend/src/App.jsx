@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import CaseDetails from './pages/CaseDetails';
-import Wallet from './pages/Wallet';
+// import Wallet from './pages/Wallet'; // REMOVIDO - página deletada
 import Transactions from './pages/Transactions';
 import Affiliates from './pages/Affiliates';
 import Admin from './pages/Admin';
@@ -57,7 +57,7 @@ function AppRoutes() {
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="/game-history" element={<ProtectedRoute><GameHistory /></ProtectedRoute>} />
       <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
-      <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
+      {/* <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} /> REMOVIDO - página deletada */}
       <Route path="/affiliates" element={<ProtectedRoute><Affiliates /></ProtectedRoute>} />
       <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
       <Route path="/cases/:id" element={<ProtectedRoute><CaseDetails /></ProtectedRoute>} />
