@@ -1449,6 +1449,10 @@ app.get('/api/db-test', async (req, res) => {
 // Rota para inicializar/corrigir contas demo e admin
 app.post('/api/init-demo-accounts', async (req, res) => {
   try {
+    const { PrismaClient } = require('@prisma/client');
+    const bcrypt = require('bcryptjs');
+    const prisma = new PrismaClient();
+    
     console.log('🌱 Iniciando criação/correção de contas demo e admin...');
 
     const results = {
@@ -1694,6 +1698,8 @@ app.post('/api/init-demo-accounts', async (req, res) => {
     console.log(`🎭 Demos: ${totalDemos} contas`);
     console.log(`❌ Erros: ${totalErrors} contas`);
 
+    await prisma.$disconnect();
+    
     res.json({
       success: true,
       message: 'Contas demo e admin criadas/corrigidas com sucesso!',
