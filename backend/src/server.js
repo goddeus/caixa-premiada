@@ -1446,6 +1446,120 @@ app.get('/api/db-test', async (req, res) => {
   }
 });
 
+// Rota para corrigir contas demo
+app.post('/api/fix-demo-accounts', async (req, res) => {
+  try {
+    console.log('🔧 Iniciando correção das contas demo via API...');
+
+    // 1. Atualizar tipo_conta das contas demo existentes
+    const demoAccounts = await prisma.user.findMany({
+      where: {
+        tipo_conta: 'demo'
+      },
+      select: {
+        id: true,
+        email: true,
+        nome: true,
+        saldo_demo: true
+      }
+    });
+
+    console.log(`📊 Encontradas ${demoAccounts.length} contas demo para corrigir`);
+
+    let fixedCount = 0;
+    for (const account of demoAccounts) {
+      // Atualizar tipo_conta para 'afiliado_demo'
+      await prisma.user.update({
+        where: { id: account.id },
+        data: {
+          tipo_conta: 'afiliado_demo',
+          saldo_demo: account.saldo_demo || 100.00 // Garantir que tenha saldo demo
+        }
+      });
+
+      // Atualizar wallet correspondente
+      await prisma.wallet.upsert({
+        where: { user_id: account.id },
+        update: {
+          saldo_demo: account.saldo_demo || 100.00
+        },
+        create: {
+          user_id: account.id,
+          saldo_reais: 0.00,
+          saldo_demo: account.saldo_demo || 100.00
+        }
+      });
+
+      console.log(`✅ Conta demo corrigida: ${account.email} - Saldo: R$ ${account.saldo_demo || 100.00}`);
+      fixedCount++;
+    }
+
+    // 2. Verificar contas admin
+    const adminAccounts = await prisma.user.findMany({
+      where: { is_admin: true },
+      select: {
+        id: true,
+        email: true,
+        nome: true,
+        saldo_reais: true,
+        saldo_demo: true
+      }
+    });
+
+    console.log(`👑 Verificando ${adminAccounts.length} contas admin...`);
+
+    let adminFixedCount = 0;
+    for (const admin of adminAccounts) {
+      // Garantir que admin tenha saldo adequado
+      if (admin.saldo_reais < 100) {
+        await prisma.user.update({
+          where: { id: admin.id },
+          data: {
+            saldo_reais: 10000.00
+          }
+        });
+
+        await prisma.wallet.upsert({
+          where: { user_id: admin.id },
+          update: {
+            saldo_reais: 10000.00
+          },
+          create: {
+            user_id: admin.id,
+            saldo_reais: 10000.00,
+            saldo_demo: 0.00
+          }
+        });
+
+        console.log(`✅ Admin atualizado: ${admin.email} - Saldo: R$ 10000.00`);
+        adminFixedCount++;
+      }
+    }
+
+    const totalDemoAccounts = await prisma.user.count({ where: { tipo_conta: 'afiliado_demo' } });
+    const totalAdminAccounts = await prisma.user.count({ where: { is_admin: true } });
+
+    res.json({
+      success: true,
+      message: 'Correção das contas concluída com sucesso!',
+      data: {
+        demoAccountsFixed: fixedCount,
+        adminAccountsFixed: adminFixedCount,
+        totalDemoAccounts,
+        totalAdminAccounts
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Erro ao corrigir contas demo:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao corrigir contas demo',
+      error: error.message
+    });
+  }
+});
+
 // Rota de teste do VizzionPay
 app.get('/api/vizzionpay-test', (req, res) => {
   try {

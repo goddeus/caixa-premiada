@@ -220,7 +220,7 @@ const CaseDetails = () => {
               <div className="flex items-center justify-between">
                 <span className="text-gray-300">Seu Saldo:</span>
                 <span className="text-white font-bold">
-                  R$ {user?.saldo ? parseFloat(user.saldo).toFixed(2) : '0.00'}
+                  R$ {user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo ? parseFloat(user.saldo_demo).toFixed(2) : '0.00') : (user?.saldo_reais ? parseFloat(user.saldo_reais).toFixed(2) : '0.00')}
                 </span>
               </div>
             </div>

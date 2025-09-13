@@ -163,7 +163,7 @@ router.post('/seed-demo-users', async (req, res) => {
             data: {
               senha_hash: demoPassword,
               is_admin: false,
-              tipo_conta: 'demo',
+              tipo_conta: 'afiliado_demo',
               ativo: true,
               primeiro_deposito_feito: false,
               rollover_liberado: false
@@ -203,7 +203,7 @@ router.post('/seed-demo-users', async (req, res) => {
             senha_hash: demoPassword,
             cpf: `1111111111${String(demoAccounts.indexOf(demoData) + 1).padStart(2, '0')}`,
             is_admin: false,
-            tipo_conta: 'demo',
+            tipo_conta: 'afiliado_demo',
             saldo_reais: 0.00,
             saldo_demo: 100.00,
             ativo: true,

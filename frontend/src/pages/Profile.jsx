@@ -79,8 +79,8 @@ const Profile = () => {
       
       // Fazer requisição de saque
       const response = await api.post('/wallet/withdraw', {
-        amount: amount,
-        pixKey: pixKey.trim()
+        valor: amount,
+        pix_key: pixKey.trim()
       });
       
       if (response.data.success) {
