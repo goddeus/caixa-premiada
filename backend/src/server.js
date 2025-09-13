@@ -1446,115 +1446,274 @@ app.get('/api/db-test', async (req, res) => {
   }
 });
 
-// Rota para corrigir contas demo
-app.post('/api/fix-demo-accounts', async (req, res) => {
+// Rota para inicializar/corrigir contas demo e admin
+app.post('/api/init-demo-accounts', async (req, res) => {
   try {
-    console.log('🔧 Iniciando correção das contas demo via API...');
+    console.log('🌱 Iniciando criação/correção de contas demo e admin...');
 
-    // 1. Atualizar tipo_conta das contas demo existentes
-    const demoAccounts = await prisma.user.findMany({
-      where: {
-        tipo_conta: 'demo'
-      },
-      select: {
-        id: true,
-        email: true,
-        nome: true,
-        saldo_demo: true
+    const results = {
+      demos: [],
+      admins: [],
+      errors: []
+    };
+
+    // 1. CRIAR/CORRIGIR CONTAS ADMIN
+    console.log('👑 Criando/corrigindo contas ADMIN...');
+    
+    const adminPassword = await bcrypt.hash('paineladm@', 12);
+    
+    const adminAccounts = [
+      { nome: 'Eduarda', email: 'eduarda@admin.com', username: 'eduarda' },
+      { nome: 'Junior', email: 'junior@admin.com', username: 'junior' }
+    ];
+
+    for (const adminData of adminAccounts) {
+      try {
+        // Verificar se já existe
+        const existingUser = await prisma.user.findUnique({
+          where: { email: adminData.email }
+        });
+
+        if (existingUser) {
+          // Atualizar conta existente
+          await prisma.user.update({
+            where: { email: adminData.email },
+            data: {
+              senha_hash: adminPassword,
+              is_admin: true,
+              tipo_conta: 'normal',
+              ativo: true,
+              saldo_reais: 10000.00,
+              saldo_demo: 0.00
+            }
+          });
+
+          await prisma.wallet.upsert({
+            where: { user_id: existingUser.id },
+            update: {
+              saldo_reais: 10000.00,
+              saldo_demo: 0.00
+            },
+            create: {
+              user_id: existingUser.id,
+              saldo_reais: 10000.00,
+              saldo_demo: 0.00
+            }
+          });
+
+          results.admins.push({
+            email: adminData.email,
+            status: 'Atualizado',
+            saldo_reais: 10000.00
+          });
+        } else {
+          // Criar nova conta admin
+          const admin = await prisma.user.create({
+            data: {
+              nome: adminData.nome,
+              email: adminData.email,
+              senha_hash: adminPassword,
+              cpf: `0000000000${adminAccounts.indexOf(adminData) + 1}`,
+              is_admin: true,
+              tipo_conta: 'normal',
+              ativo: true,
+              saldo_reais: 10000.00,
+              saldo_demo: 0.00
+            }
+          });
+
+          await prisma.wallet.create({
+            data: {
+              user_id: admin.id,
+              saldo_reais: 10000.00,
+              saldo_demo: 0.00
+            }
+          });
+
+          results.admins.push({
+            email: adminData.email,
+            status: 'Criado',
+            saldo_reais: 10000.00
+          });
+        }
+
+        console.log(`✅ Admin ${adminData.email}: ${existingUser ? 'Atualizado' : 'Criado'}`);
+
+      } catch (error) {
+        console.error(`❌ Erro ao criar/atualizar admin ${adminData.email}:`, error.message);
+        results.errors.push({
+          email: adminData.email,
+          error: error.message
+        });
       }
-    });
-
-    console.log(`📊 Encontradas ${demoAccounts.length} contas demo para corrigir`);
-
-    let fixedCount = 0;
-    for (const account of demoAccounts) {
-      // Atualizar tipo_conta para 'afiliado_demo'
-      await prisma.user.update({
-        where: { id: account.id },
-        data: {
-          tipo_conta: 'afiliado_demo',
-          saldo_demo: account.saldo_demo || 100.00 // Garantir que tenha saldo demo
-        }
-      });
-
-      // Atualizar wallet correspondente
-      await prisma.wallet.upsert({
-        where: { user_id: account.id },
-        update: {
-          saldo_demo: account.saldo_demo || 100.00
-        },
-        create: {
-          user_id: account.id,
-          saldo_reais: 0.00,
-          saldo_demo: account.saldo_demo || 100.00
-        }
-      });
-
-      console.log(`✅ Conta demo corrigida: ${account.email} - Saldo: R$ ${account.saldo_demo || 100.00}`);
-      fixedCount++;
     }
 
-    // 2. Verificar contas admin
-    const adminAccounts = await prisma.user.findMany({
-      where: { is_admin: true },
-      select: {
-        id: true,
-        email: true,
-        nome: true,
-        saldo_reais: true,
-        saldo_demo: true
+    // 2. CRIAR/CORRIGIR CONTAS DEMO
+    console.log('🎭 Criando/corrigindo contas DEMO...');
+    
+    const demoPassword = await bcrypt.hash('demo123', 12);
+    
+    const demoAccounts = [
+      { nome: 'Demo 1', email: 'demo1@test.com' },
+      { nome: 'Demo 2', email: 'demo2@test.com' },
+      { nome: 'Demo 3', email: 'demo3@test.com' }
+    ];
+
+    for (const demoData of demoAccounts) {
+      try {
+        // Verificar se já existe
+        const existingUser = await prisma.user.findUnique({
+          where: { email: demoData.email }
+        });
+
+        if (existingUser) {
+          // Atualizar conta existente
+          await prisma.user.update({
+            where: { email: demoData.email },
+            data: {
+              senha_hash: demoPassword,
+              is_admin: false,
+              tipo_conta: 'afiliado_demo',
+              ativo: true,
+              saldo_reais: 0.00,
+              saldo_demo: 100.00
+            }
+          });
+
+          await prisma.wallet.upsert({
+            where: { user_id: existingUser.id },
+            update: {
+              saldo_reais: 0.00,
+              saldo_demo: 100.00
+            },
+            create: {
+              user_id: existingUser.id,
+              saldo_reais: 0.00,
+              saldo_demo: 100.00
+            }
+          });
+
+          results.demos.push({
+            email: demoData.email,
+            status: 'Atualizado',
+            saldo_demo: 100.00
+          });
+        } else {
+          // Criar nova conta demo
+          const demo = await prisma.user.create({
+            data: {
+              nome: demoData.nome,
+              email: demoData.email,
+              senha_hash: demoPassword,
+              cpf: `1111111111${demoAccounts.indexOf(demoData) + 1}`,
+              is_admin: false,
+              tipo_conta: 'afiliado_demo',
+              ativo: true,
+              saldo_reais: 0.00,
+              saldo_demo: 100.00
+            }
+          });
+
+          await prisma.wallet.create({
+            data: {
+              user_id: demo.id,
+              saldo_reais: 0.00,
+              saldo_demo: 100.00
+            }
+          });
+
+          results.demos.push({
+            email: demoData.email,
+            status: 'Criado',
+            saldo_demo: 100.00
+          });
+        }
+
+        console.log(`✅ Demo ${demoData.email}: ${existingUser ? 'Atualizado' : 'Criado'}`);
+
+      } catch (error) {
+        console.error(`❌ Erro ao criar/atualizar demo ${demoData.email}:`, error.message);
+        results.errors.push({
+          email: demoData.email,
+          error: error.message
+        });
       }
+    }
+
+    // 3. CORRIGIR CONTAS DEMO EXISTENTES COM TIPO INCORRETO
+    console.log('🔧 Corrigindo contas demo com tipo incorreto...');
+    
+    const incorrectDemoAccounts = await prisma.user.findMany({
+      where: { tipo_conta: 'demo' },
+      select: { id: true, email: true, nome: true }
     });
 
-    console.log(`👑 Verificando ${adminAccounts.length} contas admin...`);
-
-    let adminFixedCount = 0;
-    for (const admin of adminAccounts) {
-      // Garantir que admin tenha saldo adequado
-      if (admin.saldo_reais < 100) {
+    for (const account of incorrectDemoAccounts) {
+      try {
         await prisma.user.update({
-          where: { id: admin.id },
+          where: { id: account.id },
           data: {
-            saldo_reais: 10000.00
+            tipo_conta: 'afiliado_demo',
+            saldo_demo: 100.00
           }
         });
 
         await prisma.wallet.upsert({
-          where: { user_id: admin.id },
-          update: {
-            saldo_reais: 10000.00
-          },
+          where: { user_id: account.id },
+          update: { saldo_demo: 100.00 },
           create: {
-            user_id: admin.id,
-            saldo_reais: 10000.00,
-            saldo_demo: 0.00
+            user_id: account.id,
+            saldo_reais: 0.00,
+            saldo_demo: 100.00
           }
         });
 
-        console.log(`✅ Admin atualizado: ${admin.email} - Saldo: R$ 10000.00`);
-        adminFixedCount++;
+        results.demos.push({
+          email: account.email,
+          status: 'Corrigido',
+          saldo_demo: 100.00
+        });
+
+        console.log(`✅ Demo corrigido: ${account.email}`);
+      } catch (error) {
+        console.error(`❌ Erro ao corrigir demo ${account.email}:`, error.message);
+        results.errors.push({
+          email: account.email,
+          error: error.message
+        });
       }
     }
 
-    const totalDemoAccounts = await prisma.user.count({ where: { tipo_conta: 'afiliado_demo' } });
-    const totalAdminAccounts = await prisma.user.count({ where: { is_admin: true } });
+    // 4. RESUMO FINAL
+    const totalAdmins = results.admins.length;
+    const totalDemos = results.demos.length;
+    const totalErrors = results.errors.length;
+    
+    console.log(`\n📊 Resumo:`);
+    console.log(`👑 Admins: ${totalAdmins} contas`);
+    console.log(`🎭 Demos: ${totalDemos} contas`);
+    console.log(`❌ Erros: ${totalErrors} contas`);
 
     res.json({
       success: true,
-      message: 'Correção das contas concluída com sucesso!',
+      message: 'Contas demo e admin criadas/corrigidas com sucesso!',
       data: {
-        demoAccountsFixed: fixedCount,
-        adminAccountsFixed: adminFixedCount,
-        totalDemoAccounts,
-        totalAdminAccounts
+        admins: results.admins,
+        demos: results.demos,
+        errors: results.errors,
+        summary: {
+          totalAdmins,
+          totalDemos,
+          totalErrors
+        }
       }
     });
 
   } catch (error) {
-    console.error('❌ Erro ao corrigir contas demo:', error);
+    console.error('❌ Erro ao criar/corrigir contas:', error);
     res.status(500).json({
       success: false,
-      message: 'Erro ao corrigir contas demo',
+      message: 'Erro ao criar/corrigir contas',
       error: error.message
     });
   }
