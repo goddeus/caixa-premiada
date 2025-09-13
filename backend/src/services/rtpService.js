@@ -99,14 +99,8 @@ class RTPService {
       // Garantir que está dentro dos limites
       rtpRecomendado = Math.max(10, Math.min(90, rtpRecomendado));
 
-      // Atualizar recomendação na configuração
-      const currentConfig = await this.getRTPConfig();
-      await prisma.rTPConfig.update({
-        where: { id: currentConfig.id },
-        data: {
-          rtp_recommended: rtpRecomendado
-        }
-      });
+      // Log da recomendação
+      console.log(`📊 RTP recomendado calculado: ${rtpRecomendado.toFixed(2)}%`);
 
       return {
         rtp_recommended: rtpRecomendado,

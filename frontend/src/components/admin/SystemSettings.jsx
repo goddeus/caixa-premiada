@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import api from '../../services/api';
 import { FaCog, FaSave, FaEdit, FaTrash } from 'react-icons/fa';
 
 const SystemSettings = () => {

@@ -23,8 +23,13 @@ const AffiliateManagement = () => {
       });
 
       const response = await api.get(`/admin/affiliates?${params}`);
-      setAffiliates(response.data.data.affiliates || []);
-      setPagination(response.data.data.pagination || pagination);
+      if (response.data.success && response.data.data) {
+        setAffiliates(response.data.data.affiliates || []);
+        setPagination(response.data.data.pagination || pagination);
+      } else {
+        setAffiliates([]);
+        toast.error('Erro ao carregar dados dos afiliados');
+      }
     } catch (error) {
       console.error('Erro ao carregar afiliados:', error);
       toast.error('Erro ao carregar afiliados');

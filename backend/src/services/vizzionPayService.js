@@ -68,9 +68,9 @@ class VizzionPayService {
         }
       });
       
-      // Preparar dados para o VizzionPay
+      // Preparar dados para o VizzionPay conforme documentação oficial
       const paymentData = {
-        amount: (valorNumerico * 100).toFixed(0), // VizzionPay usa centavos
+        amount: valorNumerico, // VizzionPay usa reais, não centavos
         currency: 'BRL',
         payment_method: 'pix',
         reference: payment.id,
@@ -89,16 +89,18 @@ class VizzionPayService {
       
       console.log('Enviando para VizzionPay:', JSON.stringify(paymentData, null, 2));
       
-      // Fazer chamada para o VizzionPay
-      const response = await this.client.post('/v1/payments', paymentData);
+      // Fazer chamada para o VizzionPay - endpoint correto conforme documentação
+      const response = await this.client.post('/pix/receive', paymentData);
       
-      if (!response.data || response.data.status === 'error') {
+      console.log('Resposta VizzionPay:', JSON.stringify(response.data, null, 2));
+      
+      if (!response.data || response.data.success === false) {
         throw new Error('Erro na resposta do VizzionPay: ' + JSON.stringify(response.data));
       }
       
       const vizzionData = response.data.data || response.data;
       
-      // Atualizar payment com dados do VizzionPay
+      // Atualizar payment com dados do VizzionPay conforme documentação
       await prisma.payment.update({
         where: { id: payment.id },
         data: {
@@ -190,9 +192,9 @@ class VizzionPayService {
         return;
       }
       
-      // 4. Processar baseado no status
+      // 4. Processar baseado no status conforme documentação VizzionPay
       await prisma.$transaction(async (tx) => {
-        if (status === 'paid' || status === 'approved' || status === 'completed') {
+        if (status === 'paid' || status === 'approved' || status === 'completed' || status === 'success') {
           // Pagamento confirmado
           let valorDeposito = Number(amount);
           
