@@ -258,16 +258,16 @@ const Dashboard = () => {
         amount: parseFloat(depositAmount.replace(',', '.')) 
       });
       
-      console.log('[DEBUG] Resposta do depósito PIX:', response.data);
+      console.log('[DEBUG] Resposta do depósito PIX:', response);
       
-      if (response.data.success) {
+      if (response.success) {
         // Preparar dados para o modal PIX
         const pixModalData = {
           success: true,
           data: {
-            qr_base64: response.data.qrCodeImage,
-            qr_text: response.data.qrCode,
-            transaction_id: response.data.identifier,
+            qr_base64: response.qrCodeImage,
+            qr_text: response.qrCode,
+            transaction_id: response.identifier,
             amount: parseFloat(depositAmount.replace(',', '.')),
             expires_at: new Date(Date.now() + 3600000) // 1 hora
           }
@@ -280,7 +280,7 @@ const Dashboard = () => {
         
         toast.success('QR Code PIX gerado com sucesso!');
       } else {
-        toast.error(response.data.message || 'Erro ao gerar QR Code');
+        toast.error(response.message || 'Erro ao gerar QR Code');
       }
       
     } catch (error) {
