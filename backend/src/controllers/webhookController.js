@@ -26,7 +26,7 @@ class WebhookController {
       // }
       
       // Extrair dados do formato VizzionPay
-      const { event, transaction } = req.body;
+      const { event, transaction: webhookTransaction } = req.body;
       
       // Verificar se é evento de pagamento
       if (event !== 'TRANSACTION_PAID') {
@@ -34,7 +34,7 @@ class WebhookController {
         return res.status(200).json({ success: true });
       }
       
-      if (!transaction) {
+      if (!webhookTransaction) {
         console.error('[DEBUG] Transação não encontrada no webhook');
         return res.status(400).json({
           success: false,
@@ -42,7 +42,7 @@ class WebhookController {
         });
       }
       
-      const { identifier, amount, status } = transaction;
+      const { identifier, amount, status } = webhookTransaction;
       
       // Validações
       if (!identifier || !amount || !status) {
