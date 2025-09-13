@@ -242,6 +242,7 @@ const Dashboard = () => {
       });
       
       // Mostrar modal com QR Code
+      console.log('📊 Dados do depósito recebidos:', response.data);
       setPixData(response.data);
       setShowDepositModal(false);
       setShowPixModal(true);
@@ -1474,16 +1475,16 @@ const Dashboard = () => {
               <div className="text-center">
                 <p className="text-sm text-gray-300 mb-1">Valor a pagar</p>
                 <p className="text-3xl font-bold text-white">
-                  R$ {pixData.valor?.toFixed(2)}
+                  R$ {pixData.data?.amount?.toFixed(2) || parseFloat(depositAmount.replace(',', '.')).toFixed(2)}
                 </p>
               </div>
             </div>
 
             {/* QR Code */}
-            {pixData.qr_code && (
+            {pixData.data?.qr_base64 ? (
               <div className="bg-white rounded-lg p-4 mb-6 text-center">
                 <img 
-                  src={pixData.qr_code} 
+                  src={`data:image/png;base64,${pixData.data.qr_base64}`} 
                   alt="QR Code PIX" 
                   className="w-48 h-48 mx-auto border border-gray-200 rounded"
                 />
@@ -1491,10 +1492,15 @@ const Dashboard = () => {
                   Escaneie com seu app bancário
                 </p>
               </div>
+            ) : (
+              <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4 mb-6 text-center">
+                <p className="text-red-400 font-medium">QR Code não foi gerado</p>
+                <p className="text-red-300 text-sm mt-1">Tente novamente ou use o código PIX abaixo</p>
+              </div>
             )}
 
             {/* Código PIX Copy Paste */}
-            {pixData.pix_copy_paste && (
+            {pixData.data?.qr_text && (
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Código PIX (Copiar e Colar)
@@ -1502,13 +1508,13 @@ const Dashboard = () => {
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    value={pixData.pix_copy_paste}
+                    value={pixData.data.qr_text}
                     readOnly
                     className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm font-mono"
                   />
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText(pixData.pix_copy_paste);
+                      navigator.clipboard.writeText(pixData.data.qr_text);
                       toast.success('Código PIX copiado!');
                     }}
                     className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2"
