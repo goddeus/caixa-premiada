@@ -15,7 +15,7 @@ const Transactions = () => {
     try {
       setLoading(true);
       const response = await api.get('/transactions');
-      setTransactions(response.data.transactions); // A resposta vem em data.transactions
+      setTransactions(response.data); // A resposta vem diretamente em data
     } catch (error) {
       console.error('Erro ao buscar transações:', error);
       // Dados mock para demonstração

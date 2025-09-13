@@ -254,10 +254,22 @@ class CashFlowService {
 
         // Atualizar saldo do usuário se necessário
         if (transactionData.tipo === 'deposito' && transactionData.status === 'concluido') {
+          // Buscar tipo de conta do usuário
+          const user = await tx.user.findUnique({
+            where: { id: transactionData.user_id },
+            select: { tipo_conta: true }
+          });
+
+          const isDemoAccount = user && user.tipo_conta === 'afiliado_demo';
+
           await tx.user.update({
             where: { id: transactionData.user_id },
-            data: {
-              saldo: {
+            data: isDemoAccount ? {
+              saldo_demo: {
+                increment: transactionData.valor
+              }
+            } : {
+              saldo_reais: {
                 increment: transactionData.valor
               }
             }
@@ -266,8 +278,12 @@ class CashFlowService {
           // Atualizar carteira
           await tx.wallet.update({
             where: { user_id: transactionData.user_id },
-            data: {
-              saldo: {
+            data: isDemoAccount ? {
+              saldo_demo: {
+                increment: transactionData.valor
+              }
+            } : {
+              saldo_reais: {
                 increment: transactionData.valor
               }
             }
@@ -275,10 +291,22 @@ class CashFlowService {
         }
 
         if (transactionData.tipo === 'saque' && transactionData.status === 'concluido') {
+          // Buscar tipo de conta do usuário
+          const user = await tx.user.findUnique({
+            where: { id: transactionData.user_id },
+            select: { tipo_conta: true }
+          });
+
+          const isDemoAccount = user && user.tipo_conta === 'afiliado_demo';
+
           await tx.user.update({
             where: { id: transactionData.user_id },
-            data: {
-              saldo: {
+            data: isDemoAccount ? {
+              saldo_demo: {
+                decrement: transactionData.valor
+              }
+            } : {
+              saldo_reais: {
                 decrement: transactionData.valor
               }
             }
@@ -287,8 +315,12 @@ class CashFlowService {
           // Atualizar carteira
           await tx.wallet.update({
             where: { user_id: transactionData.user_id },
-            data: {
-              saldo: {
+            data: isDemoAccount ? {
+              saldo_demo: {
+                decrement: transactionData.valor
+              }
+            } : {
+              saldo_reais: {
                 decrement: transactionData.valor
               }
             }
@@ -296,10 +328,22 @@ class CashFlowService {
         }
 
         if (transactionData.tipo === 'premio' && transactionData.status === 'concluido') {
+          // Buscar tipo de conta do usuário
+          const user = await tx.user.findUnique({
+            where: { id: transactionData.user_id },
+            select: { tipo_conta: true }
+          });
+
+          const isDemoAccount = user && user.tipo_conta === 'afiliado_demo';
+
           await tx.user.update({
             where: { id: transactionData.user_id },
-            data: {
-              saldo: {
+            data: isDemoAccount ? {
+              saldo_demo: {
+                increment: transactionData.valor
+              }
+            } : {
+              saldo_reais: {
                 increment: transactionData.valor
               }
             }
@@ -308,8 +352,12 @@ class CashFlowService {
           // Atualizar carteira
           await tx.wallet.update({
             where: { user_id: transactionData.user_id },
-            data: {
-              saldo: {
+            data: isDemoAccount ? {
+              saldo_demo: {
+                increment: transactionData.valor
+              }
+            } : {
+              saldo_reais: {
                 increment: transactionData.valor
               }
             }

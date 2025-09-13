@@ -287,20 +287,42 @@ class CasesController {
 
       console.log('💰 Preço unitário da caixa (DB):', precoUnitario);
       console.log('💰 Total a ser cobrado:', totalPreco);
-      console.log('💰 Saldo atual do usuário:', req.user.saldo_reais);
+      // Verificar saldo baseado no tipo de conta
+      const isDemoAccount = req.user.tipo_conta === 'afiliado_demo';
+      const saldoAtual = isDemoAccount ? req.user.saldo_demo : req.user.saldo_reais;
       
-      if (parseFloat(req.user.saldo_reais) < totalPreco) {
+      console.log('💰 Saldo atual do usuário:', saldoAtual);
+      console.log('💰 Tipo de conta:', req.user.tipo_conta);
+      
+      if (parseFloat(saldoAtual) < totalPreco) {
         return res.status(400).json({ error: 'Saldo insuficiente' });
       }
 
       // Registrar saldo antes da compra para auditoria
-      const saldoAntes = parseFloat(req.user.saldo_reais);
+      const saldoAntes = parseFloat(saldoAtual);
 
       // Debitar valor da caixa imediatamente
       await prisma.$transaction(async (tx) => {
-        await tx.user.update({
-          where: { id: userId },
-          data: { saldo_reais: { decrement: totalPreco } }
+        if (isDemoAccount) {
+          await tx.user.update({
+            where: { id: userId },
+            data: { saldo_demo: { decrement: totalPreco } }
+          });
+        } else {
+          await tx.user.update({
+            where: { id: userId },
+            data: { saldo_reais: { decrement: totalPreco } }
+          });
+        }
+
+        // Sincronizar com Wallet
+        await tx.wallet.update({
+          where: { user_id: userId },
+          data: isDemoAccount ? {
+            saldo_demo: { decrement: totalPreco }
+          } : {
+            saldo_reais: { decrement: totalPreco }
+          }
         });
 
         await tx.transaction.create({
@@ -672,12 +694,14 @@ class CasesController {
       const updatedUser = await prisma.user.update({
         where: { id: userId },
         data: {
-          saldo: {
+          saldo_reais: {
             increment: parseFloat(wonPrize.valor)
           }
         },
         select: {
-          saldo: true
+          saldo_reais: true,
+          saldo_demo: true,
+          tipo_conta: true
         }
       });
       
@@ -685,7 +709,8 @@ class CasesController {
       await prisma.wallet.update({
         where: { user_id: userId },
         data: {
-          saldo: updatedUser.saldo
+          saldo_reais: updatedUser.saldo_reais,
+          saldo_demo: updatedUser.saldo_demo
         }
       });
       console.log('✅ Prêmio creditado com sucesso');

@@ -407,10 +407,32 @@ class GlobalDrawService {
    */
   async registerPrizeTransaction(user_id, case_id, prize) {
     try {
-      // 1. Creditar o valor do prêmio no saldo do usuário
+      // Buscar tipo de conta do usuário
+      const user = await prisma.user.findUnique({
+        where: { id: user_id },
+        select: { tipo_conta: true }
+      });
+
+      const isDemoAccount = user && user.tipo_conta === 'afiliado_demo';
+
+      // 1. Creditar o valor do prêmio no saldo correto do usuário
       await prisma.user.update({
         where: { id: user_id },
-        data: { saldo: { increment: prize.valor } }
+        data: isDemoAccount ? {
+          saldo_demo: { increment: prize.valor }
+        } : {
+          saldo_reais: { increment: prize.valor }
+        }
+      });
+
+      // Sincronizar com Wallet
+      await prisma.wallet.update({
+        where: { user_id: user_id },
+        data: isDemoAccount ? {
+          saldo_demo: { increment: prize.valor }
+        } : {
+          saldo_reais: { increment: prize.valor }
+        }
       });
 
       // 2. Registrar a transação do prêmio

@@ -21,7 +21,6 @@ model User {
   email       String   @unique
   senha_hash  String
   cpf         String   @unique
-  saldo       Float    @default(0)
   saldo_reais Float    @default(0) // Saldo em reais (separado do demo)
   codigo_indicacao_usado String? // Código usado para se cadastrar
   criado_em   DateTime @default(now())
@@ -59,7 +58,6 @@ model User {
 model Wallet {
   id          String   @id @default(uuid())
   user_id     String   @unique
-  saldo       Float    @default(0)
   saldo_reais Float    @default(0)
   saldo_demo  Float    @default(0)
   total_giros Float    @default(0)

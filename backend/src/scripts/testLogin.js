@@ -10,7 +10,7 @@ async function testLogin() {
     // Testar conta admin Eduarda
     const eduarda = await prisma.user.findUnique({
       where: { email: 'eduarda@admin.com' },
-      select: { id: true, nome: true, email: true, is_admin: true, saldo: true }
+      select: { id: true, nome: true, email: true, is_admin: true, saldo_reais: true, saldo_demo: true, tipo_conta: true }
     });
 
     if (eduarda) {
@@ -22,7 +22,7 @@ async function testLogin() {
     // Testar conta admin Junior
     const junior = await prisma.user.findUnique({
       where: { email: 'junior@admin.com' },
-      select: { id: true, nome: true, email: true, is_admin: true, saldo: true }
+      select: { id: true, nome: true, email: true, is_admin: true, saldo_reais: true, saldo_demo: true, tipo_conta: true }
     });
 
     if (junior) {
@@ -34,7 +34,7 @@ async function testLogin() {
     // Testar conta de teste
     const contateste = await prisma.user.findUnique({
       where: { email: 'contatest@test.com' },
-      select: { id: true, nome: true, email: true, is_admin: true, saldo: true }
+      select: { id: true, nome: true, email: true, is_admin: true, saldo_reais: true, saldo_demo: true, tipo_conta: true }
     });
 
     if (contateste) {

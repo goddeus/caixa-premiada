@@ -71,7 +71,8 @@ class PrizeCreditingTest {
         email: `teste.crediting.${timestamp}@teste.com`,
         senha_hash: 'teste123',
         cpf: `${Math.random().toString().substr(2, 11)}`,
-        saldo: 10000.00 // Saldo alto para testes
+        saldo_reais: 10000.00, // Saldo alto para testes
+        saldo_demo: 0
       }
     });
 
@@ -79,7 +80,8 @@ class PrizeCreditingTest {
     await prisma.wallet.create({
       data: {
         user_id: testUser.id,
-        saldo: 10000.00
+        saldo_reais: 10000.00,
+        saldo_demo: 0
       }
     });
 
@@ -131,22 +133,25 @@ class PrizeCreditingTest {
         const balanceBefore = await this.getUserBalance(user.id);
         
         // Simular o fluxo completo: débito da caixa + sorteio + crédito do prêmio
-        // 1. Debitar valor da caixa
+        // 1. Debitar valor da caixa (usar campo correto)
         await prisma.user.update({
           where: { id: user.id },
           data: {
-            saldo: { decrement: parseFloat(caseItem.preco) }
+            saldo_reais: { decrement: parseFloat(caseItem.preco) }
           }
         });
         
         // 2. Sincronizar com wallet
         const userAfterDebit = await prisma.user.findUnique({
           where: { id: user.id },
-          select: { saldo: true }
+          select: { saldo_reais: true, saldo_demo: true }
         });
         await prisma.wallet.update({
           where: { user_id: user.id },
-          data: { saldo: userAfterDebit.saldo }
+          data: { 
+            saldo_reais: userAfterDebit.saldo_reais,
+            saldo_demo: userAfterDebit.saldo_demo
+          }
         });
         
         // 3. Registrar transação de abertura
@@ -171,18 +176,21 @@ class PrizeCreditingTest {
           await prisma.user.update({
             where: { id: user.id },
             data: {
-              saldo: { increment: parseFloat(prize.valor) }
+              saldo_reais: { increment: parseFloat(prize.valor) }
             }
           });
           
           // 6. Sincronizar wallet
           const userAfterCredit = await prisma.user.findUnique({
             where: { id: user.id },
-            select: { saldo: true }
+            select: { saldo_reais: true, saldo_demo: true, tipo_conta: true }
           });
           await prisma.wallet.update({
             where: { user_id: user.id },
-            data: { saldo: userAfterCredit.saldo }
+            data: { 
+              saldo_reais: userAfterCredit.saldo_reais,
+              saldo_demo: userAfterCredit.saldo_demo
+            }
           });
           
           // 7. Registrar transação do prêmio
@@ -268,7 +276,7 @@ class PrizeCreditingTest {
         // 1. Debitar caixa
         await prisma.user.update({
           where: { id: user.id },
-          data: { saldo: { decrement: parseFloat(caseItem.preco) } }
+          data: { saldo_reais: { decrement: parseFloat(caseItem.preco) } }
         });
         
         // 2. Registrar transação de abertura
@@ -292,7 +300,7 @@ class PrizeCreditingTest {
           // 4. Creditar prêmio
           await prisma.user.update({
             where: { id: user.id },
-            data: { saldo: { increment: parseFloat(prize.valor) } }
+            data: { saldo_reais: { increment: parseFloat(prize.valor) } }
           });
           
           // 5. Registrar transação do prêmio
@@ -379,7 +387,7 @@ class PrizeCreditingTest {
           // 1. Debitar caixa
           await prisma.user.update({
             where: { id: user.id },
-            data: { saldo: { decrement: parseFloat(caseItem.preco) } }
+            data: { saldo_reais: { decrement: parseFloat(caseItem.preco) } }
           });
           
           // 2. Registrar transação de abertura
@@ -403,7 +411,7 @@ class PrizeCreditingTest {
             // 4. Creditar prêmio
             await prisma.user.update({
               where: { id: user.id },
-              data: { saldo: { increment: parseFloat(prize.valor) } }
+              data: { saldo_reais: { increment: parseFloat(prize.valor) } }
             });
             
             // 5. Registrar transação do prêmio
@@ -459,9 +467,10 @@ class PrizeCreditingTest {
   async getUserBalance(userId) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { saldo: true }
+      select: { saldo_reais: true, saldo_demo: true, tipo_conta: true }
     });
-    return user ? user.saldo : 0;
+    if (!user) return 0;
+    return user.tipo_conta === 'afiliado_demo' ? user.saldo_demo : user.saldo_reais;
   }
 
   analyzeCaseResults(results) {
@@ -486,7 +495,7 @@ class PrizeCreditingTest {
     // Estatísticas gerais do usuário
     const userStats = await prisma.user.findUnique({
       where: { id: user.id },
-      select: { saldo: true }
+      select: { saldo_reais: true, saldo_demo: true, tipo_conta: true }
     });
 
     const transactions = await prisma.transaction.findMany({

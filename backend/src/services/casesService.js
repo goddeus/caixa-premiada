@@ -172,18 +172,28 @@ class CasesService {
 
     // Iniciar transação do banco
     const result = await prisma.$transaction(async (tx) => {
-      // Deduzir valor da caixa do saldo
+      // Buscar tipo de conta do usuário
+      const user = await tx.user.findUnique({
+        where: { id: userId },
+        select: { tipo_conta: true }
+      });
+
+      const isDemoAccount = user && user.tipo_conta === 'afiliado_demo';
+
+      // Deduzir valor da caixa do saldo correto
       const updatedUser = await tx.user.update({
         where: { id: userId },
-        data: {
-          saldo: {
-            decrement: caseItem.preco
-          }
+        data: isDemoAccount ? {
+          saldo_demo: { decrement: caseItem.preco }
+        } : {
+          saldo_reais: { decrement: caseItem.preco }
         },
         select: {
           id: true,
           nome: true,
-          saldo: true
+          saldo_reais: true,
+          saldo_demo: true,
+          tipo_conta: true
         }
       });
 
@@ -191,7 +201,8 @@ class CasesService {
       await tx.wallet.update({
         where: { user_id: userId },
         data: {
-          saldo: updatedUser.saldo
+          saldo_reais: updatedUser.saldo_reais,
+          saldo_demo: updatedUser.saldo_demo
         }
       });
 
@@ -207,18 +218,20 @@ class CasesService {
         }
       });
 
-      // Adicionar valor do prêmio ao saldo (usando dados oficiais)
+      // Adicionar valor do prêmio ao saldo correto (usando dados oficiais)
       const finalUser = await tx.user.update({
         where: { id: userId },
-        data: {
-          saldo: {
-            increment: finalPrizeData.valor
-          }
+        data: isDemoAccount ? {
+          saldo_demo: { increment: finalPrizeData.valor }
+        } : {
+          saldo_reais: { increment: finalPrizeData.valor }
         },
         select: {
           id: true,
           nome: true,
-          saldo: true
+          saldo_reais: true,
+          saldo_demo: true,
+          tipo_conta: true
         }
       });
 
@@ -226,7 +239,8 @@ class CasesService {
       await tx.wallet.update({
         where: { user_id: userId },
         data: {
-          saldo: finalUser.saldo
+          saldo_reais: finalUser.saldo_reais,
+          saldo_demo: finalUser.saldo_demo
         }
       });
 

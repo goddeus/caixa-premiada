@@ -183,10 +183,33 @@ const logAdminActivity = (action) => {
   };
 };
 
+/**
+ * Função para criar log de atividades administrativas
+ */
+const createAdminLog = async (adminId, acao, descricao, dadosAntes = null, dadosDepois = null, userIdAfetado = null, req = null) => {
+  try {
+    await prisma.adminLog.create({
+      data: {
+        admin_id: adminId,
+        acao: acao,
+        descricao: descricao,
+        dados_antes: dadosAntes ? JSON.stringify(dadosAntes) : null,
+        dados_depois: dadosDepois ? JSON.stringify(dadosDepois) : null,
+        user_id_afetado: userIdAfetado,
+        ip_address: req?.ip || req?.connection?.remoteAddress || 'unknown',
+        user_agent: req?.get('User-Agent') || 'unknown'
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao criar log administrativo:', error);
+  }
+};
+
 module.exports = {
   authenticateToken,
   requireAdmin,
   requireNormalAccount,
   optionalAuth,
-  logAdminActivity
+  logAdminActivity,
+  createAdminLog
 };

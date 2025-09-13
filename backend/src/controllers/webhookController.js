@@ -175,12 +175,12 @@ class WebhookController {
       const userId = identifierParts[1];
       
       // Buscar transação de saque pelo identifier
-      const transaction = await prisma.transaction.findFirst({
+      const withdrawTransaction = await prisma.transaction.findFirst({
         where: { identifier },
         include: { user: true }
       });
       
-      if (!transaction) {
+      if (!withdrawTransaction) {
         console.error(`[DEBUG] Transação de saque não encontrada para identifier: ${identifier}`);
         return res.status(404).json({
           success: false,
@@ -193,19 +193,19 @@ class WebhookController {
         if (status === 'approved' || status === 'paid') {
           // Saque aprovado - manter saldo debitado
           await tx.transaction.update({
-            where: { id: transaction.id },
+            where: { id: withdrawTransaction.id },
             data: {
               status: 'concluido',
               processado_em: new Date()
             }
           });
           
-          console.log(`[DEBUG] Saque aprovado para usuário: ${transaction.user.email} - Valor: R$ ${transaction.valor}`);
+          console.log(`[DEBUG] Saque aprovado para usuário: ${withdrawTransaction.user.email} - Valor: R$ ${withdrawTransaction.valor}`);
           
         } else if (status === 'rejected' || status === 'failed') {
           // Saque rejeitado - devolver saldo
           await tx.transaction.update({
-            where: { id: transaction.id },
+            where: { id: withdrawTransaction.id },
             data: {
               status: 'rejeitado',
               processado_em: new Date()
@@ -213,19 +213,19 @@ class WebhookController {
           });
           
           // Devolver saldo ao usuário
-          if (transaction.user.tipo_conta === 'afiliado_demo') {
+          if (withdrawTransaction.user.tipo_conta === 'afiliado_demo') {
             await tx.user.update({
-              where: { id: transaction.user_id },
-              data: { saldo_demo: { increment: transaction.valor } }
+              where: { id: withdrawTransaction.user_id },
+              data: { saldo_demo: { increment: withdrawTransaction.valor } }
             });
           } else {
             await tx.user.update({
-              where: { id: transaction.user_id },
-              data: { saldo_reais: { increment: transaction.valor } }
+              where: { id: withdrawTransaction.user_id },
+              data: { saldo_reais: { increment: withdrawTransaction.valor } }
             });
           }
           
-          console.log(`[DEBUG] Saque rejeitado - saldo devolvido para usuário: ${transaction.user.email} - Valor: +R$ ${transaction.valor}`);
+          console.log(`[DEBUG] Saque rejeitado - saldo devolvido para usuário: ${withdrawTransaction.user.email} - Valor: +R$ ${withdrawTransaction.valor}`);
         }
       });
       

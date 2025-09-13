@@ -21,7 +21,8 @@ async function testCashFlowUpdate() {
         email: `teste.caixa.${Date.now()}@teste.com`,
         senha_hash: 'hash_teste',
         cpf: `${Date.now()}`,
-        saldo: 50
+        saldo_reais: 50,
+        saldo_demo: 0
       }
     });
     
@@ -29,7 +30,8 @@ async function testCashFlowUpdate() {
     await prisma.wallet.create({
       data: {
         user_id: testUser.id,
-        saldo: 50
+        saldo_reais: 50,
+        saldo_demo: 0
       }
     });
     

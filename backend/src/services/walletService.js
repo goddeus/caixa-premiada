@@ -8,7 +8,6 @@ class WalletService {
       where: { id: userId },
       select: {
         tipo_conta: true,
-        saldo: true,
         saldo_reais: true,
         saldo_demo: true,
         nome: true,
@@ -28,7 +27,9 @@ class WalletService {
     const saldoPrincipal = user.tipo_conta === 'afiliado_demo' ? user.saldo_demo : user.saldo_reais;
 
     return {
-      saldo: saldoPrincipal,
+      saldo_reais: user.saldo_reais,
+      saldo_demo: user.saldo_demo,
+      saldo: saldoPrincipal, // Manter para compatibilidade
       // OCULTAR tipo_conta para não mostrar que é demo
       atualizado_em: new Date(),
       usuario: {
@@ -92,7 +93,7 @@ class WalletService {
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
-        saldo: {
+        saldo_reais: {
           increment: amount
         },
         // Marcar que fez o primeiro depósito
@@ -101,7 +102,9 @@ class WalletService {
       select: {
         id: true,
         nome: true,
-        saldo: true,
+        saldo_reais: true,
+        saldo_demo: true,
+        tipo_conta: true,
         total_giros: true,
         rollover_liberado: true,
         rollover_minimo: true,
@@ -113,7 +116,8 @@ class WalletService {
     await prisma.wallet.update({
       where: { user_id: userId },
       data: {
-        saldo: updatedUser.saldo
+        saldo_reais: updatedUser.saldo_reais,
+        saldo_demo: updatedUser.saldo_demo
       }
     });
 
@@ -129,7 +133,7 @@ class WalletService {
 
     return {
       transaction,
-      novo_saldo: updatedUser.saldo,
+      novo_saldo: updatedUser.saldo_reais,
       message: `Depósito de R$ ${amount.toFixed(2)} realizado com sucesso`
     };
   }
@@ -152,7 +156,8 @@ class WalletService {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { 
-        saldo: true, 
+        saldo_reais: true,
+        saldo_demo: true,
         total_giros: true, 
         rollover_liberado: true, 
         rollover_minimo: true,
@@ -187,18 +192,20 @@ class WalletService {
       }
     });
 
-    // Deduzir saldo do usuário
+    // Deduzir saldo do usuário (apenas saldo_reais para contas normais)
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
-        saldo: {
+        saldo_reais: {
           decrement: amount
         }
       },
       select: {
         id: true,
         nome: true,
-        saldo: true
+        saldo_reais: true,
+        saldo_demo: true,
+        tipo_conta: true
       }
     });
 
@@ -206,13 +213,16 @@ class WalletService {
     await prisma.wallet.update({
       where: { user_id: userId },
       data: {
-        saldo: updatedUser.saldo
+        saldo_reais: updatedUser.saldo_reais
       }
     });
 
+    // Determinar saldo correto baseado no tipo de conta
+    const saldoAtual = updatedUser.tipo_conta === 'afiliado_demo' ? updatedUser.saldo_demo : updatedUser.saldo_reais;
+
     return {
       transaction,
-      novo_saldo: updatedUser.saldo,
+      novo_saldo: saldoAtual,
       message: `Saque de R$ ${amount.toFixed(2)} solicitado. Processamento em até 24h.`
     };
   }
@@ -221,27 +231,43 @@ class WalletService {
   async updateBalance(userId, amount, type = 'add') {
     const operation = type === 'add' ? 'increment' : 'decrement';
     
+    // Buscar tipo de conta do usuário
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { tipo_conta: true }
+    });
+
+    const isDemoAccount = user && user.tipo_conta === 'afiliado_demo';
+    
     const updatedUser = await prisma.user.update({
       where: { id: userId },
-      data: {
-        saldo: {
+      data: isDemoAccount ? {
+        saldo_demo: {
+          [operation]: amount
+        }
+      } : {
+        saldo_reais: {
           [operation]: amount
         }
       },
       select: {
         id: true,
-        saldo: true
+        saldo_reais: true,
+        saldo_demo: true,
+        tipo_conta: true
       }
     });
 
     await prisma.wallet.update({
       where: { user_id: userId },
       data: {
-        saldo: updatedUser.saldo
+        saldo_reais: updatedUser.saldo_reais,
+        saldo_demo: updatedUser.saldo_demo
       }
     });
 
-    return updatedUser.saldo;
+    // Retornar saldo correto baseado no tipo de conta
+    return updatedUser.tipo_conta === 'afiliado_demo' ? updatedUser.saldo_demo : updatedUser.saldo_reais;
   }
 
   // Verificar se tem saldo suficiente
@@ -249,7 +275,7 @@ class WalletService {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { 
-        saldo: true, 
+        saldo_reais: true, 
         saldo_demo: true, 
         tipo_conta: true 
       }
@@ -361,11 +387,12 @@ class WalletService {
         await tx.wallet.upsert({
           where: { user_id: affiliate.user_id },
           update: {
-            saldo: { increment: commissionAmount }
+            saldo_reais: { increment: commissionAmount }
           },
           create: {
             user_id: affiliate.user_id,
-            saldo: commissionAmount
+            saldo_reais: commissionAmount,
+            saldo_demo: 0
           }
         });
 

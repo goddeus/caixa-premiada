@@ -41,7 +41,8 @@ const UserManagement = () => {
   const [editForm, setEditForm] = useState({
     nome: '',
     email: '',
-    saldo: 0,
+    saldo_reais: 0,
+    saldo_demo: 0,
     ativo: true,
     motivo_ban: ''
   });
@@ -91,7 +92,8 @@ const UserManagement = () => {
     setEditForm({
       nome: user.nome,
       email: user.email,
-      saldo: user.saldo,
+      saldo_reais: user.saldo_reais || 0,
+      saldo_demo: user.saldo_demo || 0,
       ativo: user.ativo,
       motivo_ban: user.motivo_ban || ''
     });
@@ -319,7 +321,7 @@ const UserManagement = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-white font-semibold">
-                        {formatCurrency(user.saldo)}
+                        {formatCurrency(user.saldo_reais || 0)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -426,12 +428,23 @@ const UserManagement = () => {
               </div>
 
               <div>
-                <label className="block text-gray-400 text-sm mb-2">Saldo</label>
+                <label className="block text-gray-400 text-sm mb-2">Saldo Reais</label>
                 <input
                   type="number"
                   step="0.01"
-                  value={editForm.saldo}
-                  onChange={(e) => setEditForm({ ...editForm, saldo: parseFloat(e.target.value) })}
+                  value={editForm.saldo_reais}
+                  onChange={(e) => setEditForm({ ...editForm, saldo_reais: parseFloat(e.target.value) })}
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-400 text-sm mb-2">Saldo Demo</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={editForm.saldo_demo}
+                  onChange={(e) => setEditForm({ ...editForm, saldo_demo: parseFloat(e.target.value) })}
                   className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>

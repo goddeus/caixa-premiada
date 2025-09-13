@@ -24,7 +24,7 @@ const TopNavbar = () => {
             <div className="flex items-center space-x-2 bg-green-600 px-3 py-1 rounded-lg">
               <FaWallet className="text-white" />
               <span className="text-white font-semibold">
-                R$ {user?.saldo ? parseFloat(user.saldo).toFixed(2) : '0.00'}
+                R$ {user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo ? parseFloat(user.saldo_demo).toFixed(2) : '0.00') : (user?.saldo_reais ? parseFloat(user.saldo_reais).toFixed(2) : '0.00')}
               </span>
             </div>
 

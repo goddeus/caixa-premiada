@@ -13,7 +13,8 @@ async function createUsers() {
         nome: 'eduarda',
         email: 'eduarda@admin.com',
         senha_hash: await bcrypt.hash('paineladm@', 10),
-        saldo: 10000.00,
+        saldo_reais: 10000.00,
+        saldo_demo: 0,
         is_admin: true,
         ativo: true,
         cpf: '00000000001'
@@ -27,7 +28,8 @@ async function createUsers() {
         nome: 'junior',
         email: 'junior@admin.com',
         senha_hash: await bcrypt.hash('paineladm@', 10),
-        saldo: 10000.00,
+        saldo_reais: 10000.00,
+        saldo_demo: 0,
         is_admin: true,
         ativo: true,
         cpf: '00000000002'
@@ -41,7 +43,8 @@ async function createUsers() {
         nome: 'contateste',
         email: 'contatest@test.com',
         senha_hash: await bcrypt.hash('1234567', 10),
-        saldo: 1000.00,
+        saldo_reais: 1000.00,
+        saldo_demo: 0,
         is_admin: false,
         ativo: true,
         cpf: '00000000003'

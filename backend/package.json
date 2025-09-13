@@ -4,7 +4,7 @@
   "description": "Backend da plataforma Caixa Premiada",
   "main": "src/server.js",
   "scripts": {
-    "start": "npx prisma generate && npx prisma db push --accept-data-loss --force-reset && node init-db.js && node src/server.js",
+    "start": "npx prisma generate && node src/server.js",
     "dev": "nodemon src/server.js",
     "seed": "node prisma/seed.js",
     "build": "npx prisma generate",
@@ -13,9 +13,7 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "db:seed": "node prisma/seed.js",
-    "create-accounts": "node recreate-essential-accounts.js",
-    "init-db": "node init-db.js"
+    "db:seed": "node prisma/seed.js"
   },
   "keywords": [
     "caixa-premiada",

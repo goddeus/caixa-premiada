@@ -16,10 +16,13 @@ class ProfileController {
           email: true,
           cpf: true,
           criado_em: true,
-          saldo: true,
+          saldo_reais: true,
+          saldo_demo: true,
+          tipo_conta: true,
           wallet: {
             select: {
-              saldo: true,
+              saldo_reais: true,
+              saldo_demo: true,
               atualizado_em: true
             }
           }
@@ -81,6 +84,9 @@ class ProfileController {
       const totalGanhoEmPremios = prizes._sum.valor || 0;
       const ganhoCashback = totalGanhoEmPremios - totalGastoEmJogos;
 
+      // Determinar saldo correto baseado no tipo de conta
+      const saldoAtual = user.tipo_conta === 'afiliado_demo' ? user.saldo_demo : user.saldo_reais;
+
       res.json({
         success: true,
         data: {
@@ -92,7 +98,8 @@ class ProfileController {
           totalDepositado,
           totalRetirado,
           ganhoCashback: Math.max(0, ganhoCashback), // Não pode ser negativo
-          saldoAtual: user.saldo_reais
+          saldoAtual: saldoAtual,
+          tipoConta: user.tipo_conta
         }
       });
     } catch (error) {

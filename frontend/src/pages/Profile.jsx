@@ -144,7 +144,7 @@ const Profile = () => {
     try {
       setLoading(true);
       const response = await api.get('/profile');
-      const data = response.data.data; // A resposta agora vem em data.data
+      const data = response.data; // A resposta vem diretamente em data
       
       setProfileData({
         totalDepositado: data.totalDepositado || 0,

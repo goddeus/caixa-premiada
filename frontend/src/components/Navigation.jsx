@@ -39,7 +39,7 @@ export function Navigation() {
                     Olá, {user?.nome?.split(' ')[0]}!
                   </span>
                   <span className="text-sm font-medium text-primary-600">
-                    R$ {parseFloat(user?.saldo || 0).toFixed(2)}
+                    R$ {user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo ? parseFloat(user.saldo_demo).toFixed(2) : '0.00') : (user?.saldo_reais ? parseFloat(user.saldo_reais).toFixed(2) : '0.00')}
                   </span>
                   <button
                     onClick={logout}

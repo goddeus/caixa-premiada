@@ -27,7 +27,12 @@ class AdminController {
         
         // Usuários ativos (com saldo > 0)
         prisma.user.count({
-          where: { saldo_reais: { gt: 0 } }
+          where: {
+            OR: [
+              { saldo_reais: { gt: 0 } },
+              { saldo_demo: { gt: 0 } }
+            ]
+          }
         }),
         
         // Total de saques confirmados
@@ -186,6 +191,8 @@ class AdminController {
             email: true,
             cpf: true,
             saldo_reais: true,
+            saldo_demo: true,
+            tipo_conta: true,
             ativo: true,
             banido_em: true,
             motivo_ban: true,
@@ -241,6 +248,8 @@ class AdminController {
           nome: true,
           email: true,
           saldo_reais: true,
+          saldo_demo: true,
+          tipo_conta: true,
           ativo: true,
           motivo_ban: true
         }
@@ -260,27 +269,41 @@ class AdminController {
       if (email !== undefined) updateData.email = email;
       if (saldo_reais !== undefined) {
         const newSaldo = parseFloat(saldo_reais);
-        const oldSaldo = parseFloat(currentUser.saldo_reais);
-        const saldoDifference = newSaldo - oldSaldo;
         
-        updateData.saldo_reais = newSaldo;
-        
-        // Se o admin está adicionando saldo, considerar como "giro" para rollover
-        if (saldoDifference > 0) {
-          updateData.total_giros = {
-            increment: saldoDifference
-          };
+        // Determinar qual campo atualizar baseado no tipo de conta
+        if (currentUser.tipo_conta === 'afiliado_demo') {
+          const oldSaldo = parseFloat(currentUser.saldo_demo);
+          const saldoDifference = newSaldo - oldSaldo;
           
-          // Verificar se atingiu o rollover mínimo
-          const userWithGiros = await prisma.user.findUnique({
-            where: { id: userId },
-            select: { total_giros: true, rollover_minimo: true, rollover_liberado: true }
-          });
+          updateData.saldo_demo = newSaldo;
           
-          const newTotalGiros = (userWithGiros.total_giros || 0) + saldoDifference;
-          if (!userWithGiros.rollover_liberado && newTotalGiros >= userWithGiros.rollover_minimo) {
-            updateData.rollover_liberado = true;
+          // Para contas demo, não aplicar rollover
+          console.log(`[DEBUG] Admin atualizando saldo_demo: ${oldSaldo} → ${newSaldo} (diff: ${saldoDifference})`);
+        } else {
+          const oldSaldo = parseFloat(currentUser.saldo_reais);
+          const saldoDifference = newSaldo - oldSaldo;
+          
+          updateData.saldo_reais = newSaldo;
+          
+          // Se o admin está adicionando saldo, considerar como "giro" para rollover
+          if (saldoDifference > 0) {
+            updateData.total_giros = {
+              increment: saldoDifference
+            };
+            
+            // Verificar se atingiu o rollover mínimo
+            const userWithGiros = await prisma.user.findUnique({
+              where: { id: userId },
+              select: { total_giros: true, rollover_minimo: true, rollover_liberado: true }
+            });
+            
+            const newTotalGiros = (userWithGiros.total_giros || 0) + saldoDifference;
+            if (!userWithGiros.rollover_liberado && newTotalGiros >= userWithGiros.rollover_minimo) {
+              updateData.rollover_liberado = true;
+            }
           }
+          
+          console.log(`[DEBUG] Admin atualizando saldo_reais: ${oldSaldo} → ${newSaldo} (diff: ${saldoDifference})`);
         }
       }
       if (ativo !== undefined) {
@@ -302,11 +325,22 @@ class AdminController {
           nome: true,
           email: true,
           saldo_reais: true,
+          saldo_demo: true,
+          tipo_conta: true,
           ativo: true,
           banido_em: true,
           motivo_ban: true,
           criado_em: true,
           ultimo_login: true
+        }
+      });
+
+      // Sincronizar com a tabela Wallet
+      await prisma.wallet.update({
+        where: { user_id: userId },
+        data: {
+          saldo_reais: updatedUser.saldo_reais,
+          saldo_demo: updatedUser.saldo_demo
         }
       });
 
@@ -540,7 +574,7 @@ class AdminController {
         where: { id: withdrawalId },
         include: {
           user: {
-            select: { id: true, nome: true, email: true, saldo: true }
+            select: { id: true, nome: true, email: true, saldo_reais: true, saldo_demo: true, tipo_conta: true }
           }
         }
       });
@@ -562,7 +596,11 @@ class AdminController {
       // Se está aprovando o saque
       if (status === 'concluido') {
         // Verificar se o usuário tem saldo suficiente
-        if (withdrawal.user.saldo < withdrawal.valor) {
+        const saldoAtual = withdrawal.user.tipo_conta === 'afiliado_demo' 
+          ? withdrawal.user.saldo_demo 
+          : withdrawal.user.saldo_reais;
+          
+        if (saldoAtual < withdrawal.valor) {
           return res.status(400).json({
             success: false,
             error: 'Usuário não possui saldo suficiente'
@@ -580,15 +618,26 @@ class AdminController {
             }
           });
 
-          // Debitar saldo do usuário
-          await tx.user.update({
-            where: { id: withdrawal.user.id },
-            data: {
-              saldo: {
-                decrement: withdrawal.valor
+          // Debitar saldo do usuário baseado no tipo de conta
+          if (withdrawal.user.tipo_conta === 'afiliado_demo') {
+            await tx.user.update({
+              where: { id: withdrawal.user.id },
+              data: {
+                saldo_demo: {
+                  decrement: withdrawal.valor
+                }
               }
-            }
-          });
+            });
+          } else {
+            await tx.user.update({
+              where: { id: withdrawal.user.id },
+              data: {
+                saldo_reais: {
+                  decrement: withdrawal.valor
+                }
+              }
+            });
+          }
 
           // Criar transação de débito
           await tx.transaction.create({
@@ -926,7 +975,7 @@ class AdminController {
         await prisma.user.update({
           where: { id: testUser.id },
           data: {
-            saldo: {
+            saldo_reais: {
               increment: parseFloat(amount)
             },
             total_giros: {
@@ -954,7 +1003,7 @@ class AdminController {
         await prisma.wallet.update({
           where: { user_id: testUser.id },
           data: {
-            saldo: {
+            saldo_reais: {
               increment: parseFloat(amount)
             }
           }
@@ -1016,10 +1065,14 @@ class AdminController {
       const updatedUsers = await prisma.user.updateMany({
         where: {
           is_admin: false, // Não resetar admin
-          saldo: { gt: 0 }
+          OR: [
+            { saldo_reais: { gt: 0 } },
+            { saldo_demo: { gt: 0 } }
+          ]
         },
         data: {
-          saldo: 10.00 // Saldo inicial para testes
+          saldo_reais: 10.00, // Saldo inicial para testes
+          saldo_demo: 10.00
         }
       });
 
@@ -1029,10 +1082,14 @@ class AdminController {
           user: {
             is_admin: false
           },
-          saldo: { gt: 0 }
+          OR: [
+            { saldo_reais: { gt: 0 } },
+            { saldo_demo: { gt: 0 } }
+          ]
         },
         data: {
-          saldo: 10.00
+          saldo_reais: 10.00,
+          saldo_demo: 10.00
         }
       });
 
@@ -1220,7 +1277,7 @@ class AdminController {
       const updatedUser = await prisma.user.update({
         where: { id: userId },
         data: {
-          saldo: {
+          saldo_reais: {
             increment: parseFloat(amount)
           },
           total_giros: {
@@ -1250,7 +1307,7 @@ class AdminController {
       await prisma.wallet.update({
         where: { user_id: userId },
         data: {
-          saldo: updatedUser.saldo
+          saldo_reais: updatedUser.saldo_reais
         }
       });
 
@@ -1273,7 +1330,7 @@ class AdminController {
         userId,
         { 
           valor: amount,
-          novo_saldo: updatedUser.saldo,
+          novo_saldo: updatedUser.saldo_reais,
           total_giros: updatedUser.total_giros,
           rollover_liberado: updatedUser.rollover_liberado
         },
@@ -1285,7 +1342,7 @@ class AdminController {
         success: true,
         message: `Saldo de R$ ${amount} adicionado com sucesso`,
         data: {
-          novo_saldo: updatedUser.saldo,
+          novo_saldo: updatedUser.saldo_reais,
           total_giros: updatedUser.total_giros,
           rollover_liberado: updatedUser.rollover_liberado,
           rollover_minimo: updatedUser.rollover_minimo

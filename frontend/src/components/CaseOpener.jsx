@@ -51,7 +51,7 @@ const CaseOpener = ({
     const random = Math.random();
     
     let wonPrize = null;
-    let userBalance = user.saldo - totalCost;
+    const userBalance = (user.tipo_conta === 'afiliado_demo' ? (user.saldo_demo || 0) : (user.saldo_reais || 0)) - totalCost;
     
     if (random <= rtp) {
       // Usuário ganha - calcular prêmio baseado no RTP
@@ -144,7 +144,8 @@ const CaseOpener = ({
 
     const totalCost = parseFloat(currentCase.preco) * quantity;
     
-    if (user.saldo < totalCost) {
+    const userCurrentBalance = user.tipo_conta === 'afiliado_demo' ? (user.saldo_demo || 0) : (user.saldo_reais || 0);
+    if (userCurrentBalance < totalCost) {
       toast.error('Saldo insuficiente! Faça um depósito para continuar.');
       return;
     }
@@ -304,7 +305,8 @@ const CaseOpener = ({
     navigate('/dashboard');
   };
 
-  const canOpenCase = user?.saldo >= (parseFloat(currentCase?.preco || casePrice) * quantity);
+  const userBalance = user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0);
+  const canOpenCase = userBalance >= (parseFloat(currentCase?.preco || casePrice) * quantity);
   const isDemo = isDemoAccount();
 
   return (

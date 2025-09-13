@@ -72,7 +72,9 @@ class AuthService {
         nome: true,
         email: true,
         cpf: true,
-        saldo: true,
+        saldo_reais: true,
+        saldo_demo: true,
+        tipo_conta: true,
         is_admin: true,
         ativo: true,
         banido_em: true,
@@ -86,7 +88,8 @@ class AuthService {
     await prisma.wallet.create({
       data: {
         user_id: user.id,
-        saldo: 0
+        saldo_reais: 0,
+        saldo_demo: 0
       }
     });
 
@@ -148,7 +151,7 @@ class AuthService {
         nome: true,
         email: true,
         cpf: true,
-        saldo: true,
+        saldo_reais: true,
         saldo_demo: true,
         tipo_conta: true,
         is_admin: true,
@@ -160,7 +163,8 @@ class AuthService {
         wallet: {
           select: {
             id: true,
-            saldo: true,
+            saldo_reais: true,
+            saldo_demo: true,
             atualizado_em: true
           }
         },

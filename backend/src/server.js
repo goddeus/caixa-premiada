@@ -242,7 +242,6 @@ app.post('/api/auth/register', async (req, res) => {
     await prisma.wallet.create({
       data: {
         user_id: novoUsuario.id,
-        saldo: 0,
         saldo_reais: 0,
         saldo_demo: 0
       }
@@ -1388,7 +1387,8 @@ app.post('/api/init-db', async (req, res) => {
       await prisma.wallet.create({
         data: {
           user_id: admin.id,
-          saldo_reais: 10000.00
+          saldo_reais: 10000.00,
+          saldo_demo: 0
         }
       });
       

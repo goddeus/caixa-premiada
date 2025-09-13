@@ -33,7 +33,8 @@ async function testMultipleBoxes() {
         email: `teste_multiplas_${Date.now()}@teste.com`,
         senha_hash: 'hash_teste',
         cpf: `${Date.now()}`,
-        saldo: 100.00
+        saldo_reais: 100.00,
+        saldo_demo: 0
       }
     });
 
@@ -41,7 +42,8 @@ async function testMultipleBoxes() {
     await prisma.wallet.create({
       data: {
         user_id: testUser.id,
-        saldo: 100.00
+        saldo_reais: 100.00,
+        saldo_demo: 0
       }
     });
 
@@ -109,7 +111,7 @@ async function testMultipleBoxes() {
     // Verificar saldo final
     const finalUser = await prisma.user.findUnique({
       where: { id: testUser.id },
-      select: { saldo: true }
+      select: { saldo_reais: true, saldo_demo: true, tipo_conta: true }
     });
 
     console.log('\n📊 RESULTADOS FINAIS:');

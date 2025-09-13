@@ -63,7 +63,7 @@ class BulkPurchaseService {
           select: {
             id: true,
             nome: true,
-            saldo: true,
+            saldo_reais: true,
             saldo_demo: true,
             tipo_conta: true,
             ativo: true
@@ -80,7 +80,7 @@ class BulkPurchaseService {
 
         // 4.2. Verificar saldo suficiente
         const isDemoAccount = user.tipo_conta === 'afiliado_demo';
-        const saldoAtual = isDemoAccount ? (user.saldo_demo || 0) : user.saldo;
+        const saldoAtual = isDemoAccount ? (user.saldo_demo || 0) : (user.saldo_reais || 0);
         
         if (saldoAtual < totalPreco) {
           throw new Error(`Saldo insuficiente. Disponível: R$ ${saldoAtual.toFixed(2)}, Necessário: R$ ${totalPreco.toFixed(2)}`);
@@ -113,6 +113,15 @@ class BulkPurchaseService {
             data: { saldo_reais: saldoAposDebito }
           });
         }
+
+        // Sincronizar com Wallet
+        await tx.wallet.update({
+          where: { user_id: userId },
+          data: {
+            saldo_reais: isDemoAccount ? user.saldo_reais : saldoAposDebito,
+            saldo_demo: isDemoAccount ? saldoAposDebito : user.saldo_demo
+          }
+        });
 
         // 4.5. Registrar transação de abertura de caixas
         await tx.transaction.create({
@@ -207,9 +216,18 @@ class BulkPurchaseService {
         } else {
           await tx.user.update({
             where: { id: userId },
-            data: { saldo: saldoFinal }
+            data: { saldo_reais: saldoFinal }
           });
         }
+
+        // Sincronizar com Wallet
+        await tx.wallet.update({
+          where: { user_id: userId },
+          data: {
+            saldo_reais: isDemoAccount ? user.saldo_reais : saldoFinal,
+            saldo_demo: isDemoAccount ? saldoFinal : user.saldo_demo
+          }
+        });
 
         // 4.8. Registrar auditoria da compra
         const auditData = {

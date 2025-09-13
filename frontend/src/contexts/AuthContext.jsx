@@ -17,6 +17,14 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  // Helper function to get correct balance
+  const getUserBalance = (userData = user) => {
+    if (!userData) return 0;
+    return userData.tipo_conta === 'afiliado_demo' 
+      ? (userData.saldo_demo || 0) 
+      : (userData.saldo_reais || 0);
+  };
+
   useEffect(() => {
     checkAuth();
   }, []);
@@ -159,7 +167,8 @@ export const AuthProvider = ({ children }) => {
     updateUser,
     refreshUserData,
     isDemoAccount,
-    canWithdraw
+    canWithdraw,
+    getUserBalance
   };
 
   return (

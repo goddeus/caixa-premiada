@@ -104,7 +104,9 @@ class SafetyService {
           ativo: true,
           banido_em: true,
           motivo_ban: true,
-          saldo: true
+          saldo_reais: true,
+          saldo_demo: true,
+          tipo_conta: true
         }
       });
 

@@ -25,7 +25,7 @@ class CentralizedDrawService {
         where: { id: userId },
         select: { 
           tipo_conta: true,
-          saldo: true,
+          saldo_reais: true,
           saldo_demo: true
         }
       });
@@ -212,7 +212,7 @@ class CentralizedDrawService {
         // 1. Debitar valor da caixa
         await tx.user.update({
           where: { id: userId },
-          data: { saldo: { decrement: boxPrice } }
+          data: { saldo_reais: { decrement: boxPrice } }
         });
 
         // 2. Registrar transação de abertura
@@ -248,7 +248,7 @@ class CentralizedDrawService {
       // Buscar saldo atualizado do usuário
       const updatedUser = await prisma.user.findUnique({
         where: { id: userId },
-        select: { saldo: true }
+        select: { saldo_reais: true, saldo_demo: true, tipo_conta: true }
       });
 
       const result = {
@@ -309,6 +309,16 @@ class CentralizedDrawService {
               data: { saldo_reais: { decrement: caixa.preco } }
             });
           }
+
+          // Sincronizar com Wallet
+          await tx.wallet.update({
+            where: { user_id: userId },
+            data: isDemoAccount ? {
+              saldo_demo: { decrement: caixa.preco }
+            } : {
+              saldo_reais: { decrement: caixa.preco }
+            }
+          });
         }
 
         // 2. Creditar prêmio no usuário
@@ -323,6 +333,16 @@ class CentralizedDrawService {
             data: { saldo_reais: { increment: prize.valor } }
           });
         }
+
+        // Sincronizar com Wallet
+        await tx.wallet.update({
+          where: { user_id: userId },
+          data: isDemoAccount ? {
+            saldo_demo: { increment: prize.valor }
+          } : {
+            saldo_reais: { increment: prize.valor }
+          }
+        });
 
         // 3. Atualizar sessão
         await tx.userSession.update({
@@ -370,9 +390,10 @@ class CentralizedDrawService {
       console.log('🔍 Buscando saldo atualizado do usuário...');
       const updatedUser = await prisma.user.findUnique({
         where: { id: userId },
-        select: { saldo: true }
+        select: { saldo_reais: true, saldo_demo: true, tipo_conta: true }
       });
-      console.log('✅ Saldo atualizado:', updatedUser.saldo);
+      const saldoAtual = updatedUser.tipo_conta === 'afiliado_demo' ? updatedUser.saldo_demo : updatedUser.saldo_reais;
+      console.log('✅ Saldo atualizado:', saldoAtual);
 
       console.log('📤 Retornando resultado do sorteio...');
       return {
