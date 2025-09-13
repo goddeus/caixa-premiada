@@ -48,22 +48,8 @@ const CasePrizeManagement = () => {
       }
 
       console.log('Carregando caixas...');
-      const response = await fetch('https://slotbox-api.onrender.com/api/admin/caixas', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      console.log('Response status:', response.status);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Erro na resposta:', errorText);
-        throw new Error(`Erro ${response.status}: ${errorText}`);
-      }
-
-      const data = await response.json();
+      const response = await api.get('/admin/caixas');
+      const data = response;
       console.log('Dados recebidos:', data);
       setCases(data.data);
     } catch (error) {
@@ -79,18 +65,8 @@ const CasePrizeManagement = () => {
       setLoading(true);
       setError(null);
       const token = localStorage.getItem('token');
-      const response = await fetch(`https://slotbox-api.onrender.com/api/admin/caixas/${caseId}/premios`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao carregar prêmios');
-      }
-
-      const data = await response.json();
+      const response = await api.get(`/admin/caixas/${caseId}/premios`);
+      const data = response;
       setPrizes(data.data.prizes);
       setSummary(data.data.summary);
       setSelectedCase(data.data.case);
@@ -107,20 +83,8 @@ const CasePrizeManagement = () => {
     try {
       setAuditing(true);
       const token = localStorage.getItem('token');
-      const response = await fetch(`https://slotbox-api.onrender.com/api/admin/caixas/${selectedCase.id}/audit`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ fix: true })
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao executar auditoria');
-      }
-
-      const data = await response.json();
+      const response = await api.post(`/admin/caixas/${selectedCase.id}/audit`, { fix: true });
+      const data = response;
       
       // Recarregar prêmios após auditoria
       await loadPrizes(selectedCase.id);
@@ -136,21 +100,8 @@ const CasePrizeManagement = () => {
   const updatePrize = async (prizeId, updates) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`https://slotbox-api.onrender.com/api/admin/premios/${prizeId}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(updates)
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Erro ${response.status}: ${errorText}`);
-      }
-
-      const data = await response.json();
+      const response = await api.put(`/admin/premios/${prizeId}`, updates);
+      const data = response;
       console.log('Prêmio atualizado:', data);
 
       // Recarregar prêmios
@@ -277,20 +228,12 @@ const CasePrizeManagement = () => {
       formData.append('prizeId', prizeId);
 
       const token = localStorage.getItem('token');
-      const response = await fetch('https://slotbox-api.onrender.com/api/admin/premios/upload-image', {
-        method: 'POST',
+      const response = await api.post('/admin/premios/upload-image', formData, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
+          'Content-Type': 'multipart/form-data'
+        }
       });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Erro ${response.status}: ${errorText}`);
-      }
-
-      const data = await response.json();
+      const data = response;
       console.log('Imagem enviada:', data);
       return data.imagePath;
       

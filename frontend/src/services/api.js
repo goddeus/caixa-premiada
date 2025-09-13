@@ -52,23 +52,51 @@ class ApiService {
 
   // ===== AUTENTICAÇÃO =====
   async login(email, senha) {
+    console.log('[DEBUG] Iniciando login:', { email });
     const response = await this.client.post('/auth/login', { email, senha });
+    console.log('[DEBUG] Resposta do login:', response);
+    
     if (response.success && (response.data?.token || response.token)) {
       const token = response.data?.token || response.token;
       const user = response.data?.user || response.user;
+      
+      console.log('[DEBUG] Salvando token e usuário no localStorage:', { 
+        token: token ? 'Presente' : 'Ausente', 
+        user: user ? 'Presente' : 'Ausente' 
+      });
+      
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
+      
+      console.log('[DEBUG] Token salvo:', localStorage.getItem('token') ? 'Sim' : 'Não');
+      console.log('[DEBUG] Usuário salvo:', localStorage.getItem('user') ? 'Sim' : 'Não');
+    } else {
+      console.error('[DEBUG] Login falhou - sem token na resposta:', response);
     }
     return response;
   }
 
   async register(dados) {
+    console.log('[DEBUG] Iniciando registro:', { email: dados.email });
     const response = await this.client.post('/auth/register', dados);
+    console.log('[DEBUG] Resposta do registro:', response);
+    
     if (response.success && (response.data?.token || response.token)) {
       const token = response.data?.token || response.token;
       const user = response.data?.user || response.user;
+      
+      console.log('[DEBUG] Salvando token e usuário no localStorage:', { 
+        token: token ? 'Presente' : 'Ausente', 
+        user: user ? 'Presente' : 'Ausente' 
+      });
+      
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
+      
+      console.log('[DEBUG] Token salvo:', localStorage.getItem('token') ? 'Sim' : 'Não');
+      console.log('[DEBUG] Usuário salvo:', localStorage.getItem('user') ? 'Sim' : 'Não');
+    } else {
+      console.error('[DEBUG] Registro falhou - sem token na resposta:', response);
     }
     return response;
   }

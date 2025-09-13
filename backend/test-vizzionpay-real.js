@@ -1,62 +1,95 @@
 const axios = require('axios');
-require('dotenv').config();
-
-const BASE_URL = 'http://localhost:3001';
+const config = require('./src/config/index');
 
 async function testVizzionPayReal() {
-  console.log('🧪 Testando VizzionPay com chaves REAIS...\n');
-
   try {
-    // 1. Fazer login
-    console.log('1️⃣ Fazendo login...');
-    const loginResponse = await axios.post(`${BASE_URL}/auth/login`, {
-      email: 'teste-pix@test.com',
-      senha: '123456'
-    });
+    console.log('🔍 Testando integração VizzionPay REAL...');
+    console.log('📋 Configurações:');
+    console.log('- API Key:', config.vizzionpay.apiKey ? '✅ Configurada' : '❌ Não configurada');
+    console.log('- Base URL:', config.vizzionpay.baseUrl);
+    console.log('- PIX Key:', config.vizzionpay.pixKey);
+    console.log('- PIX Key Type:', config.vizzionpay.pixKeyType);
     
-    const authToken = loginResponse.data.token;
-    console.log('✅ Login realizado:', loginResponse.data.user.nome);
+    const client = axios.create({
+      baseURL: config.vizzionpay.baseUrl,
+      headers: {
+        'Authorization': `Bearer ${config.vizzionpay.apiKey}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      timeout: 30000
+    });
 
-    // 2. Testar depósito PIX com chaves reais
-    console.log('\n2️⃣ Testando depósito PIX com chaves REAIS...');
-    console.log('🔑 API Key configurada:', process.env.VIZZIONPAY_API_KEY ? 'SIM' : 'NÃO');
-    console.log('🔑 Public Key configurada:', process.env.VIZZIONPAY_PUBLIC_KEY ? 'SIM' : 'NÃO');
+    // Dados de teste real
+    const testData = {
+      amount: 20.00,
+      currency: 'BRL',
+      payment_method: 'pix',
+      reference: 'TEST-' + Date.now(),
+      customer: {
+        name: 'Teste Usuario',
+        email: 'teste@teste.com',
+        document: '12345678901',
+        document_type: 'CPF'
+      },
+      notification_url: `${config.api.baseUrl}/api/deposit/callback`,
+      expiration_time: 3600,
+      description: 'Teste de integração VizzionPay',
+      pix_key: config.vizzionpay.pixKey,
+      pix_key_type: config.vizzionpay.pixKeyType
+    };
+
+    console.log('\n📤 Enviando dados para VizzionPay:');
+    console.log(JSON.stringify(testData, null, 2));
     
-    const pixDepositResponse = await axios.post(`${BASE_URL}/payments/deposit/pix`, {
-      valor: 25.00
-    }, {
-      headers: { Authorization: `Bearer ${authToken}` }
-    });
+    const response = await client.post('/pix/receive', testData);
     
-    console.log('\n✅ Resposta do depósito PIX:');
-    console.log('   - Payment ID:', pixDepositResponse.data.payment_id);
-    console.log('   - Valor:', pixDepositResponse.data.valor);
-    console.log('   - QR Code presente:', pixDepositResponse.data.qr_code ? 'SIM' : 'NÃO');
-    console.log('   - PIX Copy Paste presente:', pixDepositResponse.data.pix_copy_paste ? 'SIM' : 'NÃO');
-    console.log('   - Expira em:', pixDepositResponse.data.expires_at);
+    console.log('\n✅ Resposta VizzionPay:');
+    console.log('Status:', response.status);
+    console.log('Headers:', JSON.stringify(response.headers, null, 2));
+    console.log('Data completa:', JSON.stringify(response.data, null, 2));
     
-    if (pixDepositResponse.data.qr_code) {
-      console.log('\n🎉 QR Code PIX gerado com sucesso usando chaves REAIS!');
-      console.log('📱 QR Code (base64):', pixDepositResponse.data.qr_code.substring(0, 50) + '...');
-      console.log('📋 PIX Copy Paste:', pixDepositResponse.data.pix_copy_paste);
-      
-      // Verificar se é um QR Code real ou de teste
-      if (pixDepositResponse.data.qr_code.includes('teste@caixapremiada.com')) {
-        console.log('⚠️  ATENÇÃO: Ainda está usando modo de TESTE');
-      } else {
-        console.log('✅ Usando QR Code REAL do VizzionPay!');
-      }
-    } else {
-      console.log('\n❌ PROBLEMA: QR Code PIX não foi gerado!');
+    // Analisar estrutura da resposta
+    const data = response.data;
+    console.log('\n🔍 Análise da resposta:');
+    console.log('- success:', data.success);
+    console.log('- message:', data.message);
+    console.log('- data existe:', !!data.data);
+    
+    if (data.data) {
+      console.log('\n📊 Campos em data:');
+      Object.keys(data.data).forEach(key => {
+        console.log(`  - ${key}:`, typeof data.data[key], Array.isArray(data.data[key]) ? `[${data.data[key].length} items]` : data.data[key]);
+      });
     }
-
+    
+    // Procurar por QR code
+    console.log('\n🎯 Procurando QR Code:');
+    const searchInObject = (obj, path = '') => {
+      for (const key in obj) {
+        const currentPath = path ? `${path}.${key}` : key;
+        const value = obj[key];
+        
+        if (typeof value === 'string' && (key.toLowerCase().includes('qr') || key.toLowerCase().includes('pix'))) {
+          console.log(`  ✅ Encontrado: ${currentPath} = ${value.substring(0, 100)}...`);
+        } else if (typeof value === 'object' && value !== null) {
+          searchInObject(value, currentPath);
+        }
+      }
+    };
+    
+    searchInObject(data);
+    
   } catch (error) {
-    console.error('❌ Erro durante o teste:', error.response?.data || error.message);
-    if (error.response?.data) {
-      console.error('   Detalhes:', JSON.stringify(error.response.data, null, 2));
+    console.error('\n❌ Erro no teste:', error.message);
+    if (error.response) {
+      console.error('📊 Status:', error.response.status);
+      console.error('📊 Headers:', JSON.stringify(error.response.headers, null, 2));
+      console.error('📊 Data:', JSON.stringify(error.response.data, null, 2));
+    } else if (error.request) {
+      console.error('📊 Request:', error.request);
     }
   }
 }
 
-// Executar teste
 testVizzionPayReal();

@@ -26,7 +26,7 @@ module.exports = {
   // Configurações VizzionPay
   vizzionpay: {
     apiKey: process.env.VIZZIONPAY_API_KEY || '',
-    baseUrl: process.env.VIZZIONPAY_BASE_URL || 'https://api.vizzionpay.com.br',
+    baseUrl: process.env.VIZZIONPAY_BASE_URL || 'https://app.vizzionpay.com/api/v1',
     webhookSecret: process.env.VIZZIONPAY_WEBHOOK_SECRET || '',
     pixKey: process.env.VIZZIONPAY_PIX_KEY || '',
     pixKeyType: process.env.VIZZIONPAY_PIX_KEY_TYPE || 'email'

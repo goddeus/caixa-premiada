@@ -10,24 +10,33 @@ async function main() {
   const adminPassword = await bcrypt.hash('admin123', 10);
   const admin = await prisma.user.upsert({
     where: { email: 'admin@caixaspremiadas.com' },
-    update: {},
+    update: {
+      saldo_reais: 100.00,
+      saldo_demo: 100.00
+    },
     create: {
       nome: 'Administrador',
       email: 'admin@caixaspremiadas.com',
       senha_hash: adminPassword,
       cpf: '12345678901',
       is_admin: true,
-      tipo_conta: 'normal'
+      tipo_conta: 'normal',
+      saldo_reais: 100.00,
+      saldo_demo: 100.00
     }
   });
 
   // Criar carteira para o admin
   await prisma.wallet.upsert({
     where: { user_id: admin.id },
-    update: {},
+    update: {
+      saldo_reais: 100.00,
+      saldo_demo: 100.00
+    },
     create: {
       user_id: admin.id,
-      saldo: 1000.00
+      saldo_reais: 100.00,
+      saldo_demo: 100.00
     }
   });
 
@@ -35,7 +44,10 @@ async function main() {
   const userPassword = await bcrypt.hash('user123', 10);
   const user = await prisma.user.upsert({
     where: { email: 'user@test.com' },
-    update: {},
+    update: {
+      saldo_reais: 100.00,
+      saldo_demo: 100.00
+    },
     create: {
       nome: 'Usuário Teste',
       email: 'user@test.com',
@@ -44,17 +56,23 @@ async function main() {
       tipo_conta: 'normal',
       total_giros: 0,
       rollover_liberado: false,
-      rollover_minimo: 20.00
+      rollover_minimo: 20.00,
+      saldo_reais: 100.00,
+      saldo_demo: 100.00
     }
   });
 
   // Criar carteira para o usuário
   await prisma.wallet.upsert({
     where: { user_id: user.id },
-    update: {},
+    update: {
+      saldo_reais: 100.00,
+      saldo_demo: 100.00
+    },
     create: {
       user_id: user.id,
-      saldo: 500.00
+      saldo_reais: 100.00,
+      saldo_demo: 100.00
     }
   });
 

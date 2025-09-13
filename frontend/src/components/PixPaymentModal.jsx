@@ -105,7 +105,7 @@ const PixPaymentModal = ({ isOpen, onClose, paymentData, onPaymentComplete }) =>
         {paymentData.qr_base64 ? (
           <div className="bg-white rounded-lg p-4 mb-6 text-center">
             <img 
-              src={`data:image/png;base64,${paymentData.qr_base64}`} 
+              src={paymentData.qr_base64.includes('data:image') ? paymentData.qr_base64 : `data:image/png;base64,${paymentData.qr_base64}`}
               alt="QR Code PIX" 
               className="w-48 h-48 mx-auto border border-gray-200 rounded"
             />
@@ -114,12 +114,12 @@ const PixPaymentModal = ({ isOpen, onClose, paymentData, onPaymentComplete }) =>
             </p>
           </div>
         ) : (
-          <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4 mb-6 text-center">
-            <p className="text-red-400 font-medium">
-              ❌ Erro ao gerar QR Code
+          <div className="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-4 mb-6 text-center">
+            <p className="text-yellow-400 font-medium">
+              ⚠️ QR Code não disponível
             </p>
-            <p className="text-sm text-red-300 mt-1">
-              Tente novamente ou use o código PIX abaixo
+            <p className="text-sm text-yellow-300 mt-1">
+              Use o código PIX abaixo para pagar
             </p>
           </div>
         )}

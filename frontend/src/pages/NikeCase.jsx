@@ -6,10 +6,12 @@ import api from '../services/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
+import useDoubleClickPrevention from '../hooks/useDoubleClickPrevention';
 
 const NikeCase = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, login, updateUserData } = useAuth();
+  const { isLocked, executeWithLock } = useDoubleClickPrevention(3000); // 3 segundos de cooldown
   const [isSimulating, setIsSimulating] = useState(false);
   const [showSimulation, setShowSimulation] = useState(false);
   const [showResult, setShowResult] = useState(false);
@@ -102,13 +104,14 @@ const NikeCase = () => {
   };
 
   const handleOpenCase = async () => {
-    
     if (!isAuthenticated) {
       setShowLoginModal(true);
       return;
     }
 
-    try {
+    const result = await executeWithLock(async () => {
+      console.log('[DEBUG] Iniciando abertura de caixa Nike com proteção contra cliques duplos');
+      
       setIsSimulating(true);
       setShowSimulation(true);
       setShowResult(false);
@@ -118,8 +121,7 @@ const NikeCase = () => {
       const nikeCase = casesResponse.data.cases.find(c => c.nome.includes('NIKE'));
       
       if (!nikeCase) {
-        toast.error('Caixa Nike não encontrada');
-        return;
+        throw new Error('Caixa Nike não encontrada');
       }
 
       setCurrentNikeCase(nikeCase);
@@ -133,22 +135,21 @@ const NikeCase = () => {
       }
 
       // Comprar uma caixa
-      try {
-        const response = await api.post(`/cases/buy/${nikeCase.id}`);
+      const response = await api.post(`/cases/buy/${nikeCase.id}`);
 
-        if (response.data.wonPrize) {
-          const apiPrize = response.data.wonPrize;
-        
-          // Mapear prêmio da API para formato do frontend
-          const mappedPrize = {
-            name: apiPrize.nome,
-            value: `R$ ${parseFloat(apiPrize.valor).toFixed(2).replace('.', ',')}`,
-            rarity: 'rarity-1.png',
-            image: apiPrize.sem_imagem ? null : '/imagens/CAIXA KIT NIKE/1.png', // Imagem padrão da pasta local
-            bgColor: 'rgb(176, 190, 197)',
-            apiPrize: apiPrize,
-            sem_imagem: apiPrize.sem_imagem || false
-          };
+      if (response.data.wonPrize) {
+        const apiPrize = response.data.wonPrize;
+      
+        // Mapear prêmio da API para formato do frontend
+        const mappedPrize = {
+          name: apiPrize.nome,
+          value: `R$ ${parseFloat(apiPrize.valor).toFixed(2).replace('.', ',')}`,
+          rarity: 'rarity-1.png',
+          image: apiPrize.sem_imagem ? null : '/imagens/CAIXA KIT NIKE/1.png', // Imagem padrão da pasta local
+          bgColor: 'rgb(176, 190, 197)',
+          apiPrize: apiPrize,
+          sem_imagem: apiPrize.sem_imagem || false
+        };
           
           // Mapear prêmios específicos baseado no nome (apenas se não for prêmio ilustrativo)
           if (!apiPrize.sem_imagem) {
@@ -227,24 +228,16 @@ const NikeCase = () => {
           }, 2000);
         }, 5000);
       } else {
-        toast.error('Erro ao abrir caixa!');
-        setIsSimulating(false);
-        setShowSimulation(false);
+        throw new Error('Erro ao abrir caixa!');
       }
-    } catch (error) {
-      console.error('Erro ao comprar caixa:', error);
-      const errorMessage = error.response?.data?.error || 'Erro ao comprar caixa';
-      toast.error(errorMessage);
+    }, 'Abertura de caixa Nike');
+
+    if (!result.success) {
+      toast.error(result.error);
       setIsSimulating(false);
       setShowSimulation(false);
     }
-  } catch (error) {
-    console.error('Erro ao abrir caixa:', error);
-    toast.error('Erro ao abrir caixa. Tente novamente.');
-    setIsSimulating(false);
-    setShowSimulation(false);
-  }
-};
+  };
 
   // Função para gerar sequência aleatória de prêmios
   const generateRandomPrizeSequence = () => {
@@ -629,7 +622,7 @@ const NikeCase = () => {
                         <path d="m3.3 7 8.7 5 8.7-5"></path>
                         <path d="M12 22V12"></path>
                       </svg>
-                      Abrir Caixa
+{isLocked ? 'Processando...' : 'Abrir Caixa'}
                       <span style={{marginLeft: '18px', background: 'rgb(14, 16, 21)', color: 'rgb(255, 255, 255)', fontWeight: 700, fontSize: '17px', borderRadius: '0.7rem', padding: '0.35rem 1.1rem', display: 'flex', alignItems: 'center', minWidth: '80px', position: 'relative', right: '-8px'}}>
                         R$ 2,50
                       </span>
@@ -775,7 +768,7 @@ const NikeCase = () => {
                       <path d="m3.3 7 8.7 5 8.7-5"></path>
                       <path d="M12 22V12"></path>
                     </svg>
-                    Abrir Caixa
+{isLocked ? 'Processando...' : 'Abrir Caixa'}
                     <span style={{marginLeft: '18px', background: 'rgb(14, 16, 21)', color: 'rgb(255, 255, 255)', fontWeight: 700, fontSize: '17px', borderRadius: '0.7rem', padding: '0.35rem 1.1rem', display: 'flex', alignItems: 'center', minWidth: '80px', position: 'relative', right: '-8px'}}>
                       R$ 2,50
                     </span>

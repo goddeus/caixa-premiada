@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
+import PixPaymentModal from '../components/PixPaymentModal';
 import Footer from '../components/Footer';
 
 const Dashboard = () => {
@@ -190,11 +191,18 @@ const Dashboard = () => {
 
     setAffiliateLoading(true);
     try {
-      const response = await api.get('/affiliate');
-      setAffiliateData(response.data);
-      setShowAffiliateModal(true);
+      console.log('[DEBUG] Buscando dados do afiliado...');
+      const response = await api.get('/affiliate/me');
+      console.log('[DEBUG] Resposta do afiliado:', response);
+      
+      if (response.success) {
+        setAffiliateData(response.data);
+        setShowAffiliateModal(true);
+      } else {
+        throw new Error(response.message || 'Erro ao carregar dados do afiliado');
+      }
     } catch (error) {
-      console.error('Erro ao buscar dados do afiliado:', error);
+      console.error('[DEBUG] Erro ao buscar dados do afiliado:', error);
       toast.error('Erro ao carregar dados do afiliado');
     } finally {
       setAffiliateLoading(false);
@@ -235,23 +243,49 @@ const Dashboard = () => {
       return;
     }
 
+    if (!isAuthenticated || !user) {
+      toast.error('Você precisa estar logado para fazer um depósito');
+      setShowLoginModal(true);
+      return;
+    }
+
     try {
       setLoading(true);
-      const response = await api.post('/payments/deposit', { 
-        valor: parseFloat(depositAmount.replace(',', '.')) 
+      console.log('[DEBUG] Iniciando depósito PIX:', { userId: user.id, amount: parseFloat(depositAmount.replace(',', '.')) });
+      
+      const response = await api.post('/deposit/pix', { 
+        userId: user.id,
+        amount: parseFloat(depositAmount.replace(',', '.')) 
       });
       
-      // Mostrar modal com QR Code
-      console.log('📊 Dados do depósito recebidos:', response.data);
-      setPixData(response.data);
-      setShowDepositModal(false);
-      setShowPixModal(true);
-      setDepositAmount('20,00');
+      console.log('[DEBUG] Resposta do depósito PIX:', response.data);
       
-      toast.success('QR Code PIX gerado com sucesso!');
+      if (response.data.success) {
+        // Preparar dados para o modal PIX
+        const pixModalData = {
+          success: true,
+          data: {
+            qr_base64: response.data.qrCodeImage,
+            qr_text: response.data.qrCode,
+            transaction_id: response.data.identifier,
+            amount: parseFloat(depositAmount.replace(',', '.')),
+            expires_at: new Date(Date.now() + 3600000) // 1 hora
+          }
+        };
+        
+        setPixData(pixModalData);
+        setShowDepositModal(false);
+        setShowPixModal(true);
+        setDepositAmount('20,00');
+        
+        toast.success('QR Code PIX gerado com sucesso!');
+      } else {
+        toast.error(response.data.message || 'Erro ao gerar QR Code');
+      }
       
     } catch (error) {
-      const message = error.response?.data?.error || 'Erro ao criar depósito';
+      console.error('[DEBUG] Erro no depósito PIX:', error);
+      const message = error.response?.data?.message || 'Erro ao criar depósito';
       toast.error(message);
     } finally {
       setLoading(false);
@@ -268,6 +302,45 @@ const Dashboard = () => {
       value += ',00';
     }
     setWithdrawAmount(value);
+  };
+
+  const handleWithdraw = async (e) => {
+    e.preventDefault();
+    
+    if (!withdrawAmount || parseFloat(withdrawAmount.replace(',', '.')) < 20) {
+      toast.error('Valor mínimo para saque é R$ 20,00');
+      return;
+    }
+
+    if (parseFloat(withdrawAmount.replace(',', '.')) > 5000) {
+      toast.error('Valor máximo para saque é R$ 5.000,00');
+      return;
+    }
+
+    if (!pixKey) {
+      toast.error('Chave PIX é obrigatória');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await api.post('/withdraw', { 
+        valor: parseFloat(withdrawAmount.replace(',', '.')),
+        pix_key: pixKey,
+        pix_key_type: pixKeyType
+      });
+      
+      toast.success('Saque solicitado com sucesso!');
+      setWithdrawAmount('20,00');
+      setPixKey('');
+      setShowWithdrawModal(false);
+      
+    } catch (error) {
+      const message = error.response?.data?.message || 'Erro ao solicitar saque';
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
 
@@ -1055,7 +1128,7 @@ const Dashboard = () => {
                 <h1 className="text-xl font-medium text-white">Sacar</h1>
               </div>
 
-              <form className="space-y-4">
+              <form onSubmit={handleWithdraw} className="space-y-4">
                 {/* Campo de valor */}
                 <div>
                   <label className="flex items-center font-medium text-white mb-2 text-sm">
@@ -1069,6 +1142,7 @@ const Dashboard = () => {
                       onChange={handleWithdrawAmountChange}
                       className="w-full pl-10 pr-3 py-2 bg-transparent border border-gray-600 rounded-md text-white placeholder-gray-400 focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                       placeholder="20,00"
+                      required
                     />
                   </div>
                 </div>
@@ -1110,6 +1184,7 @@ const Dashboard = () => {
                       onChange={(e) => setPixKey(e.target.value)}
                       placeholder="Digite sua chave PIX..."
                       className="flex-1 px-2 md:px-3 py-2 bg-transparent border border-gray-600 rounded-md text-white placeholder-gray-400 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-sm"
+                      required
                     />
                   </div>
                 </div>
@@ -1117,12 +1192,25 @@ const Dashboard = () => {
                 {/* Botão de solicitar saque */}
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold py-2 md:py-3 rounded-md hover:opacity-90 transition-all duration-300 flex items-center justify-center gap-2 text-sm md:text-base"
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold py-2 md:py-3 rounded-md hover:opacity-90 transition-all duration-300 flex items-center justify-center gap-2 text-sm md:text-base disabled:opacity-50"
                 >
-                  <svg viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em" xmlns="http://www.w3.org/2000/svg" className="size-4 md:size-5">
-                    <path d="M22 2H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9h3a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1ZM7 20v-2a2 2 0 0 1 2 2Zm10 0h-2a2 2 0 0 1 2-2Zm0-4a4 4 0 0 0-4 4h-2a4 4 0 0 0-4-4V8h10Zm4-6h-2V7a1 1 0 0 0-1-1H6a1 1 0 0 0-1 1v3H3V4h18Zm-9 5a3 3 0 1 0-3-3 3 3 0 0 0 3 3Zm0-4a1 1 0 1 1-1 1 1 1 0 0 1 1-1Z"></path>
-                  </svg>
-                  Solicitar Saque
+                  {loading ? (
+                    <>
+                      <svg className="animate-spin size-4 md:size-5" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Processando...
+                    </>
+                  ) : (
+                    <>
+                      <svg viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em" xmlns="http://www.w3.org/2000/svg" className="size-4 md:size-5">
+                        <path d="M22 2H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9h3a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1ZM7 20v-2a2 2 0 0 1 2 2Zm10 0h-2a2 2 0 0 1 2-2Zm0-4a4 4 0 0 0-4 4h-2a4 4 0 0 0-4-4V8h10Zm4-6h-2V7a1 1 0 0 0-1-1H6a1 1 0 0 0-1 1v3H3V4h18Zm-9 5a3 3 0 1 0-3-3 3 3 0 0 0 3 3Zm0-4a1 1 0 1 1-1 1 1 1 0 0 1 1-1Z"></path>
+                      </svg>
+                      Solicitar Saque
+                    </>
+                  )}
                 </button>
               </form>
 
@@ -1444,104 +1532,19 @@ const Dashboard = () => {
       )}
 
       {/* Modal PIX */}
-      {showPixModal && pixData && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto border border-gray-700">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-green-500/20 rounded-lg">
-                  <svg className="text-green-400 text-xl" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white">Pagamento PIX</h3>
-                  <p className="text-sm text-gray-400">Escaneie o QR Code ou copie o código</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowPixModal(false)}
-                className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-              >
-                <svg className="text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </button>
-            </div>
-
-            {/* Valor */}
-            <div className="bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-lg p-4 mb-6 border border-green-500/30">
-              <div className="text-center">
-                <p className="text-sm text-gray-300 mb-1">Valor a pagar</p>
-                <p className="text-3xl font-bold text-white">
-                  R$ {pixData.data?.amount?.toFixed(2) || parseFloat(depositAmount.replace(',', '.')).toFixed(2)}
-                </p>
-              </div>
-            </div>
-
-            {/* QR Code */}
-            {pixData.data?.qr_base64 ? (
-              <div className="bg-white rounded-lg p-4 mb-6 text-center">
-                <img 
-                  src={`data:image/png;base64,${pixData.data.qr_base64}`} 
-                  alt="QR Code PIX" 
-                  className="w-48 h-48 mx-auto border border-gray-200 rounded"
-                />
-                <p className="text-sm text-gray-600 mt-2">
-                  Escaneie com seu app bancário
-                </p>
-              </div>
-            ) : (
-              <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4 mb-6 text-center">
-                <p className="text-red-400 font-medium">QR Code não foi gerado</p>
-                <p className="text-red-300 text-sm mt-1">Tente novamente ou use o código PIX abaixo</p>
-              </div>
-            )}
-
-            {/* Código PIX Copy Paste */}
-            {pixData.data?.qr_text && (
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Código PIX (Copiar e Colar)
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={pixData.data.qr_text}
-                    readOnly
-                    className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm font-mono"
-                  />
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(pixData.data.qr_text);
-                      toast.success('Código PIX copiado!');
-                    }}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                    </svg>
-                    Copiar
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Instruções */}
-            <div className="mt-6 p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
-              <h4 className="text-sm font-semibold text-blue-400 mb-2">Como pagar:</h4>
-              <ol className="text-xs text-gray-300 space-y-1">
-                <li>1. Abra seu app bancário</li>
-                <li>2. Escolha "PIX" ou "Pagar"</li>
-                <li>3. Escaneie o QR Code ou cole o código</li>
-                <li>4. Confirme o pagamento</li>
-                <li>5. Aguarde a confirmação automática</li>
-              </ol>
-            </div>
-          </div>
-        </div>
-      )}
+      <PixPaymentModal
+        isOpen={showPixModal}
+        onClose={() => {
+          setShowPixModal(false);
+          setPixData(null);
+        }}
+        paymentData={pixData?.data}
+        onPaymentComplete={() => {
+          setShowPixModal(false);
+          setPixData(null);
+          toast.success('Pagamento confirmado!');
+        }}
+      />
 
       <Footer />
     </div>

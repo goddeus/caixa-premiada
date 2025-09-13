@@ -78,11 +78,12 @@ model Transaction {
   user_id     String
   tipo        String
   valor       Float
-  saldo_antes Float
-  saldo_depois Float
+  saldo_antes Float?
+  saldo_depois Float?
   descricao   String?
   status      String   @default("pendente")
   referencia  String?
+  identifier  String?  // Para identificar transações da VizzionPay
   criado_em   DateTime @default(now())
   processado_em DateTime?
 

@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const config = require('../config/index');
 const { PrismaClient } = require('@prisma/client');
 const AffiliateService = require('./affiliateService');
+const QRCode = require('qrcode');
 
 const prisma = new PrismaClient();
 
@@ -90,7 +91,8 @@ class VizzionPayService {
       console.log('Enviando para VizzionPay:', JSON.stringify(paymentData, null, 2));
       
       // Fazer chamada para o VizzionPay - endpoint correto conforme documentação
-      const response = await this.client.post('/pix/receive', paymentData);
+      // URL base já inclui /api/v1, então usar apenas /payments
+      const response = await this.client.post('/payments', paymentData);
       
       console.log('Resposta VizzionPay:', JSON.stringify(response.data, null, 2));
       
@@ -104,36 +106,95 @@ class VizzionPayService {
       let qrBase64 = null;
       let qrText = null;
       
-      // Tentar diferentes formatos de resposta da VizzionPay
-      if (vizzionData.qr_code_base64) {
-        qrBase64 = vizzionData.qr_code_base64;
-      } else if (vizzionData.qr_code) {
-        qrBase64 = vizzionData.qr_code;
-      } else if (vizzionData.qrcode) {
-        qrBase64 = vizzionData.qrcode;
-      } else if (vizzionData.qrCode) {
-        qrBase64 = vizzionData.qrCode;
-      }
+      // Função para buscar recursivamente por campos de QR Code
+      const findQrCodeField = (obj, fieldNames) => {
+        for (const fieldName of fieldNames) {
+          if (obj[fieldName]) {
+            return obj[fieldName];
+          }
+        }
+        return null;
+      };
       
-      if (vizzionData.qr_code_text) {
-        qrText = vizzionData.qr_code_text;
-      } else if (vizzionData.pix_copy_paste) {
-        qrText = vizzionData.pix_copy_paste;
-      } else if (vizzionData.pixCopyPaste) {
-        qrText = vizzionData.pixCopyPaste;
-      } else if (vizzionData.copy_paste) {
-        qrText = vizzionData.copy_paste;
+      // Buscar QR Code em base64
+      const qrBase64Fields = [
+        'qr_code_base64', 'qr_code', 'qrcode', 'qrCode', 'qr_base64',
+        'pix_qr_code', 'pix_qr', 'qr_image', 'qr_image_base64'
+      ];
+      qrBase64 = findQrCodeField(vizzionData, qrBase64Fields);
+      
+      // Buscar código PIX copy/paste
+      const qrTextFields = [
+        'qr_code_text', 'pix_copy_paste', 'pixCopyPaste', 'copy_paste',
+        'pix_code', 'pix_text', 'qr_text', 'emv', 'brcode'
+      ];
+      qrText = findQrCodeField(vizzionData, qrTextFields);
+      
+      // Se não encontrou nos campos diretos, buscar recursivamente
+      if (!qrBase64 || !qrText) {
+        const searchInObject = (obj, path = '') => {
+          for (const key in obj) {
+            const currentPath = path ? `${path}.${key}` : key;
+            const value = obj[key];
+            
+            if (typeof value === 'string') {
+              // Verificar se é um QR code base64
+              if (key.toLowerCase().includes('qr') && value.length > 100 && value.includes('data:image')) {
+                if (!qrBase64) qrBase64 = value;
+              }
+              // Verificar se é um código PIX
+              if ((key.toLowerCase().includes('pix') || key.toLowerCase().includes('copy')) && value.length > 50) {
+                if (!qrText) qrText = value;
+              }
+            } else if (typeof value === 'object' && value !== null) {
+              searchInObject(value, currentPath);
+            }
+          }
+        };
+        
+        searchInObject(vizzionData);
       }
       
       // Se não encontrou QR code, gerar um fallback
       if (!qrBase64) {
         console.warn(`⚠️ QRCode não encontrado na resposta VizzionPay para pagamento ${payment.id}`);
         console.warn('Campos disponíveis:', Object.keys(vizzionData));
+        console.warn('Resposta completa VizzionPay:', JSON.stringify(response.data, null, 2));
         
-        // Gerar QR code básico como fallback
-        qrText = `00020101021226880014br.gov.bcb.pix2566qrcodes.saq.digital/v2/qr/cob/${payment.id}5204000053039865802BR5925CAIXA PREMIADA6009SAO PAULO62070503***6304D82F`;
-        qrBase64 = null; // Sem QR code visual por enquanto
+        // Gerar QR code básico como fallback usando dados do pagamento
+        if (!qrText) {
+          qrText = `00020101021226880014br.gov.bcb.pix2566qrcodes.saq.digital/v2/qr/cob/${payment.id}5204000053039865802BR5925CAIXA PREMIADA6009SAO PAULO62070503***6304D82F`;
+        }
+        
+        // Tentar gerar QR code localmente
+        try {
+          const qrCodeBase64 = await QRCode.toDataURL(qrText, {
+            type: 'image/png',
+            quality: 0.92,
+            margin: 1,
+            color: {
+              dark: '#000000',
+              light: '#FFFFFF'
+            },
+            width: 256
+          });
+          
+          // Remover o prefixo data:image/png;base64,
+          qrBase64 = qrCodeBase64.split(',')[1];
+          console.log(`✅ QR Code gerado localmente para pagamento ${payment.id}`);
+        } catch (qrError) {
+          console.error('Erro ao gerar QR Code local:', qrError);
+          qrBase64 = null;
+        }
       }
+      
+      // Log detalhado dos dados extraídos
+      console.log(`📊 Dados VizzionPay extraídos para pagamento ${payment.id}:`, {
+        qr_base64: qrBase64 ? `Presente (${qrBase64.length} chars)` : 'Ausente',
+        qr_text: qrText ? `Presente (${qrText.length} chars)` : 'Ausente',
+        gateway_id: vizzionData.id || vizzionData.transaction_id || vizzionData.payment_id,
+        campos_disponiveis: Object.keys(vizzionData)
+      });
       
       // Atualizar payment com dados do VizzionPay
       await prisma.payment.update({
@@ -147,11 +208,6 @@ class VizzionPayService {
       });
       
       console.log(`✅ Pagamento PIX VizzionPay criado: ${payment.id} - R$ ${valorNumerico} - User: ${user.email}`);
-      console.log(`📊 Dados VizzionPay extraídos:`, {
-        qr_base64: qrBase64 ? 'Presente' : 'Ausente',
-        qr_text: qrText ? 'Presente' : 'Ausente',
-        gateway_id: vizzionData.id || vizzionData.transaction_id || vizzionData.payment_id
-      });
       
       return {
         qr_base64: qrBase64,
@@ -166,9 +222,26 @@ class VizzionPayService {
       console.error('Erro ao criar pagamento VizzionPay:', error);
       
       if (error.response) {
-        console.error('Response data:', error.response.data);
+        console.error('Response data:', JSON.stringify(error.response.data, null, 2));
         console.error('Response status:', error.response.status);
+        console.error('Response headers:', error.response.headers);
+        
+        // Se a resposta da VizzionPay não devolver QR Code, exibir mensagem específica
+        if (error.response.status === 400 || error.response.status === 422) {
+          throw new Error('Não foi possível gerar QR Code no momento. Tente novamente mais tarde.');
+        }
       }
+      
+      // Logar resposta crua para auditoria e debugging
+      console.error('Erro completo:', {
+        message: error.message,
+        stack: error.stack,
+        response: error.response ? {
+          status: error.response.status,
+          data: error.response.data,
+          headers: error.response.headers
+        } : null
+      });
       
       throw new Error(`Erro ao criar pagamento: ${error.message}`);
     }
@@ -402,7 +475,7 @@ class VizzionPayService {
         };
         
         // Fazer chamada para o VizzionPay
-        const response = await this.client.post('/v1/withdrawals', withdrawalData);
+        const response = await this.client.post('/withdrawals', withdrawalData);
         
         if (!response.data || response.data.status === 'error') {
           // Reverter débito em caso de erro
@@ -595,7 +668,7 @@ class VizzionPayService {
    */
   async getPaymentStatus(gatewayId) {
     try {
-      const response = await this.client.get(`/v1/payments/${gatewayId}`);
+      const response = await this.client.get(`/payments/${gatewayId}`);
       return response.data;
     } catch (error) {
       console.error('Erro ao consultar status do pagamento:', error);
