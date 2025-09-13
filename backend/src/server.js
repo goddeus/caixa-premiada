@@ -26,6 +26,11 @@ const gatewayConfigRoutes = require('./routes/gatewayConfig');
 const globalDrawRoutes = require('./routes/globalDraw');
 const seedRoutes = require('./routes/seedRoutes');
 
+// Novas rotas VizzionPay
+const depositRoutes = require('./routes/depositRoutes');
+const withdrawRoutes = require('./routes/withdrawRoutes');
+const webhookRoutes = require('./routes/webhookRoutes');
+
 const app = express();
 
 // Middleware de segurança
@@ -1494,6 +1499,11 @@ app.use('/api/image-upload', imageUploadRoutes);
 app.use('/api/gateway-config', gatewayConfigRoutes);
 app.use('/api/global-draw', globalDrawRoutes);
 app.use('/api/seed', seedRoutes);
+
+// Novas rotas VizzionPay
+app.use('/api/deposit', depositRoutes);
+app.use('/api/withdraw', withdrawRoutes);
+app.use('/api/webhook', webhookRoutes);
 
 // Servir arquivos estáticos do frontend (para produção)
 if (config.nodeEnv === 'production') {

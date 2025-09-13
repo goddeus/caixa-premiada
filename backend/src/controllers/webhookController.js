@@ -1,116 +1,224 @@
-const vizzionPayService = require('../services/vizzionPayService');
-const crypto = require('crypto');
+const { PrismaClient } = require('@prisma/client');
+
+const prisma = new PrismaClient();
 
 class WebhookController {
-  // Webhook da VizzionPay
-  async vizzionPayWebhook(req, res) {
+  
+  /**
+   * POST /api/webhook/pix
+   * Webhook da VizzionPay para confirmar depósitos PIX
+   */
+  static async handlePixWebhook(req, res) {
     try {
-      const payload = req.body;
-      const signature = req.headers['x-vizzionpay-signature'] || req.headers['signature'];
-
-      console.log('Webhook VizzionPay recebido:', {
-        event: payload.event,
-        payment_id: payload.payment_id,
-        status: payload.status,
-        timestamp: new Date().toISOString()
-      });
-
-      // Validar assinatura do webhook
-      if (!vizzionPayService.validateWebhook(payload, signature)) {
-        console.error('Assinatura do webhook inválida');
-        return res.status(401).json({ error: 'Assinatura inválida' });
+      console.log('[DEBUG] Webhook PIX recebido da VizzionPay:', JSON.stringify(req.body, null, 2));
+      
+      // Validar headers de segurança
+      const publicKey = req.headers['x-public-key'];
+      const secretKey = req.headers['x-secret-key'];
+      
+      if (publicKey !== process.env.VIZZION_PUBLIC_KEY || secretKey !== process.env.VIZZION_SECRET_KEY) {
+        console.error('[DEBUG] Headers de segurança inválidos');
+        return res.status(401).json({
+          success: false,
+          error: 'Unauthorized'
+        });
       }
-
-      // Processar webhook
-      await vizzionPayService.processWebhook(payload);
-
+      
+      const { identifier, amount, status, transactionId } = req.body;
+      
+      // Validações
+      if (!identifier || !amount || !status) {
+        console.error('[DEBUG] Dados obrigatórios não fornecidos:', { identifier, amount, status });
+        return res.status(400).json({
+          success: false,
+          error: 'Dados obrigatórios não fornecidos'
+        });
+      }
+      
+      // Verificar se status é approved
+      if (status !== 'approved' && status !== 'paid') {
+        console.log(`[DEBUG] Status não aprovado: ${status}`);
+        return res.status(200).json({ success: true });
+      }
+      
+      // Extrair userId do identifier (deposit_userId_timestamp)
+      const identifierParts = identifier.split('_');
+      if (identifierParts.length < 3 || identifierParts[0] !== 'deposit') {
+        console.error('[DEBUG] Identifier inválido:', identifier);
+        return res.status(400).json({
+          success: false,
+          error: 'Identifier inválido'
+        });
+      }
+      
+      const userId = identifierParts[1];
+      
+      // Buscar transação pelo identifier
+      const transaction = await prisma.transaction.findFirst({
+        where: { identifier },
+        include: { user: true }
+      });
+      
+      if (!transaction) {
+        console.error(`[DEBUG] Transação não encontrada para identifier: ${identifier}`);
+        return res.status(404).json({
+          success: false,
+          error: 'Transação não encontrada'
+        });
+      }
+      
+      // Verificar se já foi processada
+      if (transaction.status === 'concluido') {
+        console.log(`[DEBUG] Transação já processada: ${identifier}`);
+        return res.status(200).json({ success: true });
+      }
+      
+      // Processar pagamento
+      await prisma.$transaction(async (tx) => {
+        // Atualizar status da transação
+        await tx.transaction.update({
+          where: { id: transaction.id },
+          data: {
+            status: 'concluido',
+            processado_em: new Date()
+          }
+        });
+        
+        // Creditar saldo do usuário
+        if (transaction.user.tipo_conta === 'afiliado_demo') {
+          // Conta demo - creditar saldo_demo
+          await tx.user.update({
+            where: { id: transaction.user_id },
+            data: { saldo_demo: { increment: amount } }
+          });
+        } else {
+          // Conta normal - creditar saldo_reais
+          await tx.user.update({
+            where: { id: transaction.user_id },
+            data: { saldo_reais: { increment: amount } }
+          });
+        }
+      });
+      
+      console.log(`[DEBUG] Depósito confirmado para usuário: ${transaction.user.email} - Valor: +R$ ${amount}`);
+      
       res.status(200).json({ success: true });
+      
     } catch (error) {
-      console.error('Erro ao processar webhook VizzionPay:', error);
-      res.status(500).json({ error: 'Erro interno do servidor' });
+      console.error('[DEBUG] Erro no webhook PIX:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erro interno do servidor'
+      });
     }
   }
-
-  // Webhook genérico para outros gateways
-  async genericWebhook(req, res) {
+  
+  /**
+   * POST /api/webhook/withdraw
+   * Webhook da VizzionPay para confirmar saques
+   */
+  static async handleWithdrawWebhook(req, res) {
     try {
-      const gateway = req.params.gateway;
-      const payload = req.body;
-
-      console.log(`Webhook ${gateway} recebido:`, {
-        gateway,
-        payload: JSON.stringify(payload),
-        timestamp: new Date().toISOString()
+      console.log('[DEBUG] Webhook saque recebido da VizzionPay:', JSON.stringify(req.body, null, 2));
+      
+      // Validar headers de segurança
+      const publicKey = req.headers['x-public-key'];
+      const secretKey = req.headers['x-secret-key'];
+      
+      if (publicKey !== process.env.VIZZION_PUBLIC_KEY || secretKey !== process.env.VIZZION_SECRET_KEY) {
+        console.error('[DEBUG] Headers de segurança inválidos');
+        return res.status(401).json({
+          success: false,
+          error: 'Unauthorized'
+        });
+      }
+      
+      const { identifier, status, transactionId } = req.body;
+      
+      // Validações
+      if (!identifier || !status) {
+        console.error('[DEBUG] Dados obrigatórios não fornecidos:', { identifier, status });
+        return res.status(400).json({
+          success: false,
+          error: 'Dados obrigatórios não fornecidos'
+        });
+      }
+      
+      // Extrair userId do identifier (withdraw_userId_timestamp)
+      const identifierParts = identifier.split('_');
+      if (identifierParts.length < 3 || identifierParts[0] !== 'withdraw') {
+        console.error('[DEBUG] Identifier inválido:', identifier);
+        return res.status(400).json({
+          success: false,
+          error: 'Identifier inválido'
+        });
+      }
+      
+      const userId = identifierParts[1];
+      
+      // Buscar transação de saque pelo identifier
+      const transaction = await prisma.transaction.findFirst({
+        where: { identifier },
+        include: { user: true }
       });
-
-      // Aqui você pode implementar lógica específica para outros gateways
-      // Por exemplo: Mercado Pago, PagSeguro, etc.
-
+      
+      if (!transaction) {
+        console.error(`[DEBUG] Transação de saque não encontrada para identifier: ${identifier}`);
+        return res.status(404).json({
+          success: false,
+          error: 'Transação não encontrada'
+        });
+      }
+      
+      // Processar resultado do saque
+      await prisma.$transaction(async (tx) => {
+        if (status === 'approved' || status === 'paid') {
+          // Saque aprovado - manter saldo debitado
+          await tx.transaction.update({
+            where: { id: transaction.id },
+            data: {
+              status: 'concluido',
+              processado_em: new Date()
+            }
+          });
+          
+          console.log(`[DEBUG] Saque aprovado para usuário: ${transaction.user.email} - Valor: R$ ${transaction.valor}`);
+          
+        } else if (status === 'rejected' || status === 'failed') {
+          // Saque rejeitado - devolver saldo
+          await tx.transaction.update({
+            where: { id: transaction.id },
+            data: {
+              status: 'rejeitado',
+              processado_em: new Date()
+            }
+          });
+          
+          // Devolver saldo ao usuário
+          if (transaction.user.tipo_conta === 'afiliado_demo') {
+            await tx.user.update({
+              where: { id: transaction.user_id },
+              data: { saldo_demo: { increment: transaction.valor } }
+            });
+          } else {
+            await tx.user.update({
+              where: { id: transaction.user_id },
+              data: { saldo_reais: { increment: transaction.valor } }
+            });
+          }
+          
+          console.log(`[DEBUG] Saque rejeitado - saldo devolvido para usuário: ${transaction.user.email} - Valor: +R$ ${transaction.valor}`);
+        }
+      });
+      
       res.status(200).json({ success: true });
+      
     } catch (error) {
-      console.error(`Erro ao processar webhook ${req.params.gateway}:`, error);
-      res.status(500).json({ error: 'Erro interno do servidor' });
-    }
-  }
-
-  // Endpoint para testar webhooks (apenas em desenvolvimento)
-  async testWebhook(req, res) {
-    try {
-      if (process.env.NODE_ENV === 'production') {
-        return res.status(404).json({ error: 'Endpoint não disponível em produção' });
-      }
-
-      const { payment_id, status = 'paid' } = req.body;
-
-      if (!payment_id) {
-        return res.status(400).json({ error: 'payment_id é obrigatório' });
-      }
-
-      // Simular webhook da VizzionPay
-      const mockPayload = {
-        event: 'payment.updated',
-        payment_id: payment_id,
-        status: status,
-        amount: 100.00,
-        paid_at: status === 'paid' ? new Date().toISOString() : null
-      };
-
-      await vizzionPayService.processWebhook(mockPayload);
-
-      res.json({
-        success: true,
-        message: 'Webhook simulado com sucesso',
-        payload: mockPayload
+      console.error('[DEBUG] Erro no webhook de saque:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erro interno do servidor'
       });
-    } catch (error) {
-      console.error('Erro ao simular webhook:', error);
-      res.status(500).json({ error: 'Erro interno do servidor' });
-    }
-  }
-
-  // Endpoint para simular pagamento (apenas em desenvolvimento)
-  async simulatePayment(req, res) {
-    try {
-      if (process.env.NODE_ENV === 'production') {
-        return res.status(404).json({ error: 'Endpoint não disponível em produção' });
-      }
-
-      const { payment_id, status = 'paid' } = req.body;
-
-      if (!payment_id) {
-        return res.status(400).json({ error: 'payment_id é obrigatório' });
-      }
-
-      const result = await vizzionPayService.simulatePayment(payment_id, status);
-
-      res.json({
-        success: true,
-        message: 'Pagamento simulado com sucesso',
-        result
-      });
-    } catch (error) {
-      console.error('Erro ao simular pagamento:', error);
-      res.status(500).json({ error: 'Erro interno do servidor' });
     }
   }
 }
