@@ -62,12 +62,14 @@ class DepositController {
         client: {
           name: user.nome || "Usuário SlotBox",
           document: user.cpf || "00000000000",
-          email: user.email || "teste@slotbox.shop"
+          email: user.email || "teste@slotbox.shop",
+          phone: user.telefone || "11999999999"
         },
         products: [
           {
-            title: "Depósito em saldo",
-            unitPrice: valorNumerico,
+            id: `deposit_${timestamp}`,
+            name: "Depósito em saldo",
+            price: valorNumerico,
             quantity: 1
           }
         ]
@@ -92,24 +94,36 @@ class DepositController {
       let qrCode = null;
       let qrCodeImage = null;
       
-      // Buscar QR Code na resposta (diferentes formatos possíveis)
-      if (responseData.qrCode) {
-        qrCode = responseData.qrCode;
-      } else if (responseData.pix_copy_paste) {
-        qrCode = responseData.pix_copy_paste;
-      } else if (responseData.qr_code_text) {
-        qrCode = responseData.qr_code_text;
-      } else if (responseData.emv) {
-        qrCode = responseData.emv;
+      // Extrair dados do formato VizzionPay
+      if (responseData.pix && responseData.pix.code) {
+        qrCode = responseData.pix.code;
       }
       
-      // Buscar imagem do QR Code
-      if (responseData.qrCodeImage) {
-        qrCodeImage = responseData.qrCodeImage;
-      } else if (responseData.qr_code_base64) {
-        qrCodeImage = responseData.qr_code_base64;
-      } else if (responseData.qr_code) {
-        qrCodeImage = responseData.qr_code;
+      if (responseData.pix && responseData.pix.base64) {
+        qrCodeImage = responseData.pix.base64;
+      }
+      
+      // Fallback para outros formatos possíveis
+      if (!qrCode) {
+        if (responseData.qrCode) {
+          qrCode = responseData.qrCode;
+        } else if (responseData.pix_copy_paste) {
+          qrCode = responseData.pix_copy_paste;
+        } else if (responseData.qr_code_text) {
+          qrCode = responseData.qr_code_text;
+        } else if (responseData.emv) {
+          qrCode = responseData.emv;
+        }
+      }
+      
+      if (!qrCodeImage) {
+        if (responseData.qrCodeImage) {
+          qrCodeImage = responseData.qrCodeImage;
+        } else if (responseData.qr_code_base64) {
+          qrCodeImage = responseData.qr_code_base64;
+        } else if (responseData.qr_code) {
+          qrCodeImage = responseData.qr_code;
+        }
       }
       
       // Salvar transação no banco
