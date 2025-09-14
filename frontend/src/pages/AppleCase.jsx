@@ -126,7 +126,7 @@ const AppleCase = () => {
 
       // Buscar ID da caixa Apple primeiro
       const casesResponse = await api.get('/cases');
-      const appleCase = casesResponse.cases?.find(c => 
+      const appleCase = casesResponse.data?.find(c => 
         c.nome === 'CAIXA APPLE' || c.nome.includes('APPLE')
       );
       
@@ -179,8 +179,8 @@ const AppleCase = () => {
           }
           console.log(`📦 Resposta da API (caixa ${i + 1}):`, response);
 
-        if (response.wonPrize) {
-          const apiPrize = response.wonPrize;
+        if (response && response.data && response.data.premio) {
+          const apiPrize = response.data.premio;
           console.log(`🎁 Prêmio recebido da API (caixa ${i + 1}):`, apiPrize);
         
           // Mapear prêmio da API para formato do frontend

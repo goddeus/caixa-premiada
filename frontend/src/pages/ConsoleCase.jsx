@@ -137,8 +137,8 @@ const ConsoleCase = () => {
       // Buscar ID da caixa Console primeiro
       console.log('🔍 Buscando caixa Console...');
       const casesResponse = await api.get('/cases');
-      const consoleCase = casesResponse.cases?.find(c => 
-        c.nome === 'CAIXA CONSOLE DO SONHOS!' || c.nome.includes('CONSOLE DO SONHOS!')
+      const consoleCase = casesResponse.data?.find(c => 
+        c.nome === 'CAIXA CONSOLE DOS SONHOS' || c.nome.includes('CONSOLE DOS SONHOS')
       );
       
       if (!consoleCase) {
@@ -203,8 +203,8 @@ const ConsoleCase = () => {
           }
           console.log(`📦 Resposta da compra ${i + 1}:`, response);
 
-          if (response.wonPrize) {
-          const wonPrize = response.wonPrize;
+          if (response && response.data && response.data.premio) {
+          const wonPrize = response.data.premio;
           
           // Mapear prêmio da API para formato do frontend
           const mappedPrize = {
@@ -555,7 +555,7 @@ const ConsoleCase = () => {
                       </svg>
                       Abrir Caixa
                       <span style={{marginLeft: '18px', background: 'rgb(14, 16, 21)', color: 'rgb(255, 255, 255)', fontWeight: 700, fontSize: '17px', borderRadius: '0.7rem', padding: '0.35rem 1.1rem', display: 'flex', alignItems: 'center', minWidth: '80px', position: 'relative', right: '-8px'}}>
-                        R$ 3,50
+                        R$ 50,00
                       </span>
                     </span>
                   </button>
@@ -577,7 +577,7 @@ const ConsoleCase = () => {
                   </button>
                 )}
               </div>
-              {(getUserBalance()) >= 5.00 ? (
+              {(getUserBalance()) >= 50.00 ? (
                 <p className="text-green-400 text-sm mb-2">Você tem saldo suficiente! Clique para abrir a caixa e ganhar prêmios reais!</p>
               ) : (
                 <p className="text-gray-400 text-sm mb-2">Faça um depósito para abrir caixas de verdade e ganhar prêmios reais!</p>

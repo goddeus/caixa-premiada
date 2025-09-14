@@ -127,7 +127,7 @@ const PremiumMasterCase = () => {
 
       // Buscar ID da caixa Premium primeiro
       const casesResponse = await api.get('/cases');
-      const premiumCase = casesResponse.cases?.find(c => 
+      const premiumCase = casesResponse.data?.find(c => 
         c.nome === 'CAIXA PREMIUM MASTER!' || c.nome.includes('PREMIUM MASTER!')
       );
       
@@ -178,8 +178,8 @@ const PremiumMasterCase = () => {
             throw new Error('Falha ao obter resposta após todas as tentativas');
           }
 
-          if (response.wonPrize) {
-            const apiPrize = response.wonPrize;
+          if (response && response.data && response.data.premio) {
+            const apiPrize = response.data.premio;
             
             // Mapear prêmio da API para formato do frontend
             const mappedPrize = {

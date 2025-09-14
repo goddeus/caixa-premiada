@@ -127,8 +127,8 @@ const WeekendCase = () => {
 
       // Buscar ID da caixa Weekend primeiro
       const casesResponse = await api.get('/cases');
-      const weekendCase = casesResponse.cases?.find(c => 
-        c.nome === 'CAIXA WEEKEND' || c.nome.includes('WEEKEND')
+      const weekendCase = casesResponse.data?.find(c => 
+        c.nome === 'CAIXA FINAL DE SEMANA' || c.nome.includes('FINAL DE SEMANA')
       );
       
       if (!weekendCase) {
@@ -175,8 +175,8 @@ const WeekendCase = () => {
           }
           console.log(`📦 Resposta da API (caixa ${i + 1}):`, response);
 
-        if (response.wonPrize) {
-          const apiPrize = response.wonPrize;
+        if (response && response.data && response.data.premio) {
+          const apiPrize = response.data.premio;
           console.log(`🎁 Prêmio recebido da API (caixa ${i + 1}):`, apiPrize);
         
           // Mapear prêmio da API para formato do frontend

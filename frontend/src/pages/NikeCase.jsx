@@ -118,7 +118,7 @@ const NikeCase = () => {
 
       // Buscar ID da caixa Nike primeiro
       const casesResponse = await api.get('/cases');
-      const nikeCase = casesResponse.cases?.find(c => 
+      const nikeCase = casesResponse.data?.find(c =>
         c.nome === 'CAIXA KIT NIKE' || c.nome.includes('KIT NIKE')
       );
       
@@ -139,8 +139,8 @@ const NikeCase = () => {
       // Comprar uma caixa
       const response = await api.post(`/cases/buy/${nikeCase.id}`);
 
-      if (response.wonPrize) {
-        const apiPrize = response.wonPrize;
+      if (response && response.data && response.data.premio) {
+        const apiPrize = response.data.premio;
       
         // Mapear prêmio da API para formato do frontend
         const mappedPrize = {

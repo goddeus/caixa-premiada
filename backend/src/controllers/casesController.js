@@ -525,13 +525,19 @@ class CasesController {
           select: { saldo_reais: true, saldo_demo: true, tipo_conta: true }
         });
 
-        res.json({
-          prizes: caseData.prizes,
-          wonPrize: wonPrize,
-          message: drawResult.message,
-          userBalance: updatedUser.tipo_conta === 'afiliado_demo' ? updatedUser.saldo_demo : updatedUser.saldo_reais,
-          is_demo: true
-        });
+      res.json({
+        success: true,
+        data: {
+          ganhou: wonPrize.valor > 0,
+          premio: wonPrize.valor > 0 ? {
+            id: wonPrize.id,
+            nome: wonPrize.nome,
+            valor: wonPrize.valor,
+            imagem: wonPrize.imagem_url
+          } : null,
+          saldo_restante: updatedUser.tipo_conta === 'afiliado_demo' ? updatedUser.saldo_demo : updatedUser.saldo_reais
+        }
+      });
         return;
       }
 
@@ -633,11 +639,17 @@ class CasesController {
       });
       
       res.json({
-        prizes: caseData.prizes,
-        wonPrize: wonPrize,
-        message: `Parabéns! Você ganhou R$ ${parseFloat(wonPrize.valor).toFixed(2)}!`,
-        is_demo: false,
-        userBalance: updatedUser.saldo
+        success: true,
+        data: {
+          ganhou: wonPrize.valor > 0,
+          premio: wonPrize.valor > 0 ? {
+            id: wonPrize.id,
+            nome: wonPrize.nome,
+            valor: wonPrize.valor,
+            imagem: wonPrize.imagem_url
+          } : null,
+          saldo_restante: updatedUser.saldo
+        }
       });
 
     } catch (error) {
