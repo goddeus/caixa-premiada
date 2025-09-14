@@ -498,7 +498,9 @@ router.post('/initialize-prizes', async (req, res) => {
               sorteavel: prize.sorteavel,
               ativo: true,
               imagem_url: `/imagens/${caseName}/${prize.imagem}`,
-              label: prize.nome
+              label: prize.nome,
+              ilustrativo: !prize.sorteavel,
+              imagem_id: `/imagens/${caseName}/${prize.imagem}`
             }
           });
           createdPrizes.push(createdPrize);
