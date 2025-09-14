@@ -21,17 +21,29 @@ class CentralizedDrawService {
       console.log(`🎲 INICIANDO SORTEIO CENTRALIZADO - Caixa: ${caixaId}, Usuário: ${userId}, Sessão: ${sessionId || 'nova'}`);
 
       // Verificar se é conta demo ANTES de criar sessão
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { 
-          tipo_conta: true,
-          saldo_reais: true,
-          saldo_demo: true
-        }
-      });
+      let user;
+      try {
+        user = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { 
+            tipo_conta: true,
+            saldo_reais: true,
+            saldo_demo: true
+          }
+        });
+      } catch (dbError) {
+        console.error('❌ Erro ao buscar usuário no banco:', dbError.message);
+        return {
+          success: false,
+          message: 'Erro de conexão com o banco de dados'
+        };
+      }
 
       if (!user) {
-        throw new Error('Usuário não encontrado');
+        return {
+          success: false,
+          message: 'Usuário não encontrado'
+        };
       }
 
       // Se for conta demo, usar fluxo separado
@@ -448,37 +460,64 @@ class CentralizedDrawService {
       console.log(`🔍 DEBUG: Esta função só deve ser chamada para contas afiliado!`);
 
       // 1. Obter dados da caixa e usuário
-      const caixa = await prisma.case.findUnique({
-        where: { id: caixaId },
-        include: {
-          prizes: {
-            where: {
-              ativo: true,
-              sorteavel: true
+      let caixa;
+      try {
+        caixa = await prisma.case.findUnique({
+          where: { id: caixaId },
+          include: {
+            prizes: {
+              where: {
+                ativo: true,
+                sorteavel: true
+              }
             }
           }
-        }
-      });
+        });
+      } catch (dbError) {
+        console.error('❌ Erro ao buscar caixa no banco:', dbError.message);
+        return {
+          success: false,
+          message: 'Erro de conexão com o banco de dados'
+        };
+      }
 
       if (!caixa || !caixa.ativo) {
-        throw new Error('Caixa não encontrada ou inativa');
+        return {
+          success: false,
+          message: 'Caixa não encontrada ou inativa'
+        };
       }
 
       if (!caixa.prizes || caixa.prizes.length === 0) {
-        throw new Error('Caixa não possui prêmios configurados');
+        return {
+          success: false,
+          message: 'Caixa não possui prêmios configurados'
+        };
       }
 
       // 2. Verificar saldo demo do usuário
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { 
-          saldo_demo: true,
-          tipo_conta: true
-        }
-      });
+      let user;
+      try {
+        user = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { 
+            saldo_demo: true,
+            tipo_conta: true
+          }
+        });
+      } catch (dbError) {
+        console.error('❌ Erro ao buscar usuário no banco:', dbError.message);
+        return {
+          success: false,
+          message: 'Erro de conexão com o banco de dados'
+        };
+      }
 
       if (!user || user.tipo_conta !== 'afiliado_demo') {
-        throw new Error('Usuário não é uma conta demo');
+        return {
+          success: false,
+          message: 'Usuário não é uma conta demo'
+        };
       }
 
       const valorCaixa = parseFloat(caixa.preco); // Preço original da caixa

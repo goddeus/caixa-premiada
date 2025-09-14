@@ -507,10 +507,17 @@ class CasesController {
       // Usar sistema de sorteio centralizado (já trata contas demo automaticamente)
       console.log('🎯 Usando sistema de sorteio centralizado...');
       const centralizedDrawService = require('../services/centralizedDrawService');
-      const drawResult = await centralizedDrawService.sortearPremio(caseData.id, userId);
       
-      if (!drawResult.success) {
-        console.error('❌ Erro no sistema de sorteio global:', drawResult.message);
+      let drawResult;
+      try {
+        drawResult = await centralizedDrawService.sortearPremio(caseData.id, userId);
+      } catch (error) {
+        console.error('❌ Erro no sistema de sorteio centralizado:', error.message);
+        return res.status(500).json({ error: 'Erro interno no sistema de sorteio' });
+      }
+      
+      if (!drawResult || !drawResult.success) {
+        console.error('❌ Erro no sistema de sorteio global:', drawResult?.message || 'Resultado inválido');
         return res.status(500).json({ error: 'Erro interno no sistema de sorteio' });
       }
       
