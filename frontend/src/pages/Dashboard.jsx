@@ -388,14 +388,14 @@ const Dashboard = () => {
     try {
       if (user && !user.is_admin) {
         // Buscar dados atualizados do usuário
-        const response = await api.get('/wallet');
-        if (response.success) {
-          const userData = response.balance.usuario;
-          setRolloverData({
-            total_giros: userData.total_giros || 0,
-            rollover_liberado: userData.rollover_liberado || false,
-            rollover_minimo: userData.rollover_minimo || 20.00
-          });
+      const response = await api.get('/wallet');
+      if (response.success) {
+        const userData = response.balance.usuario;
+        setRolloverData({
+          total_giros: userData.total_giros || 0,
+          rollover_liberado: userData.rollover_liberado || false,
+          rollover_minimo: userData.rollover_minimo || 20.00
+        });
         } else {
           // Fallback para dados do contexto
           setRolloverData({

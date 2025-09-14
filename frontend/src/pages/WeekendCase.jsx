@@ -127,7 +127,9 @@ const WeekendCase = () => {
 
       // Buscar ID da caixa Weekend primeiro
       const casesResponse = await api.get('/cases');
-      const weekendCase = casesResponse.cases?.find(c => c.nome.includes('WEEKEND'));
+      const weekendCase = casesResponse.cases?.find(c => 
+        c.nome === 'CAIXA WEEKEND' || c.nome.includes('WEEKEND')
+      );
       
       if (!weekendCase) {
         toast.error('Caixa Final de Semana não encontrada');

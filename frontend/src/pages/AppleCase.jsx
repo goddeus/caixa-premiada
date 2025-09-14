@@ -126,7 +126,9 @@ const AppleCase = () => {
 
       // Buscar ID da caixa Apple primeiro
       const casesResponse = await api.get('/cases');
-      const appleCase = casesResponse.cases?.find(c => c.nome.includes('APPLE') || c.nome.includes('Apple'));
+      const appleCase = casesResponse.cases?.find(c => 
+        c.nome === 'CAIXA APPLE' || c.nome.includes('APPLE')
+      );
       
       if (!appleCase) {
         toast.error('Caixa Apple não encontrada');

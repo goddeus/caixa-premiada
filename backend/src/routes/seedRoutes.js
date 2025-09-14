@@ -355,4 +355,202 @@ router.post('/update-all-affiliates', async (req, res) => {
   }
 });
 
+/**
+ * POST /api/seed/initialize-prizes
+ * Inicializar prêmios para todas as caixas baseado nas imagens disponíveis
+ */
+router.post('/initialize-prizes', async (req, res) => {
+  try {
+    console.log('🎁 Iniciando inicialização de prêmios das caixas...');
+
+    // Buscar todas as caixas
+    const cases = await prisma.case.findMany({
+      where: { ativo: true }
+    });
+
+    console.log(`📦 Encontradas ${cases.length} caixas:`);
+    cases.forEach(c => {
+      console.log(`  - ${c.nome} (ID: ${c.id})`);
+    });
+
+    // Definir prêmios baseados nas imagens reais de cada pasta
+    const prizesByCase = {
+      'CAIXA CONSOLE DOS SONHOS': [
+        // Prêmios reais (com imagens)
+        { nome: 'R$ 1,00', valor: 1.00, probabilidade: 0.40, tipo: 'cash', sorteavel: true, imagem: '1real.png' },
+        { nome: 'R$ 2,00', valor: 2.00, probabilidade: 0.25, tipo: 'cash', sorteavel: true, imagem: '2reais.png' },
+        { nome: 'R$ 5,00', valor: 5.00, probabilidade: 0.20, tipo: 'cash', sorteavel: true, imagem: '5reais.png' },
+        { nome: 'R$ 10,00', valor: 10.00, probabilidade: 0.10, tipo: 'cash', sorteavel: true, imagem: '10reais.png' },
+        { nome: 'R$ 100,00', valor: 100.00, probabilidade: 0.04, tipo: 'cash', sorteavel: true, imagem: '100reais.png' },
+        // Prêmios ilustrativos (com imagens)
+        { nome: 'STEAM DECK', valor: 3000.00, probabilidade: 0.005, tipo: 'ilustrativo', sorteavel: false, imagem: 'steamdeck.png' },
+        { nome: 'PLAYSTATION 5', valor: 4000.00, probabilidade: 0.003, tipo: 'ilustrativo', sorteavel: false, imagem: 'ps5.png' },
+        { nome: 'XBOX ONE X', valor: 4000.00, probabilidade: 0.002, tipo: 'ilustrativo', sorteavel: false, imagem: 'xboxone.webp' }
+      ],
+      'CAIXA PREMIUM MASTER': [
+        // Prêmios reais (com imagens)
+        { nome: 'R$ 2,00', valor: 2.00, probabilidade: 0.35, tipo: 'cash', sorteavel: true, imagem: '2.png' },
+        { nome: 'R$ 5,00', valor: 5.00, probabilidade: 0.25, tipo: 'cash', sorteavel: true, imagem: '5.png' },
+        { nome: 'R$ 10,00', valor: 10.00, probabilidade: 0.20, tipo: 'cash', sorteavel: true, imagem: '10.png' },
+        { nome: 'R$ 20,00', valor: 20.00, probabilidade: 0.15, tipo: 'cash', sorteavel: true, imagem: '20.png' },
+        { nome: 'R$ 500,00', valor: 500.00, probabilidade: 0.04, tipo: 'cash', sorteavel: true, imagem: '500.webp' },
+        // Prêmios ilustrativos (com imagens)
+        { nome: 'AIRPODS', valor: 2500.00, probabilidade: 0.005, tipo: 'ilustrativo', sorteavel: false, imagem: 'airpods.png' },
+        { nome: 'HONDA CG FAN', valor: 8000.00, probabilidade: 0.003, tipo: 'ilustrativo', sorteavel: false, imagem: 'honda cg fan.webp' },
+        { nome: 'IPAD', valor: 5000.00, probabilidade: 0.002, tipo: 'ilustrativo', sorteavel: false, imagem: 'ipad.png' },
+        { nome: 'IPHONE 16 PRO MAX', valor: 10000.00, probabilidade: 0.001, tipo: 'ilustrativo', sorteavel: false, imagem: 'iphone 16 pro max.png' },
+        { nome: 'MACBOOK', valor: 15000.00, probabilidade: 0.001, tipo: 'ilustrativo', sorteavel: false, imagem: 'macbook.png' },
+        { nome: 'SAMSUNG S25', valor: 6000.00, probabilidade: 0.001, tipo: 'ilustrativo', sorteavel: false, imagem: 'samsung s25.png' }
+      ],
+      'CAIXA SAMSUNG': [
+        // Prêmios reais (com imagens)
+        { nome: 'R$ 1,00', valor: 1.00, probabilidade: 0.40, tipo: 'cash', sorteavel: true, imagem: '1.png' },
+        { nome: 'R$ 2,00', valor: 2.00, probabilidade: 0.25, tipo: 'cash', sorteavel: true, imagem: '2.png' },
+        { nome: 'R$ 5,00', valor: 5.00, probabilidade: 0.20, tipo: 'cash', sorteavel: true, imagem: '5.png' },
+        { nome: 'R$ 10,00', valor: 10.00, probabilidade: 0.10, tipo: 'cash', sorteavel: true, imagem: '10.png' },
+        { nome: 'R$ 100,00', valor: 100.00, probabilidade: 0.04, tipo: 'cash', sorteavel: true, imagem: '100.png' },
+        { nome: 'R$ 500,00', valor: 500.00, probabilidade: 0.008, tipo: 'cash', sorteavel: true, imagem: '500.webp' },
+        // Prêmios ilustrativos (com imagens)
+        { nome: 'FONE SAMSUNG', valor: 800.00, probabilidade: 0.005, tipo: 'ilustrativo', sorteavel: false, imagem: 'fone samsung.png' },
+        { nome: 'NOTEBOOK SAMSUNG', valor: 4000.00, probabilidade: 0.002, tipo: 'ilustrativo', sorteavel: false, imagem: 'notebook samsung.png' },
+        { nome: 'SAMSUNG S25', valor: 6000.00, probabilidade: 0.001, tipo: 'ilustrativo', sorteavel: false, imagem: 's25.png' }
+      ],
+      'CAIXA APPLE': [
+        // Prêmios reais (com imagens)
+        { nome: 'R$ 1,00', valor: 1.00, probabilidade: 0.35, tipo: 'cash', sorteavel: true, imagem: '1.png' },
+        { nome: 'R$ 2,00', valor: 2.00, probabilidade: 0.25, tipo: 'cash', sorteavel: true, imagem: '2.png' },
+        { nome: 'R$ 5,00', valor: 5.00, probabilidade: 0.20, tipo: 'cash', sorteavel: true, imagem: '5.png' },
+        { nome: 'R$ 10,00', valor: 10.00, probabilidade: 0.15, tipo: 'cash', sorteavel: true, imagem: '10.png' },
+        { nome: 'R$ 500,00', valor: 500.00, probabilidade: 0.04, tipo: 'cash', sorteavel: true, imagem: '500.webp' },
+        // Prêmios ilustrativos (com imagens)
+        { nome: 'AIR PODS', valor: 2500.00, probabilidade: 0.005, tipo: 'ilustrativo', sorteavel: false, imagem: 'air pods.png' },
+        { nome: 'IPHONE 16 PRO MAX', valor: 10000.00, probabilidade: 0.003, tipo: 'ilustrativo', sorteavel: false, imagem: 'iphone 16 pro max.png' },
+        { nome: 'MACBOOK', valor: 15000.00, probabilidade: 0.001, tipo: 'ilustrativo', sorteavel: false, imagem: 'macbook.png' }
+      ],
+      'CAIXA KIT NIKE': [
+        // Prêmios reais (com imagens)
+        { nome: 'R$ 1,00', valor: 1.00, probabilidade: 0.40, tipo: 'cash', sorteavel: true, imagem: '1.png' },
+        { nome: 'R$ 2,00', valor: 2.00, probabilidade: 0.25, tipo: 'cash', sorteavel: true, imagem: '2.png' },
+        { nome: 'R$ 5,00', valor: 5.00, probabilidade: 0.20, tipo: 'cash', sorteavel: true, imagem: '5.png' },
+        { nome: 'R$ 10,00', valor: 10.00, probabilidade: 0.10, tipo: 'cash', sorteavel: true, imagem: '10.png' },
+        // Prêmios ilustrativos (com imagens)
+        { nome: 'AIR FORCE 1', valor: 700.00, probabilidade: 0.02, tipo: 'ilustrativo', sorteavel: false, imagem: 'airforce.webp' },
+        { nome: 'BONÉ NIKE', valor: 150.00, probabilidade: 0.015, tipo: 'ilustrativo', sorteavel: false, imagem: 'boné nike.png' },
+        { nome: 'CAMISA NIKE', valor: 200.00, probabilidade: 0.01, tipo: 'ilustrativo', sorteavel: false, imagem: 'camisa nike.webp' },
+        { nome: 'JORDAN', valor: 1200.00, probabilidade: 0.005, tipo: 'ilustrativo', sorteavel: false, imagem: 'jordan.png' },
+        { nome: 'NIKE DUNK', valor: 1000.00, probabilidade: 0.005, tipo: 'ilustrativo', sorteavel: false, imagem: 'nike dunk.webp' }
+      ],
+      'CAIXA FINAL DE SEMANA': [
+        // Prêmios reais (com imagens)
+        { nome: 'R$ 1,00', valor: 1.00, probabilidade: 0.45, tipo: 'cash', sorteavel: true, imagem: '1.png' },
+        { nome: 'R$ 2,00', valor: 2.00, probabilidade: 0.30, tipo: 'cash', sorteavel: true, imagem: '2.png' },
+        { nome: 'R$ 5,00', valor: 5.00, probabilidade: 0.15, tipo: 'cash', sorteavel: true, imagem: '5.png' },
+        { nome: 'R$ 10,00', valor: 10.00, probabilidade: 0.07, tipo: 'cash', sorteavel: true, imagem: '10.png' },
+        { nome: 'R$ 100,00', valor: 100.00, probabilidade: 0.025, tipo: 'cash', sorteavel: true, imagem: '100.png' },
+        { nome: 'R$ 500,00', valor: 500.00, probabilidade: 0.005, tipo: 'cash', sorteavel: true, imagem: '500.webp' }
+      ]
+    };
+
+    const results = {
+      processed: [],
+      errors: [],
+      summary: {
+        total_cases: cases.length,
+        processed: 0,
+        errors: 0,
+        total_prizes: 0
+      }
+    };
+
+    // Adicionar prêmios para cada caixa
+    for (const caseItem of cases) {
+      const caseName = caseItem.nome;
+      const prizes = prizesByCase[caseName];
+
+      if (!prizes) {
+        console.log(`⚠️ Nenhum prêmio definido para: ${caseName}`);
+        results.errors.push({
+          case: caseName,
+          error: 'Nenhum prêmio definido'
+        });
+        results.summary.errors++;
+        continue;
+      }
+
+      console.log(`\n🎁 Processando: ${caseName}`);
+
+      try {
+        // Limpar prêmios existentes
+        await prisma.prize.deleteMany({
+          where: { case_id: caseItem.id }
+        });
+
+        // Adicionar novos prêmios
+        const createdPrizes = [];
+        for (const prize of prizes) {
+          const createdPrize = await prisma.prize.create({
+            data: {
+              case_id: caseItem.id,
+              nome: prize.nome,
+              valor: prize.valor,
+              probabilidade: prize.probabilidade,
+              tipo: prize.tipo,
+              sorteavel: prize.sorteavel,
+              ativo: true,
+              imagem_url: `/imagens/${caseName}/${prize.imagem}`,
+              label: prize.nome
+            }
+          });
+          createdPrizes.push(createdPrize);
+          console.log(`  ✅ ${prize.nome} - R$ ${prize.valor} (${(prize.probabilidade * 100).toFixed(2)}%)`);
+        }
+
+        results.processed.push({
+          case: caseName,
+          case_id: caseItem.id,
+          prizes_count: createdPrizes.length,
+          prizes: createdPrizes.map(p => ({
+            nome: p.nome,
+            valor: p.valor,
+            sorteavel: p.sorteavel
+          }))
+        });
+
+        results.summary.processed++;
+        results.summary.total_prizes += createdPrizes.length;
+
+      } catch (error) {
+        console.error(`❌ Erro ao processar ${caseName}:`, error.message);
+        results.errors.push({
+          case: caseName,
+          error: error.message
+        });
+        results.summary.errors++;
+      }
+    }
+
+    console.log('\n✅ Inicialização de prêmios concluída!');
+    console.log(`📊 Resumo: ${results.summary.processed}/${results.summary.total_cases} caixas processadas`);
+    console.log(`🎁 Total de prêmios criados: ${results.summary.total_prizes}`);
+
+    const message = results.summary.errors === 0 
+      ? `✅ ${results.summary.processed} caixas processadas com sucesso! ${results.summary.total_prizes} prêmios criados.`
+      : `⚠️ ${results.summary.processed} caixas processadas, ${results.summary.errors} erros encontrados.`;
+
+    res.status(200).json({
+      success: true,
+      message: message,
+      data: results
+    });
+
+  } catch (error) {
+    console.error('❌ Erro geral na inicialização de prêmios:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor',
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;
