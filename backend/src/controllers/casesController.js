@@ -30,7 +30,10 @@ class CasesController {
         orderBy: { preco: 'asc' }
       });
 
-      res.json({ cases });
+      res.json({ 
+        success: true,
+        data: cases 
+      });
     } catch (error) {
       console.error('Erro ao buscar caixas:', error);
       res.status(500).json({ error: 'Erro interno do servidor' });
@@ -65,7 +68,10 @@ class CasesController {
         return res.status(400).json({ error: 'Esta caixa não está disponível' });
       }
 
-      res.json(caseData);
+      res.json({
+        success: true,
+        data: caseData
+      });
     } catch (error) {
       console.error('Erro ao buscar caixa:', error);
       res.status(500).json({ error: 'Erro interno do servidor' });
@@ -648,7 +654,7 @@ class CasesController {
             valor: wonPrize.valor,
             imagem: wonPrize.imagem_url
           } : null,
-          saldo_restante: updatedUser.saldo
+          saldo_restante: updatedUser.tipo_conta === 'afiliado_demo' ? updatedUser.saldo_demo : updatedUser.saldo_reais
         }
       });
 

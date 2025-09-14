@@ -46,6 +46,8 @@ const Dashboard = () => {
   });
   const [showPixModal, setShowPixModal] = useState(false);
   const [pixData, setPixData] = useState(null);
+  const [cases, setCases] = useState([]);
+  const [casesLoading, setCasesLoading] = useState(false);
 
   // Função para gerar nomes aleatórios (otimizada com useCallback)
   const generateRandomName = useCallback(() => {
@@ -452,9 +454,48 @@ const Dashboard = () => {
     navigate(route);
   }, [navigate]);
 
+  // Função para carregar caixas dinamicamente
+  const loadCases = useCallback(async () => {
+    try {
+      setCasesLoading(true);
+      const response = await api.get('/cases');
+      
+      if (response.success && response.data) {
+        setCases(response.data);
+        console.log('✅ Caixas carregadas:', response.data.length);
+      } else {
+        console.error('❌ Erro na estrutura da resposta:', response);
+        // Fallback para dados hardcoded em caso de erro
+        setCases([
+          { id: 'weekend-case', nome: 'FIM DE SEMANA PREMIADO!!!', imagem_url: '/imagens/fim de semana.png', preco: 1.50, route: '/weekend-case' },
+          { id: 'nike-case', nome: 'CAIXA KIT NIKE', imagem_url: '/imagens/nike.png', preco: 2.50, route: '/nike-case' },
+          { id: 'samsung-case', nome: 'CAIXA SAMSUNG HAPPY', imagem_url: '/imagens/caixa samsung.png', preco: 3.00, route: '/samsung-case' },
+          { id: 'console-case', nome: 'CAIXA CONSOLE DO SONHOS!', imagem_url: '/imagens/console.png', preco: 3.50, route: '/console-case' },
+          { id: 'apple-case', nome: 'CAIXA DA APPLE HAPPY!', imagem_url: '/imagens/caixa apple.png', preco: 7.00, route: '/apple-case' },
+          { id: 'premium-master-case', nome: 'CAIXA PREMIUM MASTER !', imagem_url: '/imagens/caixa premium.png', preco: 15.00, route: '/premium-master-case' }
+        ]);
+      }
+    } catch (error) {
+      console.error('❌ Erro ao carregar caixas:', error);
+      toast.error('Erro ao carregar caixas. Usando dados padrão.');
+      // Fallback para dados hardcoded em caso de erro
+      setCases([
+        { id: 'weekend-case', nome: 'FIM DE SEMANA PREMIADO!!!', imagem_url: '/imagens/fim de semana.png', preco: 1.50, route: '/weekend-case' },
+        { id: 'nike-case', nome: 'CAIXA KIT NIKE', imagem_url: '/imagens/nike.png', preco: 2.50, route: '/nike-case' },
+        { id: 'samsung-case', nome: 'CAIXA SAMSUNG HAPPY', imagem_url: '/imagens/caixa samsung.png', preco: 3.00, route: '/samsung-case' },
+        { id: 'console-case', nome: 'CAIXA CONSOLE DO SONHOS!', imagem_url: '/imagens/console.png', preco: 3.50, route: '/console-case' },
+        { id: 'apple-case', nome: 'CAIXA DA APPLE HAPPY!', imagem_url: '/imagens/caixa apple.png', preco: 7.00, route: '/apple-case' },
+        { id: 'premium-master-case', nome: 'CAIXA PREMIUM MASTER !', imagem_url: '/imagens/caixa premium.png', preco: 15.00, route: '/premium-master-case' }
+      ]);
+    } finally {
+      setCasesLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     loadRolloverData();
-  }, [loadRolloverData]);
+    loadCases();
+  }, [loadRolloverData, loadCases]);
 
   if (loading) {
     return (
@@ -823,32 +864,42 @@ const Dashboard = () => {
         <div className="container mx-auto px-4">
           <div className="w-full flex justify-center">
             <div className="grid justify-center items-start" style={{gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', maxWidth: '1200px', width: '100%', gap: '18px', padding: '12px 0px'}}>
-              {[
-                { id: 'weekend-case', name: 'FIM DE SEMANA PREMIADO!!!', image: '/imagens/fim de semana.png', price: 'R$ 1,50', route: '/weekend-case' },
-                { id: 'nike-case', name: 'CAIXA KIT NIKE', image: '/imagens/nike.png', price: 'R$ 2,50', route: '/nike-case' },
-                { id: 'samsung-case', name: 'CAIXA SAMSUNG HAPPY', image: '/imagens/caixa samsung.png', price: 'R$ 3,00', route: '/samsung-case' },
-                { id: 'console-case', name: 'CAIXA CONSOLE DO SONHOS!', image: '/imagens/console.png', price: 'R$ 3,50', route: '/console-case' },
-                { id: 'apple-case', name: 'CAIXA DA APPLE HAPPY!', image: '/imagens/caixa apple.png', price: 'R$ 7,00', route: '/apple-case' },
-                { id: 'premium-master-case', name: 'CAIXA PREMIUM MASTER !', image: '/imagens/caixa premium.png', price: 'R$ 15,00', route: '/premium-master-case' }
-              ].map((caseItem, index) => (
-                <div key={index} className="rounded-lg border bg-card text-card-foreground shadow-sm w-full border-none cursor-pointer transition-colors" style={{background: 'transparent', boxShadow: 'none', borderRadius: '1.5rem', padding: '0px', margin: '0px', overflow: 'visible', minWidth: '0px', maxWidth: '180px', position: 'relative'}} onClick={() => handleNavigateToCase(caseItem.route)}>
+              {casesLoading ? (
+                <div className="col-span-full flex justify-center items-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-400"></div>
+                  <span className="ml-2 text-white">Carregando caixas...</span>
+                </div>
+              ) : cases.length > 0 ? cases.map((caseItem, index) => (
+                <div key={index} className="rounded-lg border bg-card text-card-foreground shadow-sm w-full border-none cursor-pointer transition-colors" style={{background: 'transparent', boxShadow: 'none', borderRadius: '1.5rem', padding: '0px', margin: '0px', overflow: 'visible', minWidth: '0px', maxWidth: '180px', position: 'relative'}} onClick={() => handleNavigateToCase(caseItem.route || `/case/${caseItem.id}`)}>
                   <div className="flex justify-center items-center mt-2 mb-2 group">
                     <div className="group-hover:scale-[1.18] group-hover:-rotate-6 transition-transform duration-300" style={{width: '200px', height: '200px', borderRadius: '1.5rem', overflow: 'hidden', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.3s cubic-bezier(0.4, 2, 0.6, 1)'}}>
-                      <img alt={caseItem.name} className="pointer-events-none" src={caseItem.image} style={{width: '100%', height: '100%', objectFit: 'contain', borderRadius: '1.5rem', background: 'transparent', transition: 'transform 0.3s cubic-bezier(0.4, 2, 0.6, 1)'}} />
+                      <img alt={caseItem.nome} className="pointer-events-none" src={caseItem.imagem_url || caseItem.imagem || '/imagens/default-case.png'} style={{width: '100%', height: '100%', objectFit: 'contain', borderRadius: '1.5rem', background: 'transparent', transition: 'transform 0.3s cubic-bezier(0.4, 2, 0.6, 1)'}} />
                     </div>
                   </div>
                   <div className="w-full text-center mt-1 mb-1">
-                    <span className="text-white font-bold uppercase" style={{fontSize: '1.08rem', letterSpacing: '0.5px'}}>{caseItem.name}</span>
+                    <span className="text-white font-bold uppercase" style={{fontSize: '1.08rem', letterSpacing: '0.5px'}}>{caseItem.nome}</span>
                   </div>
                   <div className="flex justify-center mb-2">
                     <span className="font-bold px-4 py-1 shadow flex items-center justify-center" style={{position: 'relative', background: 'linear-gradient(90deg, rgb(255, 230, 97) 0%, rgb(255, 145, 15) 100%)', color: 'rgb(24, 28, 35)', fontSize: '1.05rem', fontWeight: '700', minWidth: '80px', textAlign: 'center', borderRadius: '0.5rem', paddingLeft: '22px', paddingRight: '22px', height: '32px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'rgba(0, 0, 0, 0.1) 0px 2px 8px 0px'}}>
                       <span style={{position: 'absolute', left: '-14px', top: '50%', transform: 'translateY(-50%)', width: '0px', height: '0px', borderTop: '16px solid transparent', borderBottom: '16px solid transparent', borderRight: '14px solid rgb(255, 230, 97)', filter: 'drop-shadow(rgba(255, 230, 97, 0.533) 0px 0px 6px)', zIndex: '1'}}></span>
                       <span style={{position: 'absolute', right: '-14px', top: '50%', transform: 'translateY(-50%)', width: '0px', height: '0px', borderTop: '16px solid transparent', borderBottom: '16px solid transparent', borderLeft: '14px solid rgb(255, 145, 15)', filter: 'drop-shadow(rgba(255, 145, 15, 0.533) 0px 0px 6px)', zIndex: '1'}}></span>
-                      <span style={{position: 'relative', zIndex: '2'}}>{caseItem.price}</span>
+                      <span style={{position: 'relative', zIndex: '2'}}>R$ {parseFloat(caseItem.preco).toFixed(2).replace('.', ',')}</span>
                     </span>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <div className="col-span-full flex flex-col justify-center items-center py-8">
+                  <div className="text-yellow-400 text-6xl mb-4">📦</div>
+                  <h3 className="text-white text-xl font-bold mb-2">Nenhuma caixa disponível</h3>
+                  <p className="text-gray-400 text-center">Não foi possível carregar as caixas. Tente novamente mais tarde.</p>
+                  <button 
+                    onClick={loadCases}
+                    className="mt-4 px-4 py-2 bg-yellow-500 text-black font-bold rounded-lg hover:bg-yellow-400 transition-colors"
+                  >
+                    Tentar novamente
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
