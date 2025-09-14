@@ -152,9 +152,9 @@ const ConsoleCase = () => {
       console.log('- casePrice:', casePrice);
       console.log('- quantity:', quantity);
       console.log('- totalCost:', totalCost);
-      console.log('- user.saldo:', user.saldo);
+      console.log('- user.saldo:', user?.tipo_conta === 'afiliado_demo' ? user?.saldo_demo : user?.saldo_reais);
 
-      if (user.saldo < totalCost) {
+      if ((user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < totalCost) {
         console.log('❌ Saldo insuficiente');
         toast.error(`Saldo insuficiente! Você precisa de R$ ${totalCost.toFixed(2)}`);
         setShowDepositModal(true);
@@ -522,11 +522,11 @@ const ConsoleCase = () => {
 
               {/* Botão Dinâmico baseado no saldo */}
               <div className="flex justify-center gap-3 mb-2">
-                {parseFloat(user?.saldo || 0) >= 3.50 ? (
+                {(user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) >= 3.50 ? (
                   <button
                     onClick={handleOpenCase}
-                    disabled={isSimulating || (user?.saldo || 0) < 3.50}
-                    style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (user?.saldo || 0) < 3.50) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (user?.saldo || 0) < 3.50) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
+                    disabled={isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 3.50}
+                    style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 3.50) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 3.50) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
                   >
                     <span style={{display: 'flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(90deg, rgb(34, 197, 94) 0%, rgb(22, 163, 74) 100%)', borderRadius: '0.7rem', padding: '0.5rem 1.2rem 0.5rem 1.1rem', fontWeight: 700, fontSize: '17px', color: 'rgb(255, 255, 255)', flex: '1 1 0%', position: 'relative'}}>
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-box" style={{marginRight: '8px'}}>
@@ -558,7 +558,7 @@ const ConsoleCase = () => {
                   </button>
                 )}
               </div>
-              {parseFloat(user?.saldo || 0) >= 5.00 ? (
+              {(user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) >= 5.00 ? (
                 <p className="text-green-400 text-sm mb-2">Você tem saldo suficiente! Clique para abrir a caixa e ganhar prêmios reais!</p>
               ) : (
                 <p className="text-gray-400 text-sm mb-2">Faça um depósito para abrir caixas de verdade e ganhar prêmios reais!</p>
@@ -670,11 +670,11 @@ const ConsoleCase = () => {
 
             {/* Botões */}
             <div className="flex justify-center gap-3 mb-2">
-              {parseFloat(user?.saldo || 0) >= 3.50 ? (
+              {(user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) >= 3.50 ? (
                 <button
                   onClick={handleOpenCase}
-                  disabled={isSimulating || (user?.saldo || 0) < 3.50}
-                  style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (user?.saldo || 0) < 3.50) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (user?.saldo || 0) < 3.50) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
+                  disabled={isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 3.50}
+                  style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 3.50) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 3.50) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
                 >
                   <span style={{display: 'flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(90deg, rgb(34, 197, 94) 0%, rgb(22, 163, 74) 100%)', borderRadius: '0.7rem', padding: '0.5rem 1.2rem 0.5rem 1.1rem', fontWeight: 700, fontSize: '17px', color: 'rgb(255, 255, 255)', flex: '1 1 0%', position: 'relative'}}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-box" style={{marginRight: '8px'}}>
@@ -706,7 +706,7 @@ const ConsoleCase = () => {
                 </button>
               )}
             </div>
-            {parseFloat(user?.saldo || 0) >= 5.00 ? (
+            {(user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) >= 5.00 ? (
               <p className="text-green-400 text-sm mb-2">Você tem saldo suficiente! Clique para abrir a caixa e ganhar prêmios reais!</p>
             ) : (
               <p className="text-gray-400 text-sm mb-2">Faça um depósito para abrir caixas de verdade e ganhar prêmios reais!</p>

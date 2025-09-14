@@ -118,7 +118,7 @@ const NikeCase = () => {
 
       // Buscar ID da caixa Nike primeiro
       const casesResponse = await api.get('/cases');
-      const nikeCase = casesResponse.data.cases.find(c => c.nome.includes('NIKE'));
+      const nikeCase = casesResponse.data.cases?.find(c => c.nome.includes('NIKE'));
       
       if (!nikeCase) {
         throw new Error('Caixa Nike não encontrada');
@@ -128,7 +128,7 @@ const NikeCase = () => {
 
       const casePrice = parseFloat(nikeCase.preco);
 
-      if (user.saldo < casePrice) {
+      if ((user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < casePrice) {
         toast.error(`Saldo insuficiente! Você precisa de R$ ${casePrice.toFixed(2)}`);
         setShowDepositModal(true);
         return;
