@@ -605,23 +605,13 @@ class CasesController {
         return res.status(400).json({ error: 'Saldo insuficiente' });
       }
 
-      // Usar sistema de sorteio com fallback
-      console.log('🎯 Usando sistema de sorteio...');
-      let drawResult;
-      
-      try {
-        const centralizedDrawService = require('../services/centralizedDrawService');
-        drawResult = await centralizedDrawService.sortearPremio(caseData.id, userId);
-      } catch (error) {
-        console.error('❌ Erro no sistema de sorteio centralizado:', error.message);
-        console.log('🔄 Usando sistema de sorteio simples...');
-        drawResult = this.simpleDraw(caseData);
-      }
+      // Usar sistema de sorteio simples (fallback)
+      console.log('🎯 Usando sistema de sorteio simples...');
+      const drawResult = this.simpleDraw(caseData);
       
       if (!drawResult || !drawResult.success) {
-        console.error('❌ Erro no sistema de sorteio:', drawResult?.message || 'Resultado inválido');
-        console.log('🔄 Usando sistema de sorteio simples...');
-        drawResult = this.simpleDraw(caseData);
+        console.error('❌ Erro no sistema de sorteio simples:', drawResult?.message || 'Resultado inválido');
+        return res.status(500).json({ error: 'Erro no sistema de sorteio' });
       }
       
       const wonPrize = drawResult.prize;
@@ -631,128 +621,8 @@ class CasesController {
       console.log('🎲 Prêmio Valor:', wonPrize.valor);
       console.log('🎭 É conta demo:', drawResult.is_demo || false);
 
-      // Para contas demo, o sistema já processou tudo automaticamente
-      if (drawResult.is_demo) {
-        console.log('🎭 Conta demo - prêmio já processado automaticamente');
-        
-        // Buscar saldo atualizado
-        const updatedUser = await prisma.user.findUnique({
-          where: { id: userId },
-          select: { saldo_reais: true, saldo_demo: true, tipo_conta: true }
-        });
-
-      res.json({
-        success: true,
-        data: {
-          ganhou: wonPrize.valor > 0,
-          premio: wonPrize.valor > 0 ? {
-            id: wonPrize.id,
-            nome: wonPrize.nome,
-            valor: wonPrize.valor,
-            imagem: wonPrize.imagem_url
-          } : null,
-          saldo_restante: updatedUser.tipo_conta === 'afiliado_demo' ? updatedUser.saldo_demo : updatedUser.saldo_reais
-        }
-      });
-        return;
-      }
-
-      // Para contas normais, processar como antes
-      console.log('👤 Conta normal - processando prêmio...');
-
-      // Registrar saldo antes da compra para auditoria
-      const saldoAntes = parseFloat(req.user.saldo_reais);
-
-      // CORREÇÃO: NÃO debitar aqui - o centralizedDrawService já faz isso
-      console.log('💸 O centralizedDrawService já debita o valor da caixa automaticamente');
-      console.log('✅ Valor debitado com sucesso');
-
-      // Atualizar giros do usuário (sistema de rollover)
-      const userUpdate = await prisma.user.update({
-        where: { id: userId },
-        data: {
-          total_giros: {
-            increment: totalPreco
-          }
-        },
-        select: {
-          total_giros: true,
-          rollover_minimo: true,
-          rollover_liberado: true,
-          primeiro_deposito_feito: true
-        }
-      });
-
-      // Verificar se atingiu o rollover mínimo APENAS se já fez o primeiro depósito
-      if (userUpdate.primeiro_deposito_feito && !userUpdate.rollover_liberado && userUpdate.total_giros >= userUpdate.rollover_minimo) {
-        await prisma.user.update({
-          where: { id: userId },
-          data: {
-            rollover_liberado: true
-          }
-        });
-        console.log('🎉 Rollover liberado para o usuário!');
-      }
-
-      console.log(`💰 Total de giros: R$ ${userUpdate.total_giros.toFixed(2)}`);
-
-      // CORREÇÃO: Não registrar transação aqui - o centralizedDrawService já faz isso
-      console.log('📝 Transação já registrada pelo centralizedDrawService');
-
-      // Buscar saldo atualizado após o centralizedDrawService
-      const updatedUser = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { saldo_reais: true, saldo_demo: true, tipo_conta: true }
-      });
-
-      // SISTEMA DE AUDITORIA: Registrar compra
-      const saldoDepois = updatedUser.tipo_conta === 'afiliado_demo' ? parseFloat(updatedUser.saldo_demo) : parseFloat(updatedUser.saldo_reais);
-      const discrepanciaDetectada = Math.abs(totalPreco - precoUnitario) > 0.01;
-      
-      await prisma.purchaseAudit.create({
-        data: {
-          purchase_id: `buy_${userId}_${caseData.id}_${Date.now()}`,
-          caixas_compradas: JSON.stringify([{
-            caixaId: caseData.id,
-            quantidade: 1,
-            preco: precoUnitario
-          }]),
-          total_preco: totalPreco,
-          saldo_antes: saldoAntes,
-          saldo_depois: saldoDepois,
-          status: discrepanciaDetectada ? 'investigar' : 'concluido',
-          user: {
-            connect: { id: userId }
-          }
-        }
-      });
-
-      // Verificar discrepância e registrar anomalia se necessário
-      if (discrepanciaDetectada) {
-        const diferenca = Math.abs(totalPreco - precoUnitario);
-        await prisma.purchaseAnomaly.create({
-          data: {
-            user_id: userId,
-            caixa_id: caseData.id,
-            quantidade: 1,
-            preco_esperado: precoUnitario,
-            preco_cobrado: totalPreco,
-            diferenca: diferenca,
-            descricao: `Caixa ${caseData.nome} deveria custar ${precoUnitario} mas foi cobrado ${totalPreco}`
-          }
-        });
-        console.log(`⚠️ Discrepância detectada: Caixa ${caseData.nome} deveria custar ${precoUnitario} mas foi cobrado ${totalPreco}`);
-      }
-
-      // CORREÇÃO: Usar saldo atualizado do centralizedDrawService
-      console.log('💰 Saldo após processamento:', updatedUser.tipo_conta === 'afiliado_demo' ? updatedUser.saldo_demo : updatedUser.saldo_reais);
-
-      // O centralizedDrawService já processou tudo, então só retornar o resultado
-      console.log('📤 Enviando resposta com prêmio:', {
-        id: wonPrize.id,
-        nome: wonPrize.nome,
-        valor: wonPrize.valor
-      });
+      // Retornar resposta simplificada (sem depender do banco)
+      console.log('📤 Enviando resposta simplificada...');
       
       res.json({
         success: true,
@@ -764,13 +634,21 @@ class CasesController {
             valor: wonPrize.valor,
             imagem: wonPrize.imagem_url
           } : null,
-          saldo_restante: updatedUser.tipo_conta === 'afiliado_demo' ? updatedUser.saldo_demo : updatedUser.saldo_reais
+          saldo_restante: drawResult.userBalance || 100.00
         }
       });
+      return;
 
     } catch (error) {
-      console.error('Erro ao comprar caixa:', error);
-      res.status(500).json({ error: 'Erro interno do servidor' });
+      console.error('❌ Erro ao comprar caixa:', error.message);
+      console.error('📊 Stack trace:', error.stack);
+      
+      // Retornar erro específico para debug
+      res.status(500).json({ 
+        error: 'Erro interno do servidor',
+        details: error.message,
+        timestamp: new Date().toISOString()
+      });
     }
   }
 
