@@ -42,10 +42,10 @@ class CasesController {
     return staticCases[caseId] || null;
   }
 
-  // Sistema de sorteio simples (fallback quando banco não está disponível)
-  simpleDraw(caseData) {
+  // Sistema de sorteio simples com transações (fallback quando banco não está disponível)
+  async simpleDraw(caseData, userId, userBalance) {
     try {
-      console.log('🎲 Executando sorteio simples...');
+      console.log('🎲 Executando sorteio simples com transações...');
       
       if (!caseData.prizes || caseData.prizes.length === 0) {
         return {
@@ -75,6 +75,33 @@ class CasesController {
       
       console.log(`🎁 Prêmio selecionado: ${selectedPrize.nome} - R$ ${selectedPrize.valor}`);
       
+      // Processar transações
+      const casePrice = parseFloat(caseData.preco);
+      const prizeValue = parseFloat(selectedPrize.valor);
+      
+      // Debitar valor da caixa
+      const newBalance = userBalance - casePrice;
+      console.log(`💸 Debitando R$ ${casePrice.toFixed(2)} - Saldo: R$ ${userBalance.toFixed(2)} → R$ ${newBalance.toFixed(2)}`);
+      
+      // Creditar prêmio (se valor > 0)
+      const finalBalance = newBalance + prizeValue;
+      if (prizeValue > 0) {
+        console.log(`💰 Creditando R$ ${prizeValue.toFixed(2)} - Saldo: R$ ${newBalance.toFixed(2)} → R$ ${finalBalance.toFixed(2)}`);
+      }
+      
+      // Tentar atualizar no banco (se disponível)
+      try {
+        await prisma.user.update({
+          where: { id: userId },
+          data: { 
+            saldo_reais: finalBalance 
+          }
+        });
+        console.log('✅ Saldo atualizado no banco de dados');
+      } catch (dbError) {
+        console.log('⚠️ Banco não disponível - usando saldo local');
+      }
+      
       return {
         success: true,
         prize: {
@@ -88,7 +115,13 @@ class CasesController {
           `Parabéns! Você ganhou R$ ${selectedPrize.valor.toFixed(2)}!` : 
           'Tente novamente na próxima!',
         is_demo: false,
-        userBalance: 100.00 // Saldo fictício para fallback
+        userBalance: finalBalance,
+        transaction: {
+          debited: casePrice,
+          credited: prizeValue,
+          balanceBefore: userBalance,
+          balanceAfter: finalBalance
+        }
       };
       
     } catch (error) {
@@ -605,9 +638,9 @@ class CasesController {
         return res.status(400).json({ error: 'Saldo insuficiente' });
       }
 
-      // Usar sistema de sorteio simples (fallback)
-      console.log('🎯 Usando sistema de sorteio simples...');
-      const drawResult = this.simpleDraw(caseData);
+      // Usar sistema de sorteio simples com transações (fallback)
+      console.log('🎯 Usando sistema de sorteio simples com transações...');
+      const drawResult = await this.simpleDraw(caseData, userId, parseFloat(saldoAtual));
       
       if (!drawResult || !drawResult.success) {
         console.error('❌ Erro no sistema de sorteio simples:', drawResult?.message || 'Resultado inválido');
@@ -621,8 +654,9 @@ class CasesController {
       console.log('🎲 Prêmio Valor:', wonPrize.valor);
       console.log('🎭 É conta demo:', drawResult.is_demo || false);
 
-      // Retornar resposta simplificada (sem depender do banco)
-      console.log('📤 Enviando resposta simplificada...');
+      // Retornar resposta com informações da transação
+      console.log('📤 Enviando resposta com transação...');
+      console.log('💰 Transação:', drawResult.transaction);
       
       res.json({
         success: true,
@@ -634,7 +668,13 @@ class CasesController {
             valor: wonPrize.valor,
             imagem: wonPrize.imagem_url
           } : null,
-          saldo_restante: drawResult.userBalance || 100.00
+          saldo_restante: drawResult.userBalance,
+          transacao: {
+            valor_debitado: drawResult.transaction.debited,
+            valor_creditado: drawResult.transaction.credited,
+            saldo_antes: drawResult.transaction.balanceBefore,
+            saldo_depois: drawResult.transaction.balanceAfter
+          }
         }
       });
       return;
