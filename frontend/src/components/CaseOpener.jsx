@@ -31,7 +31,7 @@ const CaseOpener = ({
     try {
       const response = await api.getCaixas();
       if (response.data && response.data.cases) {
-        const foundCase = response.data.cases.find(c => c.nome === caseName);
+        const foundCase = response.data.cases?.find(c => c.nome === caseName);
         if (foundCase) {
           setCurrentCase(foundCase);
         }

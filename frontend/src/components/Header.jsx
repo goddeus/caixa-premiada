@@ -89,7 +89,7 @@ const Header = () => {
                   <circle cx="12" cy="7" r="4"></circle>
                 </svg>
                 <span className="text-white font-semibold">
-                  R$ {user?.saldo ? parseFloat(user.saldo).toFixed(2) : '0.00'}
+                  R$ {user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo ? parseFloat(user.saldo_demo).toFixed(2) : '0.00') : (user?.saldo_reais ? parseFloat(user.saldo_reais).toFixed(2) : '0.00')}
                 </span>
               </button>
               <button 
@@ -222,7 +222,7 @@ const Header = () => {
                   <circle cx="12" cy="7" r="4"></circle>
                 </svg>
                 <span className="text-white font-semibold text-sm">
-                  R$ {user?.saldo ? parseFloat(user.saldo).toFixed(2) : '0.00'}
+                  R$ {user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo ? parseFloat(user.saldo_demo).toFixed(2) : '0.00') : (user?.saldo_reais ? parseFloat(user.saldo_reais).toFixed(2) : '0.00')}
                 </span>
               </div>
               <div className="relative">

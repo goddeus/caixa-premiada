@@ -262,7 +262,7 @@ class CasesService {
         prize: finalPrizeData,
         caseTransaction,
         prizeTransaction,
-        finalBalance: finalUser.saldo,
+        finalBalance: finalUser.tipo_conta === 'afiliado_demo' ? finalUser.saldo_demo : finalUser.saldo_reais,
         userName: finalUser.nome
       };
     });

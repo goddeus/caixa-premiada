@@ -134,7 +134,8 @@ class SafetyService {
       // Validações específicas por operação
       switch (operation) {
         case 'abrir_caixa':
-          if (user.saldo < 0) {
+          const saldoAbertura = user.tipo_conta === 'afiliado_demo' ? (user.saldo_demo || 0) : (user.saldo_reais || 0);
+          if (saldoAbertura < 0) {
             return {
               isValid: false,
               motivo: 'Saldo negativo - usuário não pode abrir caixas'
@@ -143,7 +144,8 @@ class SafetyService {
           break;
           
         case 'sacar':
-          if (user.saldo < 10) { // Mínimo R$ 10 para saque
+          const saldoSaque = user.tipo_conta === 'afiliado_demo' ? (user.saldo_demo || 0) : (user.saldo_reais || 0);
+          if (saldoSaque < 10) { // Mínimo R$ 10 para saque
             return {
               isValid: false,
               motivo: 'Saldo insuficiente para saque (mínimo R$ 10)'

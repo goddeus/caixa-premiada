@@ -733,7 +733,7 @@ class CasesController {
         where: { id: userId },
         select: { saldo_reais: true, saldo_demo: true, tipo_conta: true }
       });
-      console.log('💰 Saldo após crédito:', userAfterCredit.saldo);
+      console.log('💰 Saldo após crédito:', userAfterCredit.tipo_conta === 'afiliado_demo' ? userAfterCredit.saldo_demo : userAfterCredit.saldo_reais);
 
       res.json({
         prizes: caseData.prizes,

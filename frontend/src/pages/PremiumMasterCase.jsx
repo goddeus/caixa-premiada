@@ -123,7 +123,7 @@ const PremiumMasterCase = () => {
 
       // Buscar ID da caixa Premium primeiro
       const casesResponse = await api.get('/cases');
-      const premiumCase = casesResponse.data.cases.find(c => c.nome.includes('PREMIUM'));
+      const premiumCase = casesResponse.data.cases?.find(c => c.nome.includes('PREMIUM'));
       
       if (!premiumCase) {
         toast.error('Caixa Premium não encontrada');

@@ -45,7 +45,7 @@ const CaseDetails = () => {
       return;
     }
 
-    if (parseFloat(user.saldo) < parseFloat(caseData.preco)) {
+    if ((user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < parseFloat(caseData.preco)) {
       toast.error('Saldo insuficiente para comprar esta caixa');
       return;
     }
@@ -105,7 +105,7 @@ const CaseDetails = () => {
     }
 
     const totalCost = parseFloat(caseData.preco) * quantity;
-    if (parseFloat(user.saldo) < totalCost) {
+    if ((user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < totalCost) {
       toast.error('Saldo insuficiente para comprar esta quantidade de caixas');
       return;
     }
@@ -246,7 +246,7 @@ const CaseDetails = () => {
               <div className="space-y-2">
                 <button
                   onClick={handleBuyCase}
-                  disabled={buying || parseFloat(user?.saldo || 0) < parseFloat(caseData.preco)}
+                  disabled={buying || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < parseFloat(caseData.preco)}
                   className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 >
                   {buying ? (
@@ -265,7 +265,7 @@ const CaseDetails = () => {
                 {quantity > 1 && (
                   <button
                     onClick={handleBuyMultipleCases}
-                    disabled={buying || parseFloat(user?.saldo || 0) < (parseFloat(caseData.preco) * quantity)}
+                    disabled={buying || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < (parseFloat(caseData.preco) * quantity)}
                     className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                   >
                     {buying ? (
@@ -284,7 +284,7 @@ const CaseDetails = () => {
               </div>
             </div>
 
-            {parseFloat(user?.saldo || 0) < parseFloat(caseData.preco) && (
+            {(user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < parseFloat(caseData.preco) && (
               <p className="text-red-400 text-sm text-center mt-2">
                 Saldo insuficiente. Faça um depósito para continuar.
               </p>

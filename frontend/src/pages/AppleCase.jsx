@@ -122,7 +122,7 @@ const AppleCase = () => {
 
       // Buscar ID da caixa Apple primeiro
       const casesResponse = await api.get('/cases');
-      const appleCase = casesResponse.data.cases.find(c => c.nome.includes('APPLE') || c.nome.includes('Apple'));
+      const appleCase = casesResponse.data.cases?.find(c => c.nome.includes('APPLE') || c.nome.includes('Apple'));
       
       if (!appleCase) {
         toast.error('Caixa Apple não encontrada');
@@ -660,11 +660,11 @@ const AppleCase = () => {
 
               {/* Dynamic Button */}
               <div className="flex justify-center gap-3 mb-2">
-                {(user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) >= 1.50 ? (
+                {(user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) >= 7.00 ? (
                   <button
                     onClick={handleOpenCase}
-                    disabled={isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 1.50}
-                    style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 1.50) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 1.50) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
+                    disabled={isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 7.00}
+                    style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 7.00) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 7.00) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
                   >
                     <span style={{display: 'flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(90deg, rgb(34, 197, 94) 0%, rgb(22, 163, 74) 100%)', borderRadius: '0.7rem', padding: '0.5rem 1.2rem 0.5rem 1.1rem', fontWeight: 700, fontSize: '17px', color: 'rgb(255, 255, 255)', flex: '1 1 0%', position: 'relative'}}>
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-box" style={{marginRight: '8px'}}>
@@ -800,11 +800,11 @@ const AppleCase = () => {
 
             {/* Botões */}
             <div className="flex justify-center gap-3 mb-2">
-              {(user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) >= 1.50 ? (
+              {(user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) >= 7.00 ? (
                 <button
                   onClick={handleOpenCase}
-                  disabled={isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < (1.50 * quantity)}
-                  style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < (1.50 * quantity)) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < (1.50 * quantity)) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
+                  disabled={isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < (7.00 * quantity)}
+                  style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < (7.00 * quantity)) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < (7.00 * quantity)) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
                 >
                   <span style={{display: 'flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(90deg, rgb(34, 197, 94) 0%, rgb(22, 163, 74) 100%)', borderRadius: '0.7rem', padding: '0.5rem 1.2rem 0.5rem 1.1rem', fontWeight: 700, fontSize: '17px', color: 'rgb(255, 255, 255)', flex: '1 1 0%', position: 'relative'}}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-box" style={{marginRight: '8px'}}>
@@ -814,7 +814,7 @@ const AppleCase = () => {
                     </svg>
                     Abrir Caixa
                     <span style={{marginLeft: '18px', background: 'rgb(14, 16, 21)', color: 'rgb(255, 255, 255)', fontWeight: 700, fontSize: '17px', borderRadius: '0.7rem', padding: '0.35rem 1.1rem', display: 'flex', alignItems: 'center', minWidth: '80px', position: 'relative', right: '-8px'}}>
-                      R$ {(1.50 * quantity).toFixed(2).replace('.', ',')}
+                      R$ {(7.00 * quantity).toFixed(2).replace('.', ',')}
                     </span>
                   </span>
                 </button>
