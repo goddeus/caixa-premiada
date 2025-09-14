@@ -1,0 +1,440 @@
+{
+  "timestamp": "2025-09-14T11:50:18.143Z",
+  "database_connection": false,
+  "api_endpoints": {
+    "/cases": {
+      "status": 200,
+      "success": true,
+      "response_time": "N/A"
+    },
+    "/cases/1abd77cf-472b-473d-9af0-6cd47f9f1452": {
+      "status": 200,
+      "success": true,
+      "response_time": "N/A"
+    },
+    "/auth/me": {
+      "status": 401,
+      "success": false,
+      "error": "Request failed with status code 401"
+    },
+    "/wallet": {
+      "status": 401,
+      "success": false,
+      "error": "Request failed with status code 401"
+    },
+    "/profile": {
+      "status": 401,
+      "success": false,
+      "error": "Request failed with status code 401"
+    }
+  },
+  "controllers": {
+    "casesController.js": {
+      "exists": true,
+      "prisma_usage": 22,
+      "try_catch_blocks": 17,
+      "has_fallback": true
+    },
+    "adminController.js": {
+      "exists": true,
+      "prisma_usage": 50,
+      "try_catch_blocks": 18,
+      "has_fallback": false
+    },
+    "profileController.js": {
+      "exists": true,
+      "prisma_usage": 8,
+      "try_catch_blocks": 3,
+      "has_fallback": false
+    },
+    "transactionsController.js": {
+      "exists": true,
+      "prisma_usage": 8,
+      "try_catch_blocks": 5,
+      "has_fallback": false
+    },
+    "paymentController.js": {
+      "exists": true,
+      "prisma_usage": 8,
+      "try_catch_blocks": 10,
+      "has_fallback": false
+    },
+    "bulkPurchaseController.js": {
+      "exists": true,
+      "prisma_usage": 3,
+      "try_catch_blocks": 5,
+      "has_fallback": false
+    },
+    "authController.js": {
+      "exists": true,
+      "prisma_usage": 10,
+      "try_catch_blocks": 4,
+      "has_fallback": false
+    },
+    "casePrizeController.js": {
+      "exists": true,
+      "prisma_usage": 7,
+      "try_catch_blocks": 6,
+      "has_fallback": false
+    },
+    "prizeSyncController.js": {
+      "exists": true,
+      "prisma_usage": 1,
+      "try_catch_blocks": 7,
+      "has_fallback": false
+    }
+  },
+  "services": {
+    "centralizedDrawService.js": {
+      "exists": true,
+      "prisma_usage": 14,
+      "try_catch_blocks": 10,
+      "has_fallback": true
+    },
+    "casesService.js": {
+      "exists": true,
+      "prisma_usage": 8,
+      "try_catch_blocks": 0,
+      "has_fallback": false
+    },
+    "prizeCalculationService.js": {
+      "exists": true,
+      "prisma_usage": 8,
+      "try_catch_blocks": 8,
+      "has_fallback": true
+    },
+    "safetyService.js": {
+      "exists": true,
+      "prisma_usage": 9,
+      "try_catch_blocks": 8,
+      "has_fallback": false
+    },
+    "prizeAuditServiceV2.js": {
+      "exists": true,
+      "prisma_usage": 9,
+      "try_catch_blocks": 8,
+      "has_fallback": false
+    },
+    "prizeSyncService.js": {
+      "exists": true,
+      "prisma_usage": 8,
+      "try_catch_blocks": 7,
+      "has_fallback": false
+    },
+    "bulkPurchaseServiceOptimized.js": {
+      "exists": true,
+      "prisma_usage": 5,
+      "try_catch_blocks": 4,
+      "has_fallback": false
+    },
+    "userRTPService.js": {
+      "exists": true,
+      "prisma_usage": 9,
+      "try_catch_blocks": 8,
+      "has_fallback": false
+    },
+    "bulkPurchaseService.js": {
+      "exists": true,
+      "prisma_usage": 8,
+      "try_catch_blocks": 4,
+      "has_fallback": false
+    },
+    "walletService.js": {
+      "exists": true,
+      "prisma_usage": 19,
+      "try_catch_blocks": 2,
+      "has_fallback": false
+    },
+    "authService.js": {
+      "exists": true,
+      "prisma_usage": 5,
+      "try_catch_blocks": 0,
+      "has_fallback": false
+    },
+    "cashFlowService.js": {
+      "exists": true,
+      "prisma_usage": 13,
+      "try_catch_blocks": 6,
+      "has_fallback": false
+    },
+    "globalDrawService.js": {
+      "exists": true,
+      "prisma_usage": 9,
+      "try_catch_blocks": 6,
+      "has_fallback": false
+    },
+    "affiliateService.js": {
+      "exists": true,
+      "prisma_usage": 12,
+      "try_catch_blocks": 3,
+      "has_fallback": false
+    },
+    "buyCaseService.js": {
+      "exists": true,
+      "prisma_usage": 4,
+      "try_catch_blocks": 3,
+      "has_fallback": true
+    },
+    "gatewayConfigService.js": {
+      "exists": true,
+      "prisma_usage": 11,
+      "try_catch_blocks": 12,
+      "has_fallback": false
+    },
+    "userSessionService.js": {
+      "exists": true,
+      "prisma_usage": 6,
+      "try_catch_blocks": 6,
+      "has_fallback": false
+    },
+    "rtpService.js": {
+      "exists": true,
+      "prisma_usage": 4,
+      "try_catch_blocks": 6,
+      "has_fallback": false
+    },
+    "auditLogService.js": {
+      "exists": true,
+      "prisma_usage": 14,
+      "try_catch_blocks": 8,
+      "has_fallback": false
+    },
+    "prizeValidationService.js": {
+      "exists": true,
+      "prisma_usage": 12,
+      "try_catch_blocks": 6,
+      "has_fallback": false
+    },
+    "illustrativePrizeService.js": {
+      "exists": true,
+      "prisma_usage": 7,
+      "try_catch_blocks": 7,
+      "has_fallback": false
+    }
+  },
+  "routes": {
+    "admin.js": {
+      "exists": true,
+      "prisma_usage": 3,
+      "try_catch_blocks": 1,
+      "has_fallback": false
+    },
+    "seedRoutes.js": {
+      "exists": true,
+      "prisma_usage": 14,
+      "try_catch_blocks": 7,
+      "has_fallback": false
+    }
+  },
+  "issues_found": [
+    {
+      "type": "database_connection",
+      "severity": "critical",
+      "message": "Banco de dados não está acessível",
+      "error": "Can't reach database server at `dpg-d31qva3ipnbc73cjkas0-a:5432`\n\nPlease make sure your database server is running at `dpg-d31qva3ipnbc73cjkas0-a:5432`."
+    },
+    {
+      "type": "controller_no_fallback",
+      "severity": "medium",
+      "controller": "adminController.js",
+      "message": "Controller usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 50
+    },
+    {
+      "type": "controller_no_fallback",
+      "severity": "medium",
+      "controller": "profileController.js",
+      "message": "Controller usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 8
+    },
+    {
+      "type": "controller_no_fallback",
+      "severity": "medium",
+      "controller": "transactionsController.js",
+      "message": "Controller usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 8
+    },
+    {
+      "type": "controller_no_fallback",
+      "severity": "medium",
+      "controller": "paymentController.js",
+      "message": "Controller usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 8
+    },
+    {
+      "type": "controller_no_fallback",
+      "severity": "medium",
+      "controller": "bulkPurchaseController.js",
+      "message": "Controller usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 3
+    },
+    {
+      "type": "controller_no_fallback",
+      "severity": "medium",
+      "controller": "authController.js",
+      "message": "Controller usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 10
+    },
+    {
+      "type": "controller_no_fallback",
+      "severity": "medium",
+      "controller": "casePrizeController.js",
+      "message": "Controller usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 7
+    },
+    {
+      "type": "controller_no_fallback",
+      "severity": "medium",
+      "controller": "prizeSyncController.js",
+      "message": "Controller usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 1
+    },
+    {
+      "type": "service_no_fallback",
+      "severity": "medium",
+      "service": "casesService.js",
+      "message": "Serviço usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 8
+    },
+    {
+      "type": "service_no_fallback",
+      "severity": "medium",
+      "service": "safetyService.js",
+      "message": "Serviço usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 9
+    },
+    {
+      "type": "service_no_fallback",
+      "severity": "medium",
+      "service": "prizeAuditServiceV2.js",
+      "message": "Serviço usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 9
+    },
+    {
+      "type": "service_no_fallback",
+      "severity": "medium",
+      "service": "prizeSyncService.js",
+      "message": "Serviço usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 8
+    },
+    {
+      "type": "service_no_fallback",
+      "severity": "medium",
+      "service": "bulkPurchaseServiceOptimized.js",
+      "message": "Serviço usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 5
+    },
+    {
+      "type": "service_no_fallback",
+      "severity": "medium",
+      "service": "userRTPService.js",
+      "message": "Serviço usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 9
+    },
+    {
+      "type": "service_no_fallback",
+      "severity": "medium",
+      "service": "bulkPurchaseService.js",
+      "message": "Serviço usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 8
+    },
+    {
+      "type": "service_no_fallback",
+      "severity": "medium",
+      "service": "walletService.js",
+      "message": "Serviço usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 19
+    },
+    {
+      "type": "service_no_fallback",
+      "severity": "medium",
+      "service": "authService.js",
+      "message": "Serviço usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 5
+    },
+    {
+      "type": "service_no_fallback",
+      "severity": "medium",
+      "service": "cashFlowService.js",
+      "message": "Serviço usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 13
+    },
+    {
+      "type": "service_no_fallback",
+      "severity": "medium",
+      "service": "globalDrawService.js",
+      "message": "Serviço usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 9
+    },
+    {
+      "type": "service_no_fallback",
+      "severity": "medium",
+      "service": "affiliateService.js",
+      "message": "Serviço usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 12
+    },
+    {
+      "type": "service_no_fallback",
+      "severity": "medium",
+      "service": "gatewayConfigService.js",
+      "message": "Serviço usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 11
+    },
+    {
+      "type": "service_no_fallback",
+      "severity": "medium",
+      "service": "userSessionService.js",
+      "message": "Serviço usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 6
+    },
+    {
+      "type": "service_no_fallback",
+      "severity": "medium",
+      "service": "rtpService.js",
+      "message": "Serviço usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 4
+    },
+    {
+      "type": "service_no_fallback",
+      "severity": "medium",
+      "service": "auditLogService.js",
+      "message": "Serviço usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 14
+    },
+    {
+      "type": "service_no_fallback",
+      "severity": "medium",
+      "service": "prizeValidationService.js",
+      "message": "Serviço usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 12
+    },
+    {
+      "type": "service_no_fallback",
+      "severity": "medium",
+      "service": "illustrativePrizeService.js",
+      "message": "Serviço usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 7
+    },
+    {
+      "type": "route_no_fallback",
+      "severity": "medium",
+      "route": "admin.js",
+      "message": "Rota usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 3
+    },
+    {
+      "type": "route_no_fallback",
+      "severity": "medium",
+      "route": "seedRoutes.js",
+      "message": "Rota usa Prisma mas não tem fallback para erros de banco",
+      "prisma_usage": 14
+    }
+  ],
+  "recommendations": [
+    "Implementar fallbacks em todos os controllers e serviços que usam Prisma",
+    "Adicionar try/catch em todas as operações de banco de dados",
+    "Criar dados estáticos de fallback para funcionalidades críticas",
+    "Adicionar tratamento de erro em serviços e controllers",
+    "Implementar dados de fallback para operações não críticas"
+  ]
+}

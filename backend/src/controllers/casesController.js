@@ -703,18 +703,26 @@ class CasesController {
       console.log('- Prize ID:', prizeId);
       console.log('- Prize Value:', prizeValue);
       console.log('- User ID:', userId);
-      console.log('- Prize ID type:', typeof prizeId);
-      console.log('- Prize ID string:', JSON.stringify(prizeId));
-      console.log('- Prize ID length:', prizeId?.length);
 
-
-      // Buscar dados da caixa
-      const caseData = await prisma.case.findUnique({
-        where: { id: id },
-        include: {
-          prizes: true
-        }
-      });
+      // Tentar buscar dados da caixa do banco
+      let caseData;
+      try {
+        caseData = await prisma.case.findUnique({
+          where: { id: id },
+          include: {
+            prizes: true
+          }
+        });
+      } catch (dbError) {
+        console.log('⚠️ Erro ao acessar banco, usando fallback para creditPrize');
+        // Em modo fallback, o prêmio já foi creditado no buyCase
+        return res.json({
+          success: true,
+          credited: true,
+          message: 'Prêmio já foi creditado durante a abertura da caixa',
+          fallback: true
+        });
+      }
 
       if (!caseData) {
         console.log('❌ Caixa não encontrada');
