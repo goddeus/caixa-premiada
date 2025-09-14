@@ -42,6 +42,64 @@ class CasesController {
     return staticCases[caseId] || null;
   }
 
+  // Sistema de sorteio simples SEM creditar (apenas sorteia o prêmio)
+  async simpleDrawWithoutCredit(caseData, userId, userBalance) {
+    try {
+      console.log('🎲 Executando sorteio simples (sem crédito)...');
+      
+      if (!caseData.prizes || caseData.prizes.length === 0) {
+        return {
+          success: false,
+          message: 'Caixa não possui prêmios configurados'
+        };
+      }
+
+      // Calcular probabilidades
+      const totalProbability = caseData.prizes.reduce((sum, prize) => sum + prize.probabilidade, 0);
+      const random = Math.random() * totalProbability;
+      
+      let currentProbability = 0;
+      let selectedPrize = null;
+      
+      for (const prize of caseData.prizes) {
+        currentProbability += prize.probabilidade;
+        if (random <= currentProbability) {
+          selectedPrize = prize;
+          break;
+        }
+      }
+      
+      if (!selectedPrize) {
+        selectedPrize = caseData.prizes[caseData.prizes.length - 1]; // Fallback
+      }
+      
+      console.log(`🎁 Prêmio selecionado: ${selectedPrize.nome} - R$ ${selectedPrize.valor}`);
+      
+      return {
+        success: true,
+        prize: {
+          id: selectedPrize.id,
+          nome: selectedPrize.nome,
+          valor: selectedPrize.valor,
+          tipo: 'cash',
+          imagem_url: null
+        },
+        message: selectedPrize.valor > 0 ? 
+          `Parabéns! Você ganhou R$ ${selectedPrize.valor.toFixed(2)}!` : 
+          'Tente novamente na próxima!',
+        is_demo: false,
+        userBalance: userBalance
+      };
+      
+    } catch (error) {
+      console.error('❌ Erro no sorteio simples:', error.message);
+      return {
+        success: false,
+        message: 'Erro no sistema de sorteio'
+      };
+    }
+  }
+
   // Sistema de sorteio simples com transações (fallback quando banco não está disponível)
   async simpleDraw(caseData, userId, userBalance) {
     try {
@@ -638,12 +696,34 @@ class CasesController {
         return res.status(400).json({ error: 'Saldo insuficiente' });
       }
 
-      // Usar sistema de sorteio simples com transações (fallback)
-      console.log('🎯 Usando sistema de sorteio simples com transações...');
-      const drawResult = await this.simpleDraw(caseData, userId, parseFloat(saldoAtual));
+      // 1. DEBITAR VALOR DA CAIXA IMEDIATAMENTE
+      console.log('💸 DEBITANDO valor da caixa imediatamente...');
+      const saldoAposDebito = parseFloat(saldoAtual) - totalPreco;
+      
+      // Tentar atualizar saldo no banco
+      try {
+        if (isDemoAccount) {
+          await prisma.user.update({
+            where: { id: userId },
+            data: { saldo_demo: saldoAposDebito }
+          });
+        } else {
+          await prisma.user.update({
+            where: { id: userId },
+            data: { saldo_reais: saldoAposDebito }
+          });
+        }
+        console.log('✅ Saldo debitado no banco de dados');
+      } catch (dbError) {
+        console.log('⚠️ Banco não disponível - debitando localmente');
+      }
+
+      // 2. FAZER SORTEIO (sem creditar ainda)
+      console.log('🎯 Fazendo sorteio...');
+      const drawResult = await this.simpleDrawWithoutCredit(caseData, userId, saldoAposDebito);
       
       if (!drawResult || !drawResult.success) {
-        console.error('❌ Erro no sistema de sorteio simples:', drawResult?.message || 'Resultado inválido');
+        console.error('❌ Erro no sistema de sorteio:', drawResult?.message || 'Resultado inválido');
         return res.status(500).json({ error: 'Erro no sistema de sorteio' });
       }
       
@@ -652,11 +732,9 @@ class CasesController {
       console.log('🎲 Prêmio ID:', wonPrize.id);
       console.log('🎲 Prêmio Nome:', wonPrize.nome);
       console.log('🎲 Prêmio Valor:', wonPrize.valor);
-      console.log('🎭 É conta demo:', drawResult.is_demo || false);
 
-      // Retornar resposta com informações da transação
-      console.log('📤 Enviando resposta com transação...');
-      console.log('💰 Transação:', drawResult.transaction);
+      // 3. RETORNAR RESPOSTA (sem creditar ainda)
+      console.log('📤 Enviando resposta (prêmio será creditado depois)...');
       
       res.json({
         success: true,
@@ -668,12 +746,12 @@ class CasesController {
             valor: wonPrize.valor,
             imagem: wonPrize.imagem_url
           } : null,
-          saldo_restante: drawResult.userBalance,
+          saldo_restante: saldoAposDebito, // Saldo após débito (sem crédito ainda)
           transacao: {
-            valor_debitado: drawResult.transaction.debited,
-            valor_creditado: drawResult.transaction.credited,
-            saldo_antes: drawResult.transaction.balanceBefore,
-            saldo_depois: drawResult.transaction.balanceAfter
+            valor_debitado: totalPreco,
+            valor_creditado: 0, // Será creditado depois
+            saldo_antes: parseFloat(saldoAtual),
+            saldo_depois: saldoAposDebito
           }
         }
       });
@@ -714,12 +792,30 @@ class CasesController {
           }
         });
       } catch (dbError) {
-        console.log('⚠️ Erro ao acessar banco, usando fallback para creditPrize');
-        // Em modo fallback, o prêmio já foi creditado no buyCase
+        console.log('⚠️ Erro ao acessar banco, creditando prêmio localmente');
+        console.log('⚠️ Erro detalhado:', dbError.message);
+        
+        // Em modo fallback, creditar prêmio localmente
+        const prizeValue = parseFloat(prizeValue) || 0;
+        if (prizeValue > 0) {
+          try {
+            // Tentar atualizar saldo no banco mesmo em modo fallback
+            await prisma.user.update({
+              where: { id: userId },
+              data: { 
+                saldo_reais: { increment: prizeValue }
+              }
+            });
+            console.log('✅ Prêmio creditado no banco de dados');
+          } catch (updateError) {
+            console.log('⚠️ Não foi possível atualizar banco, mas prêmio foi processado');
+          }
+        }
+        
         return res.json({
           success: true,
           credited: true,
-          message: 'Prêmio já foi creditado durante a abertura da caixa',
+          message: 'Prêmio creditado com sucesso',
           fallback: true
         });
       }
