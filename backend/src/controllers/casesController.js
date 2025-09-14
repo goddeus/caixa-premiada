@@ -82,7 +82,7 @@ class CasesController {
           nome: selectedPrize.nome,
           valor: selectedPrize.valor,
           tipo: 'cash',
-          imagem_url: null
+          imagem: null
         },
         message: selectedPrize.valor > 0 ? 
           `Parabéns! Você ganhou R$ ${selectedPrize.valor.toFixed(2)}!` : 
@@ -167,7 +167,7 @@ class CasesController {
           nome: selectedPrize.nome,
           valor: selectedPrize.valor,
           tipo: 'cash',
-          imagem_url: null
+          imagem: null
         },
         message: selectedPrize.valor > 0 ? 
           `Parabéns! Você ganhou R$ ${selectedPrize.valor.toFixed(2)}!` : 
@@ -206,9 +206,7 @@ class CasesController {
               nome: true,
               valor: true,
               probabilidade: true,
-              tipo: true,
-              sorteavel: true,
-              imagem_url: true
+              imagem: true
             }
           }
         },
@@ -375,7 +373,7 @@ class CasesController {
               id: wonPrize.id,
               nome: wonPrize.nome,
               valor: wonPrize.valor,
-              imagem_url: wonPrize.imagem_url,
+              imagem: wonPrize.imagem,
               sem_imagem: wonPrize.sem_imagem || false,
               is_illustrative: wonPrize.valor === 0,
               message: wonPrize.message || (wonPrize.valor === 0 ? 'Quem sabe na próxima!' : `Parabéns! Você ganhou R$ ${parseFloat(wonPrize.valor).toFixed(2)}!`)
@@ -403,7 +401,8 @@ class CasesController {
       const saldoDepois = updatedUser.tipo_conta === 'afiliado_demo' ? parseFloat(updatedUser.saldo_demo) : parseFloat(updatedUser.saldo_reais);
       const discrepanciaDetectada = Math.abs(totalCost - (precoUnitario * quantity)) > 0.01;
       
-      await prisma.purchaseAudit.create({
+      // ERRO: Modelo não existe no schema
+      // await prisma.purchaseAudit.create({
         data: {
           purchase_id: `buy_multiple_${userId}_${caseData.id}_${Date.now()}`,
           user_id: userId,
@@ -422,7 +421,8 @@ class CasesController {
       // Verificar discrepância e registrar anomalia se necessário
       if (discrepanciaDetectada) {
         const diferenca = Math.abs(totalCost - (precoUnitario * quantity));
-        await prisma.purchaseAnomaly.create({
+        // ERRO: Modelo não existe no schema
+        // await prisma.purchaseAnomaly.create({
           data: {
             user_id: userId,
             caixa_id: caseData.id,
@@ -537,7 +537,6 @@ class CasesController {
         await tx.transaction.create({
           data: {
             user_id: userId,
-            case_id: caseData.id,
             tipo: 'abertura_caixa',
             valor: -totalPreco,
             status: 'concluido',
@@ -555,7 +554,8 @@ class CasesController {
       const saldoDepois = updatedUser.tipo_conta === 'afiliado_demo' ? parseFloat(updatedUser.saldo_demo) : parseFloat(updatedUser.saldo_reais);
       const discrepanciaDetectada = Math.abs(totalPreco - precoUnitario) > 0.01;
       
-      await prisma.purchaseAudit.create({
+      // ERRO: Modelo não existe no schema
+      // await prisma.purchaseAudit.create({
         data: {
           purchase_id: `debit_${userId}_${caseData.id}_${Date.now()}`,
           user_id: userId,
@@ -574,7 +574,8 @@ class CasesController {
       // Verificar discrepância e registrar anomalia se necessário
       if (discrepanciaDetectada) {
         const diferenca = Math.abs(totalPreco - precoUnitario);
-        await prisma.purchaseAnomaly.create({
+        // ERRO: Modelo não existe no schema
+        // await prisma.purchaseAnomaly.create({
           data: {
             user_id: userId,
             caixa_id: caseData.id,
@@ -655,18 +656,18 @@ class CasesController {
       let caseData;
       try {
         caseData = await prisma.case.findUnique({
-          where: { id: id },
-          include: {
-            prizes: {
-              select: {
-                id: true,
-                nome: true,
-                valor: true,
-                probabilidade: true
-              }
+        where: { id: id },
+        include: {
+          prizes: {
+            select: {
+              id: true,
+              nome: true,
+              valor: true,
+              probabilidade: true
             }
           }
-        });
+        }
+      });
       } catch (dbError) {
         console.error('❌ Erro ao buscar caixa no banco:', dbError.message);
         // Fallback para dados estáticos
@@ -704,12 +705,12 @@ class CasesController {
       try {
         if (isDemoAccount) {
           await prisma.user.update({
-            where: { id: userId },
+          where: { id: userId },
             data: { saldo_demo: saldoAposDebito }
           });
         } else {
-          await prisma.user.update({
-            where: { id: userId },
+        await prisma.user.update({
+          where: { id: userId },
             data: { saldo_reais: saldoAposDebito }
           });
         }
@@ -744,7 +745,7 @@ class CasesController {
             id: wonPrize.id,
             nome: wonPrize.nome,
             valor: wonPrize.valor,
-            imagem: wonPrize.imagem_url
+            imagem: wonPrize.imagem
           } : null,
           saldo_restante: saldoAposDebito, // Saldo após débito (sem crédito ainda)
           transacao: {
@@ -786,24 +787,24 @@ class CasesController {
       let caseData;
       try {
         caseData = await prisma.case.findUnique({
-          where: { id: id },
-          include: {
-            prizes: true
-          }
-        });
+        where: { id: id },
+        include: {
+          prizes: true
+        }
+      });
       } catch (dbError) {
         console.log('⚠️ Erro ao acessar banco, creditando prêmio localmente');
         console.log('⚠️ Erro detalhado:', dbError.message);
         
         // Em modo fallback, creditar prêmio localmente
-        const prizeValue = parseFloat(prizeValue) || 0;
-        if (prizeValue > 0) {
+        const prizeValueToCredit = parseFloat(prizeValue) || 0;
+        if (prizeValueToCredit > 0) {
           try {
             // Tentar atualizar saldo no banco mesmo em modo fallback
             await prisma.user.update({
               where: { id: userId },
               data: { 
-                saldo_reais: { increment: prizeValue }
+                saldo_reais: { increment: prizeValueToCredit }
               }
             });
             console.log('✅ Prêmio creditado no banco de dados');
@@ -890,8 +891,6 @@ class CasesController {
       await prisma.transaction.create({
         data: {
           user_id: userId,
-          case_id: caseData.id,
-          prize_id: wonPrize.id,
           tipo: 'premio',
           valor: parseFloat(wonPrize.valor),
           status: 'concluido',
@@ -938,7 +937,7 @@ class CasesController {
           case: {
             select: {
               nome: true,
-              imagem_url: true
+              imagem: true
             }
           },
           prize: {
