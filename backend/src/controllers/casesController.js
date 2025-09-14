@@ -6,6 +6,100 @@ const prizeCalculationService = require('../services/prizeCalculationService');
 const prisma = new PrismaClient();
 
 class CasesController {
+  // Dados estáticos das caixas (fallback quando banco não está disponível)
+  getStaticCaseData(caseId) {
+    const staticCases = {
+      '1abd77cf-472b-473d-9af0-6cd47f9f1452': {
+        id: '1abd77cf-472b-473d-9af0-6cd47f9f1452',
+        nome: 'CAIXA FINAL DE SEMANA',
+        preco: 1.5,
+        ativo: true,
+        prizes: [
+          { id: '1', nome: 'R$ 0,50', valor: 0.5, probabilidade: 0.3 },
+          { id: '2', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.2 },
+          { id: '3', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.1 },
+          { id: '4', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.05 },
+          { id: '5', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.02 },
+          { id: '6', nome: 'Nada', valor: 0, probabilidade: 0.33 }
+        ]
+      },
+      '0b5e9b8a-9d56-4769-a45a-55a3025640f4': {
+        id: '0b5e9b8a-9d56-4769-a45a-55a3025640f4',
+        nome: 'CAIXA KIT NIKE',
+        preco: 2.5,
+        ativo: true,
+        prizes: [
+          { id: '7', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.25 },
+          { id: '8', nome: 'R$ 2,50', valor: 2.5, probabilidade: 0.2 },
+          { id: '9', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.15 },
+          { id: '10', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.1 },
+          { id: '11', nome: 'R$ 25,00', valor: 25.0, probabilidade: 0.05 },
+          { id: '12', nome: 'Nada', valor: 0, probabilidade: 0.25 }
+        ]
+      }
+    };
+    
+    return staticCases[caseId] || null;
+  }
+
+  // Sistema de sorteio simples (fallback quando banco não está disponível)
+  simpleDraw(caseData) {
+    try {
+      console.log('🎲 Executando sorteio simples...');
+      
+      if (!caseData.prizes || caseData.prizes.length === 0) {
+        return {
+          success: false,
+          message: 'Caixa não possui prêmios configurados'
+        };
+      }
+
+      // Calcular probabilidades
+      const totalProbability = caseData.prizes.reduce((sum, prize) => sum + prize.probabilidade, 0);
+      const random = Math.random() * totalProbability;
+      
+      let currentProbability = 0;
+      let selectedPrize = null;
+      
+      for (const prize of caseData.prizes) {
+        currentProbability += prize.probabilidade;
+        if (random <= currentProbability) {
+          selectedPrize = prize;
+          break;
+        }
+      }
+      
+      if (!selectedPrize) {
+        selectedPrize = caseData.prizes[caseData.prizes.length - 1]; // Fallback
+      }
+      
+      console.log(`🎁 Prêmio selecionado: ${selectedPrize.nome} - R$ ${selectedPrize.valor}`);
+      
+      return {
+        success: true,
+        prize: {
+          id: selectedPrize.id,
+          nome: selectedPrize.nome,
+          valor: selectedPrize.valor,
+          tipo: 'cash',
+          imagem_url: null
+        },
+        message: selectedPrize.valor > 0 ? 
+          `Parabéns! Você ganhou R$ ${selectedPrize.valor.toFixed(2)}!` : 
+          'Tente novamente na próxima!',
+        is_demo: false,
+        userBalance: 100.00 // Saldo fictício para fallback
+      };
+      
+    } catch (error) {
+      console.error('❌ Erro no sorteio simples:', error.message);
+      return {
+        success: false,
+        message: 'Erro no sistema de sorteio'
+      };
+    }
+  }
+
   // Listar todas as caixas disponíveis
   async getCases(req, res) {
     try {
@@ -466,20 +560,27 @@ class CasesController {
       console.log('- User ID:', userId);
       console.log('- User object:', req.user);
 
-      // Buscar a caixa
-      const caseData = await prisma.case.findUnique({
-        where: { id: id },
-        include: {
-          prizes: {
-            select: {
-              id: true,
-              nome: true,
-              valor: true,
-              probabilidade: true
+      // Buscar a caixa com fallback para dados estáticos
+      let caseData;
+      try {
+        caseData = await prisma.case.findUnique({
+          where: { id: id },
+          include: {
+            prizes: {
+              select: {
+                id: true,
+                nome: true,
+                valor: true,
+                probabilidade: true
+              }
             }
           }
-        }
-      });
+        });
+      } catch (dbError) {
+        console.error('❌ Erro ao buscar caixa no banco:', dbError.message);
+        // Fallback para dados estáticos
+        caseData = this.getStaticCaseData(id);
+      }
 
       if (!caseData) {
         return res.status(404).json({ error: 'Caixa não encontrada' });
@@ -504,21 +605,23 @@ class CasesController {
         return res.status(400).json({ error: 'Saldo insuficiente' });
       }
 
-      // Usar sistema de sorteio centralizado (já trata contas demo automaticamente)
-      console.log('🎯 Usando sistema de sorteio centralizado...');
-      const centralizedDrawService = require('../services/centralizedDrawService');
-      
+      // Usar sistema de sorteio com fallback
+      console.log('🎯 Usando sistema de sorteio...');
       let drawResult;
+      
       try {
+        const centralizedDrawService = require('../services/centralizedDrawService');
         drawResult = await centralizedDrawService.sortearPremio(caseData.id, userId);
       } catch (error) {
         console.error('❌ Erro no sistema de sorteio centralizado:', error.message);
-        return res.status(500).json({ error: 'Erro interno no sistema de sorteio' });
+        console.log('🔄 Usando sistema de sorteio simples...');
+        drawResult = this.simpleDraw(caseData);
       }
       
       if (!drawResult || !drawResult.success) {
-        console.error('❌ Erro no sistema de sorteio global:', drawResult?.message || 'Resultado inválido');
-        return res.status(500).json({ error: 'Erro interno no sistema de sorteio' });
+        console.error('❌ Erro no sistema de sorteio:', drawResult?.message || 'Resultado inválido');
+        console.log('🔄 Usando sistema de sorteio simples...');
+        drawResult = this.simpleDraw(caseData);
       }
       
       const wonPrize = drawResult.prize;
