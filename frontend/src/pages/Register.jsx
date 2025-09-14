@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +15,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
   
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -28,25 +30,97 @@ const Register = () => {
     }));
   };
 
+  // Validação de email
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Validação de CPF
+  const validateCPF = (cpf) => {
+    const cleanCPF = cpf.replace(/\D/g, '');
+    if (cleanCPF.length !== 11) return false;
+    
+    // Verificar se todos os dígitos são iguais
+    if (/^(\d)\1+$/.test(cleanCPF)) return false;
+    
+    // Validar dígitos verificadores
+    let sum = 0;
+    for (let i = 0; i < 9; i++) {
+      sum += parseInt(cleanCPF.charAt(i)) * (10 - i);
+    }
+    let remainder = (sum * 10) % 11;
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    if (remainder !== parseInt(cleanCPF.charAt(9))) return false;
+    
+    sum = 0;
+    for (let i = 0; i < 10; i++) {
+      sum += parseInt(cleanCPF.charAt(i)) * (11 - i);
+    }
+    remainder = (sum * 10) % 11;
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    if (remainder !== parseInt(cleanCPF.charAt(10))) return false;
+    
+    return true;
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Validar nome
+    if (!formData.nome.trim()) {
+      newErrors.nome = 'Nome é obrigatório';
+    } else if (formData.nome.trim().length < 2) {
+      newErrors.nome = 'Nome deve ter pelo menos 2 caracteres';
+    }
+
+    // Validar email
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email é obrigatório';
+    } else if (!validateEmail(formData.email)) {
+      newErrors.email = 'Email deve ter um formato válido';
+    }
+
+    // Validar CPF
+    if (!formData.cpf.trim()) {
+      newErrors.cpf = 'CPF é obrigatório';
+    } else if (!validateCPF(formData.cpf)) {
+      newErrors.cpf = 'CPF deve ser válido';
+    }
+
+    // Validar senha
+    if (!formData.senha) {
+      newErrors.senha = 'Senha é obrigatória';
+    } else if (formData.senha.length < 6) {
+      newErrors.senha = 'Senha deve ter pelo menos 6 caracteres';
+    }
+
+    // Validar confirmação de senha
+    if (!formData.confirmarSenha) {
+      newErrors.confirmarSenha = 'Confirmação de senha é obrigatória';
+    } else if (formData.senha !== formData.confirmarSenha) {
+      newErrors.confirmarSenha = 'As senhas não coincidem';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (formData.senha !== formData.confirmarSenha) {
-      alert('As senhas não coincidem!');
-      return;
-    }
-
-    if (formData.senha.length < 6) {
-      alert('A senha deve ter pelo menos 6 caracteres!');
+    if (!validateForm()) {
+      toast.error('Por favor, corrija os erros no formulário');
       return;
     }
 
     setLoading(true);
+    setErrors({});
 
     try {
       const userData = {
-        nome: formData.nome,
-        email: formData.email,
+        nome: formData.nome.trim(),
+        email: formData.email.trim().toLowerCase(),
         senha: formData.senha,
         cpf: formData.cpf.replace(/\D/g, ''), // Remove non-digits
         referralCode: referralCode
@@ -54,10 +128,14 @@ const Register = () => {
 
       const result = await register(userData);
       if (result.success) {
+        toast.success('Conta criada com sucesso!');
         navigate('/dashboard');
+      } else {
+        toast.error(result.message || 'Erro ao criar conta');
       }
     } catch (error) {
       console.error('Erro no registro:', error);
+      toast.error('Erro interno. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -96,7 +174,9 @@ const Register = () => {
                   Nome Completo
                 </label>
                 <input 
-                  className="flex h-10 w-full rounded-md border px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-[#0E1015] border-gray-600 text-white placeholder:text-gray-400 focus:border-yellow-500 focus:ring-yellow-500/20" 
+                  className={`flex h-10 w-full rounded-md border px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-[#0E1015] text-white placeholder:text-gray-400 focus:ring-yellow-500/20 ${
+                    errors.nome ? 'border-red-500 focus:border-red-500' : 'border-gray-600 focus:border-yellow-500'
+                  }`}
                   id="nome" 
                   name="nome"
                   placeholder="Digite seu nome completo" 
@@ -105,6 +185,7 @@ const Register = () => {
                   value={formData.nome}
                   onChange={handleChange}
                 />
+                {errors.nome && <p className="text-red-400 text-sm">{errors.nome}</p>}
               </div>
 
               <div className="space-y-2">
@@ -112,7 +193,9 @@ const Register = () => {
                   Email
                 </label>
                 <input 
-                  className="flex h-10 w-full rounded-md border px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-[#0E1015] border-gray-600 text-white placeholder:text-gray-400 focus:border-yellow-500 focus:ring-yellow-500/20" 
+                  className={`flex h-10 w-full rounded-md border px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-[#0E1015] text-white placeholder:text-gray-400 focus:ring-yellow-500/20 ${
+                    errors.email ? 'border-red-500 focus:border-red-500' : 'border-gray-600 focus:border-yellow-500'
+                  }`}
                   id="email" 
                   name="email"
                   placeholder="Digite seu email" 
@@ -121,6 +204,7 @@ const Register = () => {
                   value={formData.email}
                   onChange={handleChange}
                 />
+                {errors.email && <p className="text-red-400 text-sm">{errors.email}</p>}
               </div>
 
               <div className="space-y-2">
@@ -128,7 +212,9 @@ const Register = () => {
                   CPF
                 </label>
                 <input 
-                  className="flex h-10 w-full rounded-md border px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-[#0E1015] border-gray-600 text-white placeholder:text-gray-400 focus:border-yellow-500 focus:ring-yellow-500/20" 
+                  className={`flex h-10 w-full rounded-md border px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-[#0E1015] text-white placeholder:text-gray-400 focus:ring-yellow-500/20 ${
+                    errors.cpf ? 'border-red-500 focus:border-red-500' : 'border-gray-600 focus:border-yellow-500'
+                  }`}
                   id="cpf" 
                   name="cpf"
                   placeholder="000.000.000-00" 
@@ -138,6 +224,7 @@ const Register = () => {
                   value={formData.cpf}
                   onChange={(e) => setFormData(prev => ({ ...prev, cpf: formatCPF(e.target.value) }))}
                 />
+                {errors.cpf && <p className="text-red-400 text-sm">{errors.cpf}</p>}
               </div>
               
               <div className="space-y-2">
@@ -146,7 +233,9 @@ const Register = () => {
                 </label>
                 <div className="relative">
                   <input 
-                    className="flex h-10 w-full rounded-md border px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-[#0E1015] border-gray-600 text-white placeholder:text-gray-400 focus:border-yellow-500 focus:ring-yellow-500/20 pr-10" 
+                    className={`flex h-10 w-full rounded-md border px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-[#0E1015] text-white placeholder:text-gray-400 focus:ring-yellow-500/20 pr-10 ${
+                      errors.senha ? 'border-red-500 focus:border-red-500' : 'border-gray-600 focus:border-yellow-500'
+                    }`}
                     id="senha" 
                     name="senha"
                     placeholder="Digite sua senha" 
@@ -167,6 +256,7 @@ const Register = () => {
                     )}
                   </button>
                 </div>
+                {errors.senha && <p className="text-red-400 text-sm">{errors.senha}</p>}
               </div>
 
               <div className="space-y-2">
@@ -175,7 +265,9 @@ const Register = () => {
                 </label>
                 <div className="relative">
                   <input 
-                    className="flex h-10 w-full rounded-md border px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-[#0E1015] border-gray-600 text-white placeholder:text-gray-400 focus:border-yellow-500 focus:ring-yellow-500/20 pr-10" 
+                    className={`flex h-10 w-full rounded-md border px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-[#0E1015] text-white placeholder:text-gray-400 focus:ring-yellow-500/20 pr-10 ${
+                      errors.confirmarSenha ? 'border-red-500 focus:border-red-500' : 'border-gray-600 focus:border-yellow-500'
+                    }`}
                     id="confirmarSenha" 
                     name="confirmarSenha"
                     placeholder="Confirme sua senha" 
@@ -196,6 +288,7 @@ const Register = () => {
                     )}
                   </button>
                 </div>
+                {errors.confirmarSenha && <p className="text-red-400 text-sm">{errors.confirmarSenha}</p>}
               </div>
               
               <button 

@@ -13,7 +13,7 @@ const CaseOpener = ({
   isDemo = false 
 }) => {
   const navigate = useNavigate();
-  const { user, isAuthenticated, updateUser, refreshUserData, isDemoAccount } = useAuth();
+  const { user, isAuthenticated, updateUser, refreshUserData, isDemoAccount, getUserBalance } = useAuth();
   
   const [isSimulating, setIsSimulating] = useState(false);
   const [showSimulation, setShowSimulation] = useState(false);
@@ -30,8 +30,8 @@ const CaseOpener = ({
   const loadCase = async () => {
     try {
       const response = await api.getCaixas();
-      if (response.data && response.data.cases) {
-        const foundCase = response.data.cases?.find(c => c.nome === caseName);
+      if (response && response.cases) {
+        const foundCase = response.cases?.find(c => c.nome === caseName);
         if (foundCase) {
           setCurrentCase(foundCase);
         }
@@ -165,8 +165,8 @@ const CaseOpener = ({
         response = await api.comprarCaixa(currentCase.id, quantity);
       }
       
-      if (response.data.wonPrize) {
-        const apiPrize = response.data.wonPrize;
+      if (response.wonPrize) {
+        const apiPrize = response.wonPrize;
         
         // Mapear prêmio da API para formato do frontend
         const mappedPrize = {
@@ -201,9 +201,9 @@ const CaseOpener = ({
           updateUser({ saldo: response.data.userBalance });
         }
         
-        // Atualizar dados do usuário (apenas se não for demo)
+        // Atualizar dados do usuário (apenas se não for demo) - apenas uma vez por operação
         if (!response.data.isDemo) {
-          await refreshUserData();
+          await refreshUserData(true); // force = true para garantir atualização
         }
         
         setTimeout(() => {
@@ -271,7 +271,7 @@ const CaseOpener = ({
       );
 
       if (response.data.credited) {
-        await refreshUserData();
+        await refreshUserData(true); // force = true para garantir atualização
         toast.success(`Prêmio de R$ ${prizeData.apiPrize.valor.toFixed(2).replace('.', ',')} creditado na sua carteira!`);
       }
     } catch (error) {
@@ -305,7 +305,7 @@ const CaseOpener = ({
     navigate('/dashboard');
   };
 
-  const userBalance = user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0);
+  const userBalance = getUserBalance();
   const canOpenCase = userBalance >= (parseFloat(currentCase?.preco || casePrice) * quantity);
   const isDemo = isDemoAccount();
 

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const Header = () => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, getUserBalance } = useAuth();
   const navigate = useNavigate();
   const [showUserDropdown, setShowUserDropdown] = useState(false);
 
@@ -89,7 +89,7 @@ const Header = () => {
                   <circle cx="12" cy="7" r="4"></circle>
                 </svg>
                 <span className="text-white font-semibold">
-                  R$ {user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo ? parseFloat(user.saldo_demo).toFixed(2) : '0.00') : (user?.saldo_reais ? parseFloat(user.saldo_reais).toFixed(2) : '0.00')}
+                  R$ {getUserBalance().toFixed(2)}
                 </span>
               </button>
               <button 
@@ -222,7 +222,7 @@ const Header = () => {
                   <circle cx="12" cy="7" r="4"></circle>
                 </svg>
                 <span className="text-white font-semibold text-sm">
-                  R$ {user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo ? parseFloat(user.saldo_demo).toFixed(2) : '0.00') : (user?.saldo_reais ? parseFloat(user.saldo_reais).toFixed(2) : '0.00')}
+                  R$ {getUserBalance().toFixed(2)}
                 </span>
               </div>
               <div className="relative">

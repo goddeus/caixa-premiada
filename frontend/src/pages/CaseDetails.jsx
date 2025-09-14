@@ -8,7 +8,7 @@ import { FaGift, FaCoins, FaArrowLeft, FaSpinner } from 'react-icons/fa';
 const CaseDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user, updateUser, updateUserData } = useAuth();
+  const { user, updateUser, refreshUserData, getUserBalance } = useAuth();
   const [caseData, setCaseData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [buying, setBuying] = useState(false);
@@ -45,7 +45,7 @@ const CaseDetails = () => {
       return;
     }
 
-    if ((user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < parseFloat(caseData.preco)) {
+    if ((getUserBalance()) < parseFloat(caseData.preco)) {
       toast.error('Saldo insuficiente para comprar esta caixa');
       return;
     }
@@ -85,8 +85,8 @@ const CaseDetails = () => {
             toast.success(`Parabéns! Você ganhou R$ ${parseFloat(wonPrize.valor).toFixed(2)}!`);
             setShowAnimation(false);
             setBuying(false);
-            // Atualizar dados do usuário
-            updateUserData();
+            // Atualizar dados do usuário - apenas uma vez por operação
+            refreshUserData(true); // force = true para garantir atualização
           }, 1000);
         }
       }, 100);
@@ -105,7 +105,7 @@ const CaseDetails = () => {
     }
 
     const totalCost = parseFloat(caseData.preco) * quantity;
-    if ((user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < totalCost) {
+    if ((getUserBalance()) < totalCost) {
       toast.error('Saldo insuficiente para comprar esta quantidade de caixas');
       return;
     }
@@ -130,8 +130,8 @@ const CaseDetails = () => {
       setShowMultipleResults(true);
       
       setBuying(false);
-      // Atualizar dados do usuário
-      updateUserData();
+      // Atualizar dados do usuário - apenas uma vez por operação
+      refreshUserData(true); // force = true para garantir atualização
       
     } catch (error) {
       const message = error.response?.data?.error || 'Erro ao comprar caixas';
@@ -220,7 +220,7 @@ const CaseDetails = () => {
               <div className="flex items-center justify-between">
                 <span className="text-gray-300">Seu Saldo:</span>
                 <span className="text-white font-bold">
-                  R$ {user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo ? parseFloat(user.saldo_demo).toFixed(2) : '0.00') : (user?.saldo_reais ? parseFloat(user.saldo_reais).toFixed(2) : '0.00')}
+                  R$ {getUserBalance().toFixed(2)}
                 </span>
               </div>
             </div>
@@ -246,7 +246,7 @@ const CaseDetails = () => {
               <div className="space-y-2">
                 <button
                   onClick={handleBuyCase}
-                  disabled={buying || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < parseFloat(caseData.preco)}
+                  disabled={buying || (getUserBalance()) < parseFloat(caseData.preco)}
                   className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 >
                   {buying ? (
@@ -265,7 +265,7 @@ const CaseDetails = () => {
                 {quantity > 1 && (
                   <button
                     onClick={handleBuyMultipleCases}
-                    disabled={buying || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < (parseFloat(caseData.preco) * quantity)}
+                    disabled={buying || (getUserBalance()) < (parseFloat(caseData.preco) * quantity)}
                     className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                   >
                     {buying ? (
@@ -284,7 +284,7 @@ const CaseDetails = () => {
               </div>
             </div>
 
-            {(user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < parseFloat(caseData.preco) && (
+            {(getUserBalance()) < parseFloat(caseData.preco) && (
               <p className="text-red-400 text-sm text-center mt-2">
                 Saldo insuficiente. Faça um depósito para continuar.
               </p>

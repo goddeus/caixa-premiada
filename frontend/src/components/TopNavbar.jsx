@@ -2,7 +2,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { FaUser, FaSignOutAlt, FaWallet, FaGift } from 'react-icons/fa';
 
 const TopNavbar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, getUserBalance } = useAuth();
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-slate-800 border-b border-slate-700 z-50">
@@ -24,7 +24,7 @@ const TopNavbar = () => {
             <div className="flex items-center space-x-2 bg-green-600 px-3 py-1 rounded-lg">
               <FaWallet className="text-white" />
               <span className="text-white font-semibold">
-                R$ {user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo ? parseFloat(user.saldo_demo).toFixed(2) : '0.00') : (user?.saldo_reais ? parseFloat(user.saldo_reais).toFixed(2) : '0.00')}
+                R$ {getUserBalance().toFixed(2)}
               </span>
             </div>
 

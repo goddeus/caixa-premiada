@@ -116,26 +116,26 @@ class ApiService {
 
   // ===== CAIXAS =====
   async getCaixas() {
-    return this.client.get('/caixas');
+    return this.client.get('/cases');
   }
 
   async getCaixaById(id) {
-    return this.client.get(`/caixas/${id}`);
+    return this.client.get(`/cases/${id}`);
   }
 
   async abrirCaixa(caixaId, quantidade = 1, purchaseId = null) {
-    return this.client.post(`/caixas/${caixaId}/abrir`, { 
+    return this.client.post(`/cases/buy/${caixaId}`, { 
       quantidade, 
       purchaseId 
     });
   }
 
   async getCaixaHistorico(caixaId) {
-    return this.client.get(`/caixas/${caixaId}/historico`);
+    return this.client.get(`/transactions`);
   }
 
   async getCaixasStats() {
-    return this.client.get('/caixas/stats');
+    return this.client.get('/admin/dashboard/stats');
   }
 
   // ===== PAGAMENTOS =====

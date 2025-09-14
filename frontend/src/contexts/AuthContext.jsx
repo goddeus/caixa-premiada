@@ -16,6 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Helper function to get correct balance
   const getUserBalance = (userData = user) => {
@@ -134,18 +135,29 @@ export const AuthProvider = ({ children }) => {
     api.updateUserInStorage({ ...user, ...newUserData });
   };
 
-  const refreshUserData = async () => {
+  const refreshUserData = async (force = false) => {
     try {
       if (api.isAuthenticated()) {
+        // Evitar chamadas múltiplas desnecessárias
+        if (!force && refreshing) {
+          console.log('[DEBUG] Evitando chamada duplicada de refreshUserData');
+          return;
+        }
+        
+        setRefreshing(true);
+        console.log('[DEBUG] Atualizando dados do usuário...');
         const response = await api.getMe();
         if (response.success) {
           const userData = response.data.user;
           setUser(userData);
           api.updateUserInStorage(userData);
+          console.log('[DEBUG] Dados do usuário atualizados com sucesso');
         }
       }
     } catch (error) {
       console.error('Erro ao atualizar dados do usuário:', error);
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -160,6 +172,7 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     loading,
+    refreshing,
     isAuthenticated,
     login,
     register,

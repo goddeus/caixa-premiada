@@ -66,9 +66,9 @@ const UserManagement = () => {
       });
 
       const response = await api.get(`/admin/users?${params}`);
-      if (response.data.success && response.data.data) {
-        setUsers(response.data.data.users || []);
-        setPagination(response.data.data.pagination || pagination);
+      if (response.success && response.data) {
+        setUsers(response.data.users || []);
+        setPagination(response.data.pagination || pagination);
       } else {
         setUsers([]);
         toast.error('Erro ao carregar dados dos usuários');

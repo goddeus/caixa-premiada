@@ -6,10 +6,12 @@ import api from '../services/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
+import useDoubleClickPrevention from '../hooks/useDoubleClickPrevention';
 
 const WeekendCase = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated, login, updateUserData } = useAuth();
+  const { user, isAuthenticated, login, refreshUserData, getUserBalance } = useAuth();
+  const { isLocked, executeWithLock } = useDoubleClickPrevention(3000); // 3 segundos de cooldown
   const [isSimulating, setIsSimulating] = useState(false);
   const [showSimulation, setShowSimulation] = useState(false);
   const [showResult, setShowResult] = useState(false);
@@ -112,17 +114,20 @@ const WeekendCase = () => {
       return;
     }
 
-    try {
-      setIsSimulating(true);
-      setShowSimulation(true);
-      setShowResult(false);
-      setWonPrizes([]);
-      setCurrentPrizeIndex(0);
-      setIsShowingPrizes(false);
+    const result = await executeWithLock(async () => {
+      console.log('[DEBUG] Iniciando abertura de caixa Weekend com proteção contra cliques duplos');
+      
+      try {
+        setIsSimulating(true);
+        setShowSimulation(true);
+        setShowResult(false);
+        setWonPrizes([]);
+        setCurrentPrizeIndex(0);
+        setIsShowingPrizes(false);
 
       // Buscar ID da caixa Weekend primeiro
       const casesResponse = await api.get('/cases');
-      const weekendCase = casesResponse.data.cases?.find(c => c.nome.includes('FINAL DE SEMANA') || c.nome.includes('WEEKEND'));
+      const weekendCase = casesResponse.cases?.find(c => c.nome.includes('WEEKEND'));
       
       if (!weekendCase) {
         toast.error('Caixa Final de Semana não encontrada');
@@ -135,7 +140,7 @@ const WeekendCase = () => {
       const casePrice = parseFloat(weekendCase.preco);
       const totalCost = casePrice * quantity;
 
-      if ((user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < totalCost) {
+      if ((getUserBalance()) < totalCost) {
         toast.error('Saldo insuficiente! Faça um depósito para continuar.');
         return;
       }
@@ -166,10 +171,10 @@ const WeekendCase = () => {
               }
             }
           }
-          console.log(`📦 Resposta da API (caixa ${i + 1}):`, response.data);
+          console.log(`📦 Resposta da API (caixa ${i + 1}):`, response);
 
-        if (response.data.wonPrize) {
-          const apiPrize = response.data.wonPrize;
+        if (response.wonPrize) {
+          const apiPrize = response.wonPrize;
           console.log(`🎁 Prêmio recebido da API (caixa ${i + 1}):`, apiPrize);
         
           // Mapear prêmio da API para formato do frontend
@@ -228,16 +233,16 @@ const WeekendCase = () => {
           allPrizes.push(mappedPrize);
         }
       } catch (error) {
-          console.error(`Erro ao comprar caixa ${i + 1}:`, error);
-          const errorMessage = error.response?.data?.error || `Erro ao comprar caixa ${i + 1}`;
-          toast.error(errorMessage);
-          
-          // Se for erro de saldo insuficiente, parar as compras
-          if (errorMessage.includes('Saldo insuficiente')) {
-            toast.error('Saldo insuficiente para continuar as compras');
-            break;
-          }
+        console.error(`Erro ao comprar caixa ${i + 1}:`, error);
+        const errorMessage = error.response?.data?.error || `Erro ao comprar caixa ${i + 1}`;
+        toast.error(errorMessage);
+        
+        // Se for erro de saldo insuficiente, parar as compras
+        if (errorMessage.includes('Saldo insuficiente')) {
+          toast.error('Saldo insuficiente para continuar as compras');
+          break;
         }
+      }
         
         // Delay inteligente entre compras para evitar rate limiting
         if (i < quantity - 1) {
@@ -256,34 +261,33 @@ const WeekendCase = () => {
         setSelectedPrize(allPrizes[0]);
         setCurrentPrizeIndex(0);
         setIsShowingPrizes(true);
-          
-          // Atualizar dados do usuário (saldo)
-          await updateUserData();
-          
-      // Tocar som de sorteio
-      const audio = new Audio('/sounds/slot-machine.mp3');
-            audio.volume = 0.3;
-      audio.play().catch(e => console.log('Audio não pode ser reproduzido'));
-          
-          setTimeout(() => {
-            setIsSimulating(false);
-            setShowSimulation(false);
-            setShowResult(true);
+        
+        // O backend já atualizou o saldo, não precisamos chamar refreshUserData aqui
+        
+        // Tocar som de sorteio
+        const audio = new Audio('/sounds/slot-machine.mp3');
+        audio.volume = 0.3;
+        audio.play().catch(e => console.log('Audio não pode ser reproduzido'));
+        
+        setTimeout(() => {
+          setIsSimulating(false);
+          setShowSimulation(false);
+          setShowResult(true);
           // Tocar som de vitória
           const winAudio = new Audio('/sounds/win.mp3');
-              winAudio.volume = 0.5;
+          winAudio.volume = 0.5;
           winAudio.play().catch(e => console.log('Audio não pode ser reproduzido'));
           
-        // Creditar todos os prêmios automaticamente
-        setTimeout(() => {
-          allPrizes.forEach((prize, index) => {
-            setTimeout(() => {
-              creditPrize(prize, weekendCase);
-            }, index * 1000); // Delay de 1 segundo entre cada crédito
-          });
-        }, 2000);
-          }, 5000);
-        } else {
+          // Creditar todos os prêmios automaticamente
+          setTimeout(() => {
+            allPrizes.forEach((prize, index) => {
+              setTimeout(() => {
+                creditPrize(prize, weekendCase);
+              }, index * 1000); // Delay de 1 segundo entre cada crédito
+            });
+          }, 2000);
+        }, 5000);
+      } else {
         toast.error('Erro ao abrir caixas!');
         setIsSimulating(false);
         setShowSimulation(false);
@@ -291,6 +295,13 @@ const WeekendCase = () => {
     } catch (error) {
       console.error('Erro ao abrir caixa:', error);
       toast.error('Erro ao abrir caixa. Tente novamente.');
+      setIsSimulating(false);
+      setShowSimulation(false);
+    }
+    }, 'Abertura de caixa Weekend');
+    
+    if (!result.success) {
+      toast.error(result.error);
       setIsSimulating(false);
       setShowSimulation(false);
     }
@@ -393,8 +404,8 @@ const WeekendCase = () => {
       });
 
       if (response.data.credited) {
-        // Atualizar dados do usuário (saldo)
-        await updateUserData();
+        // Atualizar dados do usuário (saldo) - apenas uma vez por operação
+        await refreshUserData(true); // force = true para garantir atualização
         toast.success(`Prêmio de R$ ${prize.apiPrize.valor.toFixed(2).replace('.', ',')} creditado na sua carteira!`);
       }
     } catch (error) {
@@ -477,7 +488,7 @@ const WeekendCase = () => {
                     <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path>
                   </svg>
                   <span className="text-white font-semibold">
-                    R$ {user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo ? parseFloat(user.saldo_demo).toFixed(2) : '0.00') : (user?.saldo_reais ? parseFloat(user.saldo_reais).toFixed(2) : '0.00')}
+                    R$ {getUserBalance().toFixed(2)}
                   </span>
                 </div>
                 <button 
@@ -578,7 +589,7 @@ const WeekendCase = () => {
                     <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path>
                   </svg>
                   <span className="text-white font-semibold text-sm">
-                    R$ {user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo ? parseFloat(user.saldo_demo).toFixed(2) : '0.00') : (user?.saldo_reais ? parseFloat(user.saldo_reais).toFixed(2) : '0.00')}
+                    R$ {getUserBalance().toFixed(2)}
                   </span>
                 </div>
                 <button 
@@ -660,11 +671,11 @@ const WeekendCase = () => {
 
               {/* Dynamic Button */}
               <div className="flex justify-center gap-3 mb-2">
-                {(user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) >= 1.50 ? (
+                {(getUserBalance()) >= 1.50 ? (
                   <button
                     onClick={handleOpenCase}
-                    disabled={isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 1.50}
-                    style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 1.50) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 1.50) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
+                    disabled={isLocked || isSimulating || (getUserBalance()) < 1.50}
+                    style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (getUserBalance()) < 1.50) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (getUserBalance()) < 1.50) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
                   >
                     <span style={{display: 'flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(90deg, rgb(34, 197, 94) 0%, rgb(22, 163, 74) 100%)', borderRadius: '0.7rem', padding: '0.5rem 1.2rem 0.5rem 1.1rem', fontWeight: 700, fontSize: '17px', color: 'rgb(255, 255, 255)', flex: '1 1 0%', position: 'relative'}}>
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-box" style={{marginRight: '8px'}}>
@@ -681,7 +692,7 @@ const WeekendCase = () => {
                 ) : (
                   <button
                     onClick={handleSimulateCase}
-                    disabled={isSimulating}
+                    disabled={isLocked || isSimulating}
                     style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: 'pointer', opacity: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
                   >
                     <span style={{display: 'flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(90deg, rgb(147, 51, 234) 0%, rgb(124, 58, 237) 100%)', borderRadius: '0.7rem', padding: '0.5rem 1.2rem 0.5rem 1.1rem', fontWeight: 700, fontSize: '17px', color: 'rgb(255, 255, 255)', flex: '1 1 0%', position: 'relative'}}>
@@ -800,11 +811,11 @@ const WeekendCase = () => {
 
             {/* Botões */}
             <div className="flex justify-center gap-3 mb-2">
-              {(user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) >= 1.50 ? (
+              {(getUserBalance()) >= 1.50 ? (
                 <button
                   onClick={handleOpenCase}
-                  disabled={isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < (1.50 * quantity)}
-                  style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < (1.50 * quantity)) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < (1.50 * quantity)) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
+                  disabled={isLocked || isSimulating || (getUserBalance()) < (1.50 * quantity)}
+                  style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (getUserBalance()) < (1.50 * quantity)) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (getUserBalance()) < (1.50 * quantity)) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
                 >
                   <span style={{display: 'flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(90deg, rgb(34, 197, 94) 0%, rgb(22, 163, 74) 100%)', borderRadius: '0.7rem', padding: '0.5rem 1.2rem 0.5rem 1.1rem', fontWeight: 700, fontSize: '17px', color: 'rgb(255, 255, 255)', flex: '1 1 0%', position: 'relative'}}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-box" style={{marginRight: '8px'}}>
@@ -821,7 +832,7 @@ const WeekendCase = () => {
               ) : (
                 <button
                   onClick={handleSimulateCase}
-                  disabled={isSimulating}
+                  disabled={isLocked || isSimulating}
                   style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: 'pointer', opacity: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
                 >
                   <span style={{display: 'flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(90deg, rgb(147, 51, 234) 0%, rgb(124, 58, 237) 100%)', borderRadius: '0.7rem', padding: '0.5rem 1.2rem 0.5rem 1.1rem', fontWeight: 700, fontSize: '17px', color: 'rgb(255, 255, 255)', flex: '1 1 0%', position: 'relative'}}>

@@ -78,7 +78,7 @@ const Affiliates = () => {
 
     setWithdrawLoading(true);
     try {
-      const response = await api.post('/affiliate/saque', {
+      const response = await api.post('/affiliate/withdraw', {
         valor: parseFloat(withdrawData.valor.replace(',', '.')),
         pix_key: withdrawData.pix_key,
         pix_key_type: withdrawData.pix_key_type

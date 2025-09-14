@@ -7,7 +7,7 @@ import PixPaymentModal from '../components/PixPaymentModal';
 import Footer from '../components/Footer';
 
 const Dashboard = () => {
-  const { user, isAuthenticated, login, logout, register, setTestBalance, isDemoAccount, canWithdraw } = useAuth();
+  const { user, isAuthenticated, login, logout, register, setTestBalance, isDemoAccount, canWithdraw, getUserBalance } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
@@ -253,7 +253,7 @@ const Dashboard = () => {
       setLoading(true);
       console.log('[DEBUG] Iniciando depósito PIX:', { userId: user.id, amount: parseFloat(depositAmount.replace(',', '.')) });
       
-      const response = await api.post('/deposit/pix', { 
+      const response = await api.post('/payments/deposit/pix', { 
         userId: user.id,
         amount: parseFloat(depositAmount.replace(',', '.')) 
       });
@@ -324,7 +324,7 @@ const Dashboard = () => {
 
     try {
       setLoading(true);
-      await api.post('/withdraw', { 
+      await api.post('/payments/withdraw', { 
         valor: parseFloat(withdrawAmount.replace(',', '.')),
         pix_key: pixKey,
         pix_key_type: pixKeyType
@@ -389,8 +389,8 @@ const Dashboard = () => {
       if (user && !user.is_admin) {
         // Buscar dados atualizados do usuário
         const response = await api.get('/wallet');
-        if (response.data.success) {
-          const userData = response.data.balance.usuario;
+        if (response.success) {
+          const userData = response.balance.usuario;
           setRolloverData({
             total_giros: userData.total_giros || 0,
             rollover_liberado: userData.rollover_liberado || false,
@@ -535,7 +535,7 @@ const Dashboard = () => {
                     <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path>
                   </svg>
                   <span className="text-white font-semibold">
-                    R$ {user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo ? parseFloat(user.saldo_demo).toFixed(2) : '0.00') : (user?.saldo_reais ? parseFloat(user.saldo_reais).toFixed(2) : '0.00')}
+                    R$ {getUserBalance().toFixed(2)}
                   </span>
                 </div>
                 
@@ -713,7 +713,7 @@ const Dashboard = () => {
                     <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path>
                   </svg>
                   <span className="text-white font-semibold text-sm">
-                    R$ {user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo ? parseFloat(user.saldo_demo).toFixed(2) : '0.00') : (user?.saldo_reais ? parseFloat(user.saldo_reais).toFixed(2) : '0.00')}
+                    R$ {getUserBalance().toFixed(2)}
                   </span>
                 </div>
                 <div className="relative">

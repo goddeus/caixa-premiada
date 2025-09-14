@@ -10,7 +10,7 @@ import useDoubleClickPrevention from '../hooks/useDoubleClickPrevention';
 
 const NikeCase = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated, login, updateUserData } = useAuth();
+  const { user, isAuthenticated, login, refreshUserData, getUserBalance } = useAuth();
   const { isLocked, executeWithLock } = useDoubleClickPrevention(3000); // 3 segundos de cooldown
   const [isSimulating, setIsSimulating] = useState(false);
   const [showSimulation, setShowSimulation] = useState(false);
@@ -118,7 +118,7 @@ const NikeCase = () => {
 
       // Buscar ID da caixa Nike primeiro
       const casesResponse = await api.get('/cases');
-      const nikeCase = casesResponse.data.cases?.find(c => c.nome.includes('NIKE'));
+      const nikeCase = casesResponse.cases?.find(c => c.nome.includes('KIT NIKE'));
       
       if (!nikeCase) {
         throw new Error('Caixa Nike não encontrada');
@@ -128,7 +128,7 @@ const NikeCase = () => {
 
       const casePrice = parseFloat(nikeCase.preco);
 
-      if ((user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < casePrice) {
+      if ((getUserBalance()) < casePrice) {
         toast.error(`Saldo insuficiente! Você precisa de R$ ${casePrice.toFixed(2)}`);
         setShowDepositModal(true);
         return;
@@ -137,8 +137,8 @@ const NikeCase = () => {
       // Comprar uma caixa
       const response = await api.post(`/cases/buy/${nikeCase.id}`);
 
-      if (response.data.wonPrize) {
-        const apiPrize = response.data.wonPrize;
+      if (response.wonPrize) {
+        const apiPrize = response.wonPrize;
       
         // Mapear prêmio da API para formato do frontend
         const mappedPrize = {
@@ -205,8 +205,7 @@ const NikeCase = () => {
         
         setSelectedPrize(mappedPrize);
         
-        // Atualizar dados do usuário (saldo)
-        await updateUserData();
+        // O backend já atualizou o saldo, não precisamos chamar refreshUserData aqui
         
         // Tocar som de sorteio
         const audio = new Audio('/sounds/slot-machine.mp3');
@@ -366,8 +365,7 @@ const NikeCase = () => {
         // Marcar prêmio como creditado
         setCreditedPrizes(prev => new Set([...prev, prizeKey]));
         
-        // Atualizar dados do usuário (saldo)
-        await updateUserData();
+        // O backend já atualizou o saldo, não precisamos chamar refreshUserData aqui
         toast.success('Prêmio creditado na sua carteira!');
       }
     } catch (error) {
@@ -451,7 +449,7 @@ const NikeCase = () => {
                     <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path>
                   </svg>
                   <span className="text-white font-semibold">
-                    R$ {user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo ? parseFloat(user.saldo_demo).toFixed(2) : '0.00') : (user?.saldo_reais ? parseFloat(user.saldo_reais).toFixed(2) : '0.00')}
+                    R$ {getUserBalance().toFixed(2)}
                   </span>
                 </div>
                 <button 
@@ -552,7 +550,7 @@ const NikeCase = () => {
                     <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path>
                   </svg>
                   <span className="text-white font-semibold text-sm">
-                    R$ {user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo ? parseFloat(user.saldo_demo).toFixed(2) : '0.00') : (user?.saldo_reais ? parseFloat(user.saldo_reais).toFixed(2) : '0.00')}
+                    R$ {getUserBalance().toFixed(2)}
                   </span>
                 </div>
                 <button 
@@ -610,11 +608,11 @@ const NikeCase = () => {
 
               {/* Dynamic Button */}
               <div className="flex justify-center gap-3 mb-2">
-                {(user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) >= 2.50 ? (
+                {(getUserBalance()) >= 2.50 ? (
                   <button
                     onClick={handleOpenCase}
-                    disabled={isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 2.50}
-                    style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 2.50) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 2.50) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
+                    disabled={isSimulating || (getUserBalance()) < 2.50}
+                    style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (getUserBalance()) < 2.50) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (getUserBalance()) < 2.50) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
                   >
                     <span style={{display: 'flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(90deg, rgb(34, 197, 94) 0%, rgb(22, 163, 74) 100%)', borderRadius: '0.7rem', padding: '0.5rem 1.2rem 0.5rem 1.1rem', fontWeight: 700, fontSize: '17px', color: 'rgb(255, 255, 255)', flex: '1 1 0%', position: 'relative'}}>
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-box" style={{marginRight: '8px'}}>
@@ -756,11 +754,11 @@ const NikeCase = () => {
 
             {/* Botões */}
             <div className="flex justify-center gap-3 mb-2">
-              {(user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) >= 2.50 ? (
+              {(getUserBalance()) >= 2.50 ? (
                 <button
                   onClick={handleOpenCase}
-                  disabled={isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 2.50}
-                  style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 2.50) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 2.50) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
+                  disabled={isSimulating || (getUserBalance()) < 2.50}
+                  style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (getUserBalance()) < 2.50) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (getUserBalance()) < 2.50) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
                 >
                   <span style={{display: 'flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(90deg, rgb(34, 197, 94) 0%, rgb(22, 163, 74) 100%)', borderRadius: '0.7rem', padding: '0.5rem 1.2rem 0.5rem 1.1rem', fontWeight: 700, fontSize: '17px', color: 'rgb(255, 255, 255)', flex: '1 1 0%', position: 'relative'}}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-box" style={{marginRight: '8px'}}>

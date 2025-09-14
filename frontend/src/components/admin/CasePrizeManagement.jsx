@@ -48,7 +48,7 @@ const CasePrizeManagement = () => {
       }
 
       console.log('Carregando caixas...');
-      const response = await api.get('/admin/caixas');
+      const response = await api.get('/case-prize');
       const data = response;
       console.log('Dados recebidos:', data);
       setCases(data.data);
@@ -65,7 +65,7 @@ const CasePrizeManagement = () => {
       setLoading(true);
       setError(null);
       const token = localStorage.getItem('token');
-      const response = await api.get(`/admin/caixas/${caseId}/premios`);
+      const response = await api.get(`/case-prize/${caseId}/premios`);
       const data = response;
       setPrizes(data.data.prizes);
       setSummary(data.data.summary);
@@ -83,13 +83,13 @@ const CasePrizeManagement = () => {
     try {
       setAuditing(true);
       const token = localStorage.getItem('token');
-      const response = await api.post(`/admin/caixas/${selectedCase.id}/audit`, { fix: true });
+      const response = await api.post(`/case-prize/${selectedCase.id}/audit`, { fix: true });
       const data = response;
       
       // Recarregar prêmios após auditoria
       await loadPrizes(selectedCase.id);
       
-      alert(`Auditoria concluída!\nCorreções aplicadas: ${data.data.corrections_applied}\nErros: ${data.data.errors.length}\nWarnings: ${data.data.warnings.length}`);
+      toast.success(`Auditoria concluída! Correções: ${data.data.corrections_applied}, Erros: ${data.data.errors.length}, Warnings: ${data.data.warnings.length}`);
     } catch (error) {
       setError('Erro ao executar auditoria: ' + error.message);
     } finally {
@@ -100,7 +100,7 @@ const CasePrizeManagement = () => {
   const updatePrize = async (prizeId, updates) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await api.put(`/admin/premios/${prizeId}`, updates);
+      const response = await api.put(`/case-prize/premios/${prizeId}`, updates);
       const data = response;
       console.log('Prêmio atualizado:', data);
 
@@ -181,11 +181,11 @@ const CasePrizeManagement = () => {
       
       closeEditModal();
       setSelectedImage(null);
-      alert('Prêmio atualizado com sucesso!');
+      toast.success('Prêmio atualizado com sucesso!');
       
     } catch (error) {
       console.error('Erro ao salvar prêmio:', error);
-      alert('Erro ao salvar prêmio: ' + error.message);
+      toast.error('Erro ao salvar prêmio: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -203,13 +203,13 @@ const CasePrizeManagement = () => {
     if (file) {
       // Validar tipo de arquivo
       if (!file.type.startsWith('image/')) {
-        alert('Por favor, selecione apenas arquivos de imagem');
+        toast.error('Por favor, selecione apenas arquivos de imagem');
         return;
       }
       
       // Validar tamanho (máximo 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('Imagem muito grande. Máximo 5MB');
+        toast.error('Imagem muito grande. Máximo 5MB');
         return;
       }
       
@@ -228,7 +228,7 @@ const CasePrizeManagement = () => {
       formData.append('prizeId', prizeId);
 
       const token = localStorage.getItem('token');
-      const response = await api.post('/admin/premios/upload-image', formData, {
+      const response = await api.post('/case-prize/premios/upload-image', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

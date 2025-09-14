@@ -37,7 +37,7 @@ const PrizeManagement = () => {
   const loadCases = async () => {
     try {
       const response = await api.get('/cases');
-      setCases(response.data.cases);
+      setCases(response.cases);
     } catch (error) {
       console.error('Erro ao carregar caixas:', error);
       toast.error('Erro ao carregar caixas');

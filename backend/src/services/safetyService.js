@@ -145,10 +145,10 @@ class SafetyService {
           
         case 'sacar':
           const saldoSaque = user.tipo_conta === 'afiliado_demo' ? (user.saldo_demo || 0) : (user.saldo_reais || 0);
-          if (saldoSaque < 10) { // Mínimo R$ 10 para saque
+          if (saldoSaque < 20) { // Mínimo R$ 20 para saque
             return {
               isValid: false,
-              motivo: 'Saldo insuficiente para saque (mínimo R$ 10)'
+              motivo: 'Saldo insuficiente para saque (mínimo R$ 20)'
             };
           }
           break;

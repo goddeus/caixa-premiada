@@ -83,9 +83,9 @@ const Profile = () => {
         pix_key: pixKey.trim()
       });
       
-      if (response.data.success) {
+      if (response.success) {
         // Sucesso - mostrar mensagem e fechar modal
-        alert('Saque solicitado com sucesso! Aguarde a aprovação.');
+        toast.success('Saque solicitado com sucesso! Aguarde a aprovação.');
         setShowWithdrawModal(false);
         setWithdrawAmount('20,00');
         setPixKey('');
@@ -120,8 +120,8 @@ const Profile = () => {
   const loadRolloverData = async () => {
     try {
       const response = await api.get('/wallet');
-      if (response.data.success) {
-        const userData = response.data.balance.usuario;
+      if (response.success) {
+        const userData = response.balance.usuario;
         setRolloverData({
           total_giros: userData.total_giros || 0,
           rollover_liberado: userData.rollover_liberado || false,
@@ -202,7 +202,7 @@ const Profile = () => {
   // Função para salvar edição
   const saveEdit = async () => {
     if (!editValue.trim()) {
-      alert('Por favor, preencha o campo antes de salvar.');
+      toast.error('Por favor, preencha o campo antes de salvar.');
       return;
     }
 
@@ -227,7 +227,7 @@ const Profile = () => {
         setEditValue('');
         
         // Mostrar feedback de sucesso
-        alert('Dados salvos com sucesso na database!');
+        toast.success('Dados salvos com sucesso na database!');
       } else {
         throw new Error('Erro na resposta da API');
       }
@@ -249,10 +249,10 @@ const Profile = () => {
         setEditingField(null);
         setEditValue('');
         
-        alert('Dados salvos localmente (API indisponível). Será sincronizado quando a API estiver online.');
+        toast.info('Dados salvos localmente (API indisponível). Será sincronizado quando a API estiver online.');
       } catch (localError) {
         console.error('Erro ao salvar localmente:', localError);
-        alert('Erro ao salvar dados. Tente novamente.');
+        toast.error('Erro ao salvar dados. Tente novamente.');
       }
     }
   };

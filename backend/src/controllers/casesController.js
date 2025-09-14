@@ -85,7 +85,22 @@ class CasesController {
       console.log('- Quantity:', quantity);
       console.log('- User ID:', userId);
 
-      if (!quantity || quantity < 1 || quantity > 10) {
+      // Validação robusta de ID
+      if (!id || id.trim() === '') {
+        return res.status(400).json({ error: 'ID da caixa é obrigatório' });
+      }
+
+      // Validação robusta de quantidade
+      if (!quantity || quantity === '' || quantity === null || quantity === undefined) {
+        return res.status(400).json({ error: 'Quantidade é obrigatória' });
+      }
+
+      const numericQuantity = parseInt(quantity);
+      if (isNaN(numericQuantity) || !isFinite(numericQuantity)) {
+        return res.status(400).json({ error: 'Quantidade deve ser um número válido' });
+      }
+
+      if (numericQuantity < 1 || numericQuantity > 10) {
         return res.status(400).json({ error: 'Quantidade deve ser entre 1 e 10' });
       }
 
@@ -120,8 +135,11 @@ class CasesController {
       console.log('💰 Quantidade:', quantity);
       console.log('💰 Total a ser cobrado:', totalCost);
       
-      // Verificar saldo do usuário
-      if (parseFloat(req.user.saldo_reais) < totalCost) {
+      // Verificar saldo baseado no tipo de conta
+      const isDemoAccount = req.user.tipo_conta === 'afiliado_demo';
+      const saldoAtual = isDemoAccount ? req.user.saldo_demo : req.user.saldo_reais;
+      
+      if (parseFloat(saldoAtual) < totalCost) {
         return res.status(400).json({ error: 'Saldo insuficiente' });
       }
 
@@ -472,8 +490,11 @@ class CasesController {
       console.log('💰 Preço unitário da caixa (DB):', precoUnitario);
       console.log('💰 Total a ser cobrado:', totalPreco);
 
-      // Verificar saldo do usuário
-      if (parseFloat(req.user.saldo_reais) < totalPreco) {
+      // Verificar saldo baseado no tipo de conta
+      const isDemoAccount = req.user.tipo_conta === 'afiliado_demo';
+      const saldoAtual = isDemoAccount ? req.user.saldo_demo : req.user.saldo_reais;
+      
+      if (parseFloat(saldoAtual) < totalPreco) {
         return res.status(400).json({ error: 'Saldo insuficiente' });
       }
 

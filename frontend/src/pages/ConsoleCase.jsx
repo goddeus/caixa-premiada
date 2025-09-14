@@ -6,10 +6,12 @@ import api from '../services/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
+import useDoubleClickPrevention from '../hooks/useDoubleClickPrevention';
 
 const ConsoleCase = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated, login, updateUserData } = useAuth();
+  const { user, isAuthenticated, login, refreshUserData, getUserBalance } = useAuth();
+  const { isLocked, executeWithLock } = useDoubleClickPrevention(3000); // 3 segundos de cooldown
   const [isSimulating, setIsSimulating] = useState(false);
   const [showSimulation, setShowSimulation] = useState(false);
   const [showResult, setShowResult] = useState(false);
@@ -122,7 +124,8 @@ const ConsoleCase = () => {
       return;
     }
 
-    try {
+    const result = await executeWithLock(async () => {
+      console.log('[DEBUG] Iniciando abertura de caixa Console com proteção contra cliques duplos');
       console.log('✅ Usuário autenticado, iniciando processo...');
       setIsSimulating(true);
       setShowSimulation(true);
@@ -134,7 +137,7 @@ const ConsoleCase = () => {
       // Buscar ID da caixa Console primeiro
       console.log('🔍 Buscando caixa Console...');
       const casesResponse = await api.get('/cases');
-      const consoleCase = casesResponse.data.cases?.find(c => c.nome.includes('CONSOLE'));
+      const consoleCase = casesResponse.cases?.find(c => c.nome.includes('CONSOLE DO SONHOS'));
       
       if (!consoleCase) {
         console.log('❌ Caixa Console não encontrada');
@@ -152,9 +155,9 @@ const ConsoleCase = () => {
       console.log('- casePrice:', casePrice);
       console.log('- quantity:', quantity);
       console.log('- totalCost:', totalCost);
-      console.log('- user.saldo:', user?.tipo_conta === 'afiliado_demo' ? user?.saldo_demo : user?.saldo_reais);
+      console.log('- user.saldo:', getUserBalance());
 
-      if ((user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < totalCost) {
+      if ((getUserBalance()) < totalCost) {
         console.log('❌ Saldo insuficiente');
         toast.error(`Saldo insuficiente! Você precisa de R$ ${totalCost.toFixed(2)}`);
         setShowDepositModal(true);
@@ -191,10 +194,15 @@ const ConsoleCase = () => {
               }
             }
           }
-          console.log(`📦 Resposta da compra ${i + 1}:`, response.data);
+          
+          // Verificar se a resposta foi obtida com sucesso
+          if (!response) {
+            throw new Error('Falha ao obter resposta após todas as tentativas');
+          }
+          console.log(`📦 Resposta da compra ${i + 1}:`, response);
 
-          if (response.data.wonPrize) {
-          const wonPrize = response.data.wonPrize;
+          if (response.wonPrize) {
+          const wonPrize = response.wonPrize;
           
           // Mapear prêmio da API para formato do frontend
           const mappedPrize = {
@@ -287,9 +295,8 @@ const ConsoleCase = () => {
       console.log('✅ Todas as caixas compradas!');
       console.log('🎁 Total de prêmios:', allPrizes.length);
       
-      // Atualizar dados do usuário (o backend já fez o débito)
-      await updateUserData();
-      console.log('💰 Dados do usuário atualizados pelo backend');
+      // O backend já fez o débito, não precisamos chamar refreshUserData aqui
+      console.log('💰 Débito processado pelo backend');
 
       // Tocar som de sorteio
       const audio = new Audio('/sounds/slot-machine.mp3');
@@ -298,38 +305,48 @@ const ConsoleCase = () => {
 
       // Simular abertura das caixas
       setTimeout(() => {
-        console.log('🎲 Simulando abertura das caixas...');
-        setIsSimulating(false);
-        setShowSimulation(false);
-        setShowResult(true);
-        setWonPrizes(allPrizes);
-        setCurrentPrizeIndex(0);
-        setIsShowingPrizes(true);
-        
-        if (allPrizes.length > 0) {
-          setSelectedPrize(allPrizes[0]);
+        try {
+          console.log('🎲 Simulando abertura das caixas...');
+          setIsSimulating(false);
+          setShowSimulation(false);
+          setShowResult(true);
+          setWonPrizes(allPrizes);
+          setCurrentPrizeIndex(0);
+          setIsShowingPrizes(true);
           
-          // Creditar todos os prêmios automaticamente
-          setTimeout(() => {
-            allPrizes.forEach((prize, index) => {
-              setTimeout(() => {
-                creditPrize(prize, consoleCase);
-              }, index * 1000); // Delay de 1 segundo entre cada crédito
-            });
-          }, 2000);
-        }
+          if (allPrizes.length > 0) {
+            setSelectedPrize(allPrizes[0]);
+            
+            // Creditar todos os prêmios automaticamente de forma sequencial
+            setTimeout(async () => {
+              try {
+                for (let i = 0; i < allPrizes.length; i++) {
+                  await new Promise(resolve => setTimeout(resolve, 1000)); // Delay de 1 segundo entre cada crédito
+                  await creditPrize(allPrizes[i], consoleCase);
+                }
+              } catch (error) {
+                console.error('Erro na simulação:', error);
+              }
+            }, 2000);
+          }
         
-        // Tocar som de vitória
-        const winAudio = new Audio('/sounds/win.mp3');
-        winAudio.volume = 0.5;
-        winAudio.play().catch(e => console.log('Audio não pode ser reproduzido'));
+          // Tocar som de vitória
+          const winAudio = new Audio('/sounds/win.mp3');
+          winAudio.volume = 0.5;
+          winAudio.play().catch(e => console.log('Audio não pode ser reproduzido'));
+        } catch (error) {
+          console.error('Erro ao abrir caixas:', error);
+          console.error('Erro completo:', error.response?.data);
+          const message = error.response?.data?.error || 'Erro ao abrir caixas';
+          toast.error(message);
+          setIsSimulating(false);
+          setShowSimulation(false);
+        }
       }, 5000);
-      
-    } catch (error) {
-      console.error('Erro ao abrir caixas:', error);
-      console.error('Erro completo:', error.response?.data);
-      const message = error.response?.data?.error || 'Erro ao abrir caixas';
-      toast.error(message);
+    }, 'Abertura de caixa Console');
+    
+    if (!result.success) {
+      toast.error(result.error);
       setIsSimulating(false);
       setShowSimulation(false);
     }
@@ -439,8 +456,8 @@ const ConsoleCase = () => {
       console.log('✅ Crédito da API:', response.data);
 
       if (response.data.credited) {
-        // Atualizar dados do usuário (saldo)
-        await updateUserData();
+        // Atualizar dados do usuário (saldo) - apenas uma vez por operação
+        await refreshUserData(true); // force = true para garantir atualização
         toast.success('Prêmio creditado na sua carteira!');
       }
     } catch (error) {
@@ -522,11 +539,11 @@ const ConsoleCase = () => {
 
               {/* Botão Dinâmico baseado no saldo */}
               <div className="flex justify-center gap-3 mb-2">
-                {(user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) >= 3.50 ? (
+                {(getUserBalance()) >= 3.50 ? (
                   <button
                     onClick={handleOpenCase}
-                    disabled={isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 3.50}
-                    style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 3.50) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 3.50) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
+                    disabled={isLocked || isSimulating || (getUserBalance()) < 3.50}
+                    style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (getUserBalance()) < 3.50) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (getUserBalance()) < 3.50) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
                   >
                     <span style={{display: 'flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(90deg, rgb(34, 197, 94) 0%, rgb(22, 163, 74) 100%)', borderRadius: '0.7rem', padding: '0.5rem 1.2rem 0.5rem 1.1rem', fontWeight: 700, fontSize: '17px', color: 'rgb(255, 255, 255)', flex: '1 1 0%', position: 'relative'}}>
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-box" style={{marginRight: '8px'}}>
@@ -543,7 +560,7 @@ const ConsoleCase = () => {
                 ) : (
                   <button
                     onClick={handleSimulateCase}
-                    disabled={isSimulating}
+                    disabled={isLocked || isSimulating}
                     style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: 'pointer', opacity: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
                   >
                     <span style={{display: 'flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(90deg, rgb(147, 51, 234) 0%, rgb(124, 58, 237) 100%)', borderRadius: '0.7rem', padding: '0.5rem 1.2rem 0.5rem 1.1rem', fontWeight: 700, fontSize: '17px', color: 'rgb(255, 255, 255)', flex: '1 1 0%', position: 'relative'}}>
@@ -558,7 +575,7 @@ const ConsoleCase = () => {
                   </button>
                 )}
               </div>
-              {(user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) >= 5.00 ? (
+              {(getUserBalance()) >= 5.00 ? (
                 <p className="text-green-400 text-sm mb-2">Você tem saldo suficiente! Clique para abrir a caixa e ganhar prêmios reais!</p>
               ) : (
                 <p className="text-gray-400 text-sm mb-2">Faça um depósito para abrir caixas de verdade e ganhar prêmios reais!</p>
@@ -670,11 +687,11 @@ const ConsoleCase = () => {
 
             {/* Botões */}
             <div className="flex justify-center gap-3 mb-2">
-              {(user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) >= 3.50 ? (
+              {(getUserBalance()) >= 3.50 ? (
                 <button
                   onClick={handleOpenCase}
-                  disabled={isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 3.50}
-                  style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 3.50) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 3.50) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
+                  disabled={isLocked || isSimulating || (getUserBalance()) < 3.50}
+                  style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (getUserBalance()) < 3.50) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (getUserBalance()) < 3.50) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
                 >
                   <span style={{display: 'flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(90deg, rgb(34, 197, 94) 0%, rgb(22, 163, 74) 100%)', borderRadius: '0.7rem', padding: '0.5rem 1.2rem 0.5rem 1.1rem', fontWeight: 700, fontSize: '17px', color: 'rgb(255, 255, 255)', flex: '1 1 0%', position: 'relative'}}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-box" style={{marginRight: '8px'}}>
@@ -691,7 +708,7 @@ const ConsoleCase = () => {
               ) : (
                 <button
                   onClick={handleSimulateCase}
-                  disabled={isSimulating}
+                  disabled={isLocked || isSimulating}
                   style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: 'pointer', opacity: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
                 >
                   <span style={{display: 'flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(90deg, rgb(147, 51, 234) 0%, rgb(124, 58, 237) 100%)', borderRadius: '0.7rem', padding: '0.5rem 1.2rem 0.5rem 1.1rem', fontWeight: 700, fontSize: '17px', color: 'rgb(255, 255, 255)', flex: '1 1 0%', position: 'relative'}}>
@@ -706,7 +723,7 @@ const ConsoleCase = () => {
                 </button>
               )}
             </div>
-            {(user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) >= 5.00 ? (
+            {(getUserBalance()) >= 5.00 ? (
               <p className="text-green-400 text-sm mb-2">Você tem saldo suficiente! Clique para abrir a caixa e ganhar prêmios reais!</p>
             ) : (
               <p className="text-gray-400 text-sm mb-2">Faça um depósito para abrir caixas de verdade e ganhar prêmios reais!</p>

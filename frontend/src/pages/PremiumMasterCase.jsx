@@ -6,10 +6,12 @@ import api from '../services/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
+import useDoubleClickPrevention from '../hooks/useDoubleClickPrevention';
 
 const PremiumMasterCase = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated, login, updateUserData } = useAuth();
+  const { user, isAuthenticated, login, refreshUserData, getUserBalance } = useAuth();
+  const { isLocked, executeWithLock } = useDoubleClickPrevention(3000); // 3 segundos de cooldown
   const [isSimulating, setIsSimulating] = useState(false);
   const [showSimulation, setShowSimulation] = useState(false);
   const [showResult, setShowResult] = useState(false);
@@ -113,7 +115,9 @@ const PremiumMasterCase = () => {
       return;
     }
 
-    try {
+    const result = await executeWithLock(async () => {
+      console.log('[DEBUG] Iniciando abertura de caixa Premium Master com proteção contra cliques duplos');
+      
       setIsSimulating(true);
       setShowSimulation(true);
       setShowResult(false);
@@ -123,7 +127,7 @@ const PremiumMasterCase = () => {
 
       // Buscar ID da caixa Premium primeiro
       const casesResponse = await api.get('/cases');
-      const premiumCase = casesResponse.data.cases?.find(c => c.nome.includes('PREMIUM'));
+      const premiumCase = casesResponse.cases?.find(c => c.nome.includes('PREMIUM MASTER'));
       
       if (!premiumCase) {
         toast.error('Caixa Premium não encontrada');
@@ -135,7 +139,7 @@ const PremiumMasterCase = () => {
       const casePrice = parseFloat(premiumCase.preco);
       const totalCost = casePrice * quantity;
 
-      if ((user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < totalCost) {
+      if ((getUserBalance()) < totalCost) {
         toast.error('Saldo insuficiente! Faça um depósito para continuar.');
         return;
       }
@@ -166,9 +170,14 @@ const PremiumMasterCase = () => {
               }
             }
           }
+          
+          // Verificar se a resposta foi obtida com sucesso
+          if (!response) {
+            throw new Error('Falha ao obter resposta após todas as tentativas');
+          }
 
-          if (response.data.wonPrize) {
-            const apiPrize = response.data.wonPrize;
+          if (response.wonPrize) {
+            const apiPrize = response.wonPrize;
             
             // Mapear prêmio da API para formato do frontend
             const mappedPrize = {
@@ -291,9 +300,8 @@ const PremiumMasterCase = () => {
         }
       }
 
-      // Atualizar dados do usuário (o backend já fez o débito)
-      await updateUserData();
-      console.log('💰 Dados do usuário atualizados pelo backend');
+      // O backend já fez o débito, não precisamos chamar refreshUserData aqui
+      console.log('💰 Débito processado pelo backend');
         
       // Tocar som de sorteio
       const audio = new Audio('/sounds/slot-machine.mp3');
@@ -302,42 +310,45 @@ const PremiumMasterCase = () => {
         
       // Simular abertura das caixas
       setTimeout(() => {
-        setIsSimulating(false);
-        setShowSimulation(false);
-        setShowResult(true);
-        setWonPrizes(allPrizes);
-        setCurrentPrizeIndex(0);
-        setIsShowingPrizes(true);
-        
-        if (allPrizes.length > 0) {
-          setSelectedPrize(allPrizes[0]);
+        try {
+          setIsSimulating(false);
+          setShowSimulation(false);
+          setShowResult(true);
+          setWonPrizes(allPrizes);
+          setCurrentPrizeIndex(0);
+          setIsShowingPrizes(true);
           
-          // Creditar todos os prêmios automaticamente para múltiplas caixas
-          if (quantity > 1) {
-            setTimeout(() => {
-              allPrizes.forEach((prize, index) => {
-                setTimeout(() => {
-                  creditPrize(prize, premiumCase);
-                }, index * 1000); // Delay de 1 segundo entre cada creditação
-              });
-            }, 2000);
-          } else {
-            // Para uma única caixa, creditar apenas o primeiro prêmio
-            setTimeout(() => {
-              creditPrize(allPrizes[0], premiumCase);
-            }, 2000);
+          if (allPrizes.length > 0) {
+            setSelectedPrize(allPrizes[0]);
+            
+            // Creditar todos os prêmios automaticamente de forma sequencial
+            if (quantity > 1) {
+              setTimeout(async () => {
+                for (let i = 0; i < allPrizes.length; i++) {
+                  await new Promise(resolve => setTimeout(resolve, 1000)); // Delay de 1 segundo entre cada creditação
+                  await creditPrize(allPrizes[i], premiumCase);
+                }
+              }, 2000);
+            } else {
+              // Para uma única caixa, creditar apenas o primeiro prêmio
+              setTimeout(() => {
+                creditPrize(allPrizes[0], premiumCase);
+              }, 2000);
+            }
           }
+          
+          // Tocar som de vitória
+          const winAudio = new Audio('/sounds/win.mp3');
+          winAudio.volume = 0.5;
+          winAudio.play().catch(e => console.log('Audio não pode ser reproduzido'));
+        } catch (error) {
+          console.error('Erro na simulação:', error);
         }
-        
-        // Tocar som de vitória
-        const winAudio = new Audio('/sounds/win.mp3');
-        winAudio.volume = 0.5;
-        winAudio.play().catch(e => console.log('Audio não pode ser reproduzido'));
       }, 5000);
-      
-    } catch (error) {
-      console.error('Erro ao abrir caixa:', error);
-      toast.error('Erro ao abrir caixa. Tente novamente.');
+    }, 'Abertura de caixa Premium Master');
+    
+    if (!result.success) {
+      toast.error(result.error);
       setIsSimulating(false);
       setShowSimulation(false);
     }
@@ -474,8 +485,8 @@ const PremiumMasterCase = () => {
         // Marcar prêmio como creditado
         setCreditedPrizes(prev => new Set([...prev, prizeKey]));
         
-        // Atualizar dados do usuário (saldo)
-        await updateUserData();
+        // Atualizar dados do usuário (saldo) - apenas uma vez por operação
+        await refreshUserData(true); // force = true para garantir atualização
         toast.success(`Prêmio de R$ ${parseFloat(prize.apiPrize.valor).toFixed(2).replace('.', ',')} creditado na sua carteira!`);
       } else {
         toast.error('Falha ao creditar prêmio');
@@ -560,7 +571,7 @@ const PremiumMasterCase = () => {
                     <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path>
                   </svg>
                   <span className="text-white font-semibold">
-                    R$ {user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo ? parseFloat(user.saldo_demo).toFixed(2) : '0.00') : (user?.saldo_reais ? parseFloat(user.saldo_reais).toFixed(2) : '0.00')}
+                    R$ {getUserBalance().toFixed(2)}
                   </span>
                 </div>
                 <button 
@@ -661,7 +672,7 @@ const PremiumMasterCase = () => {
                     <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path>
                   </svg>
                   <span className="text-white font-semibold text-sm">
-                    R$ {user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo ? parseFloat(user.saldo_demo).toFixed(2) : '0.00') : (user?.saldo_reais ? parseFloat(user.saldo_reais).toFixed(2) : '0.00')}
+                    R$ {getUserBalance().toFixed(2)}
                   </span>
                 </div>
                 <button 
@@ -743,11 +754,11 @@ const PremiumMasterCase = () => {
 
               {/* Dynamic Button */}
               <div className="flex justify-center gap-3 mb-2">
-                {(user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) >= 15.00 ? (
+                {(getUserBalance()) >= 15.00 ? (
                   <button
                     onClick={handleOpenCase}
-                    disabled={isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 15.00}
-                    style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 15.00) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 15.00) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
+                    disabled={isLocked || isSimulating || (getUserBalance()) < 15.00}
+                    style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (getUserBalance()) < 15.00) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (getUserBalance()) < 15.00) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
                   >
                     <span style={{display: 'flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(90deg, rgb(34, 197, 94) 0%, rgb(22, 163, 74) 100%)', borderRadius: '0.7rem', padding: '0.5rem 1.2rem 0.5rem 1.1rem', fontWeight: 700, fontSize: '17px', color: 'rgb(255, 255, 255)', flex: '1 1 0%', position: 'relative'}}>
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-box" style={{marginRight: '8px'}}>
@@ -764,7 +775,7 @@ const PremiumMasterCase = () => {
                 ) : (
                   <button
                     onClick={handleSimulateCase}
-                    disabled={isSimulating}
+                    disabled={isLocked || isSimulating}
                     style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: 'pointer', opacity: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
                   >
                     <span style={{display: 'flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(90deg, rgb(147, 51, 234) 0%, rgb(124, 58, 237) 100%)', borderRadius: '0.7rem', padding: '0.5rem 1.2rem 0.5rem 1.1rem', fontWeight: 700, fontSize: '17px', color: 'rgb(255, 255, 255)', flex: '1 1 0%', position: 'relative'}}>
@@ -895,11 +906,11 @@ const PremiumMasterCase = () => {
 
             {/* Botões */}
             <div className="flex justify-center gap-3 mb-2">
-              {(user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) >= 15.00 ? (
+              {(getUserBalance()) >= 15.00 ? (
                 <button
                   onClick={handleOpenCase}
-                  disabled={isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 15.00}
-                  style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 15.00) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo || 0) : (user?.saldo_reais || 0)) < 15.00) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
+                  disabled={isLocked || isSimulating || (getUserBalance()) < 15.00}
+                  style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (getUserBalance()) < 15.00) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (getUserBalance()) < 15.00) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
                 >
                   <span style={{display: 'flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(90deg, rgb(34, 197, 94) 0%, rgb(22, 163, 74) 100%)', borderRadius: '0.7rem', padding: '0.5rem 1.2rem 0.5rem 1.1rem', fontWeight: 700, fontSize: '17px', color: 'rgb(255, 255, 255)', flex: '1 1 0%', position: 'relative'}}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-box" style={{marginRight: '8px'}}>
@@ -916,7 +927,7 @@ const PremiumMasterCase = () => {
               ) : (
                 <button
                   onClick={handleSimulateCase}
-                  disabled={isSimulating}
+                  disabled={isLocked || isSimulating}
                   style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: 'pointer', opacity: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
                 >
                   <span style={{display: 'flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(90deg, rgb(147, 51, 234) 0%, rgb(124, 58, 237) 100%)', borderRadius: '0.7rem', padding: '0.5rem 1.2rem 0.5rem 1.1rem', fontWeight: 700, fontSize: '17px', color: 'rgb(255, 255, 255)', flex: '1 1 0%', position: 'relative'}}>

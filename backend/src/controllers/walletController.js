@@ -51,14 +51,38 @@ class WalletController {
     try {
       const { valor, pix_key } = req.body;
 
-      if (!valor || valor < 20) {
+      // Validação robusta de valor
+      if (!valor || valor === '' || valor === null || valor === undefined) {
+        return res.status(400).json({
+          success: false,
+          error: 'Valor é obrigatório'
+        });
+      }
+
+      const numericValue = parseFloat(valor);
+      if (isNaN(numericValue) || !isFinite(numericValue)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Valor deve ser um número válido'
+        });
+      }
+
+      if (numericValue <= 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Valor deve ser positivo'
+        });
+      }
+
+      if (numericValue < 20) {
         return res.status(400).json({
           success: false,
           error: 'Valor mínimo para saque é R$ 20,00'
         });
       }
 
-      if (!pix_key) {
+      // Validação robusta de chave PIX
+      if (!pix_key || pix_key.trim() === '') {
         return res.status(400).json({
           success: false,
           error: 'Chave PIX é obrigatória'

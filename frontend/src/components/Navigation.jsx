@@ -10,7 +10,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 export function Navigation() {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, getUserBalance } = useAuth();
   const location = useLocation();
 
   const isActive = (path) => {
@@ -39,7 +39,7 @@ export function Navigation() {
                     Olá, {user?.nome?.split(' ')[0]}!
                   </span>
                   <span className="text-sm font-medium text-primary-600">
-                    R$ {user?.tipo_conta === 'afiliado_demo' ? (user?.saldo_demo ? parseFloat(user.saldo_demo).toFixed(2) : '0.00') : (user?.saldo_reais ? parseFloat(user.saldo_reais).toFixed(2) : '0.00')}
+                    R$ {getUserBalance().toFixed(2)}
                   </span>
                   <button
                     onClick={logout}

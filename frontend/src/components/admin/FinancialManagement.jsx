@@ -21,8 +21,8 @@ const FinancialManagement = () => {
     try {
       setLoading(true);
       const response = await api.get('/admin/deposits');
-      if (response.data.success && response.data.data) {
-        setDeposits(response.data.data.deposits || []);
+      if (response.success && response.data) {
+        setDeposits(response.data.deposits || []);
       } else {
         setDeposits([]);
         toast.error('Erro ao carregar dados dos depósitos');
@@ -39,8 +39,8 @@ const FinancialManagement = () => {
     try {
       setLoading(true);
       const response = await api.get('/admin/withdrawals');
-      if (response.data.success && response.data.data) {
-        setWithdrawals(response.data.data.withdrawals || []);
+      if (response.success && response.data) {
+        setWithdrawals(response.data.withdrawals || []);
       } else {
         setWithdrawals([]);
         toast.error('Erro ao carregar dados dos saques');
