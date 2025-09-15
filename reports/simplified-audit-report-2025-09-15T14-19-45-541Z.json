@@ -1,0 +1,57 @@
+{
+  "timestamp": "2025-09-15T14:18:49.677Z",
+  "tests": {
+    "routes": {
+      "api": {
+        "passed": true,
+        "message": "Teste de rotas passou",
+        "timestamp": "2025-09-15T14:19:12.604Z"
+      }
+    },
+    "frontend": {
+      "build": {
+        "passed": true,
+        "message": "Build do frontend passou",
+        "timestamp": "2025-09-15T14:19:45.505Z"
+      }
+    },
+    "dependencies": {
+      "backend": {
+        "passed": true,
+        "message": "Package.json do backend existe",
+        "timestamp": "2025-09-15T14:19:45.508Z"
+      },
+      "frontend": {
+        "passed": true,
+        "message": "Package.json do frontend existe",
+        "timestamp": "2025-09-15T14:19:45.509Z"
+      }
+    },
+    "config": {
+      "backend": {
+        "passed": true,
+        "message": "Configuração do backend existe",
+        "timestamp": "2025-09-15T14:19:45.511Z"
+      },
+      "frontend": {
+        "passed": true,
+        "message": "Configuração do frontend existe",
+        "timestamp": "2025-09-15T14:19:45.512Z"
+      }
+    },
+    "files": {
+      "critical": {
+        "passed": true,
+        "message": "Todos os arquivos críticos existem",
+        "timestamp": "2025-09-15T14:19:45.540Z"
+      }
+    }
+  },
+  "summary": {
+    "total": 7,
+    "passed": 7,
+    "failed": 0,
+    "successRate": 100,
+    "duration": 55865
+  }
+}

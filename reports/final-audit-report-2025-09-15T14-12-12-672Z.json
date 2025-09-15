@@ -1,0 +1,38 @@
+{
+  "timestamp": "2025-09-15T14:12:05.350Z",
+  "environment": "production",
+  "steps": {
+    "A": {
+      "name": "Preparação",
+      "success": true,
+      "message": "Concluído em 194ms",
+      "timestamp": "2025-09-15T14:12:05.628Z"
+    },
+    "B": {
+      "name": "Análise Estática",
+      "success": false,
+      "message": "Falhou em 6550ms: Lint do backend falhou",
+      "timestamp": "2025-09-15T14:12:12.180Z"
+    },
+    "C": {
+      "name": "Inventário de Rotas",
+      "success": false,
+      "message": "Falhou em 264ms: Teste de rotas falhou",
+      "timestamp": "2025-09-15T14:12:12.446Z"
+    },
+    "D": {
+      "name": "Auditoria Financeira",
+      "success": false,
+      "message": "Falhou em 216ms: Auditoria financeira falhou",
+      "timestamp": "2025-09-15T14:12:12.663Z"
+    }
+  },
+  "summary": {
+    "totalSteps": 4,
+    "completedSteps": 1,
+    "failedSteps": 3,
+    "warnings": 0,
+    "successRate": 25,
+    "duration": 7322
+  }
+}

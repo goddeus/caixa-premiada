@@ -1,0 +1,362 @@
+{
+  "timestamp": "2025-09-15T14:18:50.887Z",
+  "baseUrl": "https://slotbox-api.onrender.com",
+  "totalRoutes": 34,
+  "successful": 10,
+  "failed": 24,
+  "averageResponseTime": 525.6470588235294,
+  "results": [
+    {
+      "method": "GET",
+      "path": "/",
+      "description": "Rota raiz",
+      "auth": false,
+      "status": 200,
+      "success": true,
+      "responseTime": 608,
+      "error": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "description": "Health check",
+      "auth": false,
+      "status": 200,
+      "success": true,
+      "responseTime": 245,
+      "error": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/cases",
+      "description": "Listar caixas",
+      "auth": false,
+      "status": 200,
+      "success": true,
+      "responseTime": 808,
+      "error": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/prizes",
+      "description": "Listar prêmios",
+      "auth": false,
+      "status": 200,
+      "success": true,
+      "responseTime": 364,
+      "error": null
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/register",
+      "description": "Registrar usuário",
+      "auth": false,
+      "status": 400,
+      "success": false,
+      "responseTime": 420,
+      "error": "Request failed with status code 400"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "description": "Login",
+      "auth": false,
+      "status": 200,
+      "success": true,
+      "responseTime": 2566,
+      "error": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/wallet",
+      "description": "Consultar saldo",
+      "auth": true,
+      "status": 401,
+      "success": false,
+      "responseTime": 233,
+      "error": "Request failed with status code 401"
+    },
+    {
+      "method": "GET",
+      "path": "/api/profile",
+      "description": "Dados do perfil",
+      "auth": true,
+      "status": 401,
+      "success": false,
+      "responseTime": 241,
+      "error": "Request failed with status code 401"
+    },
+    {
+      "method": "GET",
+      "path": "/api/transactions",
+      "description": "Histórico de transações",
+      "auth": true,
+      "status": 401,
+      "success": false,
+      "responseTime": 252,
+      "error": "Request failed with status code 401"
+    },
+    {
+      "method": "GET",
+      "path": "/api/transactions/demo",
+      "description": "Histórico de transações demo",
+      "auth": true,
+      "status": 401,
+      "success": false,
+      "responseTime": 251,
+      "error": "Request failed with status code 401"
+    },
+    {
+      "method": "GET",
+      "path": "/api/payments/history",
+      "description": "Histórico de pagamentos",
+      "auth": true,
+      "status": 401,
+      "success": false,
+      "responseTime": 241,
+      "error": "Request failed with status code 401"
+    },
+    {
+      "method": "POST",
+      "path": "/api/deposit/pix",
+      "description": "Criar depósito PIX",
+      "auth": true,
+      "status": 400,
+      "success": false,
+      "responseTime": 230,
+      "error": "Request failed with status code 400"
+    },
+    {
+      "method": "POST",
+      "path": "/api/withdraw/pix",
+      "description": "Criar saque PIX",
+      "auth": true,
+      "status": 400,
+      "success": false,
+      "responseTime": 233,
+      "error": "Request failed with status code 400"
+    },
+    {
+      "method": "GET",
+      "path": "/api/cases/premios",
+      "description": "Listar prêmios de todas as caixas",
+      "auth": false,
+      "status": 404,
+      "success": false,
+      "responseTime": 554,
+      "error": "Request failed with status code 404"
+    },
+    {
+      "method": "GET",
+      "path": "/api/cases/history",
+      "description": "Histórico de aberturas",
+      "auth": true,
+      "status": 404,
+      "success": false,
+      "responseTime": 472,
+      "error": "Request failed with status code 404"
+    },
+    {
+      "method": "GET",
+      "path": "/api/cases/rtp/stats",
+      "description": "Estatísticas RTP",
+      "auth": true,
+      "status": 401,
+      "success": false,
+      "responseTime": 591,
+      "error": "Request failed with status code 401"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/dashboard/stats",
+      "description": "Estatísticas do dashboard",
+      "auth": true,
+      "admin": true,
+      "status": 401,
+      "success": false,
+      "responseTime": 235,
+      "error": "Request failed with status code 401"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/users",
+      "description": "Listar usuários",
+      "auth": true,
+      "admin": true,
+      "status": 401,
+      "success": false,
+      "responseTime": 234,
+      "error": "Request failed with status code 401"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/deposits",
+      "description": "Listar depósitos",
+      "auth": true,
+      "admin": true,
+      "status": 401,
+      "success": false,
+      "responseTime": 239,
+      "error": "Request failed with status code 401"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/withdrawals",
+      "description": "Listar saques",
+      "auth": true,
+      "admin": true,
+      "status": 401,
+      "success": false,
+      "responseTime": 241,
+      "error": "Request failed with status code 401"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/affiliates",
+      "description": "Listar afiliados",
+      "auth": true,
+      "admin": true,
+      "status": 401,
+      "success": false,
+      "responseTime": 335,
+      "error": "Request failed with status code 401"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/logs",
+      "description": "Logs administrativos",
+      "auth": true,
+      "admin": true,
+      "status": 401,
+      "success": false,
+      "responseTime": 255,
+      "error": "Request failed with status code 401"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/login-history",
+      "description": "Histórico de login",
+      "auth": true,
+      "admin": true,
+      "status": 401,
+      "success": false,
+      "responseTime": 227,
+      "error": "Request failed with status code 401"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/settings",
+      "description": "Configurações do sistema",
+      "auth": true,
+      "admin": true,
+      "status": 401,
+      "success": false,
+      "responseTime": 244,
+      "error": "Request failed with status code 401"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/rtp/config",
+      "description": "Configuração RTP",
+      "auth": true,
+      "admin": true,
+      "status": 401,
+      "success": false,
+      "responseTime": 243,
+      "error": "Request failed with status code 401"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/cashflow/liquido",
+      "description": "Caixa líquido",
+      "auth": true,
+      "admin": true,
+      "status": 401,
+      "success": false,
+      "responseTime": 235,
+      "error": "Request failed with status code 401"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/cashflow/stats",
+      "description": "Estatísticas de fluxo de caixa",
+      "auth": true,
+      "admin": true,
+      "status": 401,
+      "success": false,
+      "responseTime": 242,
+      "error": "Request failed with status code 401"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/audit/logs",
+      "description": "Logs de auditoria",
+      "auth": true,
+      "admin": true,
+      "status": 401,
+      "success": false,
+      "responseTime": 248,
+      "error": "Request failed with status code 401"
+    },
+    {
+      "method": "POST",
+      "path": "/api/webhook/pix",
+      "description": "Webhook PIX",
+      "auth": false,
+      "status": 200,
+      "success": true,
+      "responseTime": 235,
+      "error": null
+    },
+    {
+      "method": "POST",
+      "path": "/api/webhook/withdraw",
+      "description": "Webhook saque",
+      "auth": false,
+      "status": 401,
+      "success": false,
+      "responseTime": 238,
+      "error": "Request failed with status code 401"
+    },
+    {
+      "method": "GET",
+      "path": "/api/db-test",
+      "description": "Teste de conexão com banco",
+      "auth": false,
+      "status": 200,
+      "success": true,
+      "responseTime": 424,
+      "error": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/vizzionpay-test",
+      "description": "Teste VizzionPay",
+      "auth": false,
+      "status": 200,
+      "success": true,
+      "responseTime": 237,
+      "error": null
+    },
+    {
+      "method": "POST",
+      "path": "/api/init-db",
+      "description": "Inicializar banco",
+      "auth": false,
+      "status": 200,
+      "success": true,
+      "responseTime": 458,
+      "error": null
+    },
+    {
+      "method": "POST",
+      "path": "/api/init-demo-accounts",
+      "description": "Inicializar contas demo",
+      "auth": false,
+      "status": 200,
+      "success": true,
+      "responseTime": 4993,
+      "error": null
+    }
+  ]
+}

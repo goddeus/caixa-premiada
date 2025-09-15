@@ -1,0 +1,20 @@
+{
+  "timestamp": "2025-09-15T14:11:40.921Z",
+  "environment": "staging",
+  "steps": {
+    "A": {
+      "name": "Preparação",
+      "success": false,
+      "message": "Falhou em 304ms: Variável de ambiente DATABASE_URL não configurada",
+      "timestamp": "2025-09-15T14:11:41.491Z"
+    }
+  },
+  "summary": {
+    "totalSteps": 1,
+    "completedSteps": 0,
+    "failedSteps": 1,
+    "warnings": 0,
+    "successRate": 0,
+    "duration": 595
+  }
+}
