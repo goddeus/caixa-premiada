@@ -302,7 +302,7 @@ const CaseOpener = ({
   };
 
   const goToDashboard = () => {
-    navigate('/dashboard');
+    navigate('/');
   };
 
   const userBalance = getUserBalance();

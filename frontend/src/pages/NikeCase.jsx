@@ -322,14 +322,14 @@ const NikeCase = () => {
     setShowSimulation(false);
     setIsSimulating(false);
     setSelectedPrize(null);
-    navigate('/dashboard');
+    navigate('/');
   };
 
   const goToDashboard = () => {
     setShowResult(false);
     setShowIncentive(false);
     setSelectedPrize(null);
-    navigate('/dashboard');
+    navigate('/');
   };
 
 
@@ -357,19 +357,15 @@ const NikeCase = () => {
       console.log('📤 Prize Value:', prize.apiPrize.valor);
       console.log('📤 Prize Name:', prize.apiPrize.nome);
       
-      const response = await api.post(`/cases/credit/${caseInfo.id}`, {
-        prizeId: prize.apiPrize.id,
-        prizeValue: prize.apiPrize.valor
-      });
-      console.log('✅ Crédito da API:', response.data);
-
-      if (response.data.credited) {
-        // Marcar prêmio como creditado
-        setCreditedPrizes(prev => new Set([...prev, prizeKey]));
-        
-        // O backend já atualizou o saldo, não precisamos chamar refreshUserData aqui
-        toast.success('Prêmio creditado na sua carteira!');
-      }
+      // ✅ CORREÇÃO: O buyCase já faz débito + crédito automaticamente
+      // Não precisamos mais chamar o endpoint de crédito separadamente
+      console.log('✅ Prêmio já foi creditado automaticamente pelo buyCase');
+      
+      // Marcar prêmio como creditado
+      setCreditedPrizes(prev => new Set([...prev, prizeKey]));
+      
+      // O backend já atualizou o saldo, não precisamos chamar refreshUserData aqui
+      toast.success('Prêmio creditado na sua carteira!');
     } catch (error) {
       console.error('❌ Erro ao creditar prêmio:', error);
       console.error('❌ Erro completo:', error.response?.data);

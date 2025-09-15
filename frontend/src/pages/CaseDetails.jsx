@@ -33,7 +33,7 @@ const CaseDetails = () => {
     } catch (error) {
       console.error('Erro ao carregar detalhes da caixa:', error);
       toast.error('Erro ao carregar detalhes da caixa');
-      navigate('/dashboard');
+      navigate('/');
     } finally {
       setLoading(false);
     }
@@ -185,7 +185,7 @@ const CaseDetails = () => {
       {/* Header */}
       <div className="mb-8">
         <button
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate('/')}
           className="flex items-center text-blue-400 hover:text-blue-300 mb-4"
         >
           <FaArrowLeft className="mr-2" />

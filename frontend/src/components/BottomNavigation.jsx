@@ -33,14 +33,14 @@ const BottomNavigation = () => {
       {/* Navegação inferior fixa */}
       <div className="fixed bottom-4 left-1/2 z-50" style={{transform:'translateX(-50%)', width:'95vw', maxWidth:'480px', borderRadius:'1.5rem', boxShadow:'0 4px 32px 0 rgba(0,0,0,0.25)', background:'#18181b'}}>
         <div className="flex items-center justify-around py-2">
-          <button className="flex flex-col items-center justify-center flex-1 text-yellow-500 hover:text-yellow-400 transition-colors" style={{minWidth:'0'}} onClick={() => navigate('/dashboard')}>
+          <button className="flex flex-col items-center justify-center flex-1 text-yellow-500 hover:text-yellow-400 transition-colors" style={{minWidth:'0'}} onClick={() => navigate('/')}>
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-home w-5 h-5 mb-1">
               <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
               <polyline points="9,22 9,12 15,12 15,22"/>
             </svg>
             <span className="text-xs font-semibold mt-1 text-white">Começar</span>
           </button>
-          <button className="flex flex-col items-center justify-center flex-1 text-gray-400 hover:text-yellow-400 transition-colors" style={{minWidth:'0'}} onClick={() => navigate('/dashboard')}>
+          <button className="flex flex-col items-center justify-center flex-1 text-gray-400 hover:text-yellow-400 transition-colors" style={{minWidth:'0'}} onClick={() => navigate('/')}>
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-box w-5 h-5 mb-1">
               <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8z"/>
               <polyline points="3.27,6.96 12,12.01 20.73,6.96"/>

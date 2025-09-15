@@ -372,7 +372,7 @@ const SamsungCase = () => {
     setShowResult(false);
     setShowIncentive(false);
     setSelectedPrize(null);
-    navigate('/dashboard');
+    navigate('/');
   };
 
   const playAgain = () => {
@@ -406,7 +406,7 @@ const SamsungCase = () => {
     setWonPrizes([]);
     setCurrentPrizeIndex(0);
     setIsShowingPrizes(false);
-    navigate('/dashboard');
+    navigate('/');
   };
 
   const creditPrize = async (prizeData = null, caseData = null) => {
@@ -420,16 +420,13 @@ const SamsungCase = () => {
         return;
       }
 
-      const response = await api.post(`/cases/credit/${caseInfo.id}`, {
-        prizeId: prize.apiPrize.id,
-        prizeValue: prize.apiPrize.valor
-      });
-
-      if (response.data.credited) {
-        // Atualizar dados do usuário (saldo) - apenas uma vez por operação
-        await refreshUserData(true); // force = true para garantir atualização
-        toast.success(`Prêmio de R$ ${prize.apiPrize.valor.toFixed(2).replace('.', ',')} creditado na sua carteira!`);
-      }
+      // ✅ CORREÇÃO: O buyCase já faz débito + crédito automaticamente
+      // Não precisamos mais chamar o endpoint de crédito separadamente
+      console.log('✅ Prêmio já foi creditado automaticamente pelo buyCase');
+      
+      // Atualizar dados do usuário (saldo) - apenas uma vez por operação
+      await refreshUserData(true); // force = true para garantir atualização
+      toast.success(`Prêmio de R$ ${prize.apiPrize.valor.toFixed(2).replace('.', ',')} creditado na sua carteira!`);
     } catch (error) {
       console.error('Erro ao creditar prêmio:', error);
       const message = error.response?.data?.error || 'Erro ao creditar prêmio';

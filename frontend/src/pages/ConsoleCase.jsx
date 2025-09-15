@@ -406,7 +406,7 @@ const ConsoleCase = () => {
     setShowResult(false);
     setShowIncentive(false);
     setSelectedPrize(null);
-    navigate('/dashboard');
+    navigate('/');
   };
 
   // Funções para navegar entre prêmios
@@ -437,7 +437,7 @@ const ConsoleCase = () => {
     setShowSimulation(false);
     setIsSimulating(false);
     setSelectedPrize(null);
-    navigate('/dashboard');
+    navigate('/');
   };
 
   const creditPrize = async (prizeData = null, caseData = null) => {
@@ -451,17 +451,13 @@ const ConsoleCase = () => {
         return;
       }
 
-      const response = await api.post(`/cases/credit/${caseInfo.id}`, {
-        prizeId: prize.apiPrize.id,
-        prizeValue: prize.apiPrize.valor
-      });
-      console.log('✅ Crédito da API:', response.data);
-
-      if (response.data.credited) {
-        // Atualizar dados do usuário (saldo) - apenas uma vez por operação
-        await refreshUserData(true); // force = true para garantir atualização
-        toast.success('Prêmio creditado na sua carteira!');
-      }
+      // ✅ CORREÇÃO: O buyCase já faz débito + crédito automaticamente
+      // Não precisamos mais chamar o endpoint de crédito separadamente
+      console.log('✅ Prêmio já foi creditado automaticamente pelo buyCase');
+      
+      // Atualizar dados do usuário (saldo) - apenas uma vez por operação
+      await refreshUserData(true); // force = true para garantir atualização
+      toast.success('Prêmio creditado na sua carteira!');
     } catch (error) {
       console.error('Erro ao creditar prêmio:', error);
       const message = error.response?.data?.error || 'Erro ao creditar prêmio';

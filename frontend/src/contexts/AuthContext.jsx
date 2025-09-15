@@ -36,22 +36,28 @@ export const AuthProvider = ({ children }) => {
       const userStr = localStorage.getItem('user');
       
       if (token && userStr) {
-        // Primeiro, usar dados do localStorage
-        const userData = JSON.parse(userStr);
-        setUser(userData);
-        setIsAuthenticated(true);
-        
-        // Depois, atualizar com dados do servidor
+        // Primeiro, tentar dados do servidor
         try {
           const response = await api.getMe();
-          if (response.success) {
-            setUser(response.data.user);
-            api.updateUserInStorage(response.data.user);
+          if (response.success && response.data.user) {
+            const serverUser = response.data.user;
+            setUser(serverUser);
+            setIsAuthenticated(true);
+            api.updateUserInStorage(serverUser);
+            return; // Sair aqui se servidor funcionou
           }
         } catch (serverError) {
           console.warn('Erro ao atualizar dados do servidor:', serverError);
-          // Manter dados do localStorage se servidor falhar
         }
+        
+        // Fallback: usar dados do localStorage se servidor falhar
+        const userData = JSON.parse(userStr);
+        setUser(userData);
+        setIsAuthenticated(true);
+      } else {
+        // Se não há token, garantir que o estado está limpo
+        setUser(null);
+        setIsAuthenticated(false);
       }
     } catch (error) {
       console.error('Erro ao verificar autenticação:', error);

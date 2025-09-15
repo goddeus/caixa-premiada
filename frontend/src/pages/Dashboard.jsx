@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../contexts/AuthContext';
@@ -48,6 +48,8 @@ const Dashboard = () => {
   const [pixData, setPixData] = useState(null);
   const [cases, setCases] = useState([]);
   const [casesLoading, setCasesLoading] = useState(false);
+  const [casesLoaded, setCasesLoaded] = useState(false);
+  const [lastLoadTime, setLastLoadTime] = useState(0);
 
   // Função para gerar nomes aleatórios (otimizada com useCallback)
   const generateRandomName = useCallback(() => {
@@ -94,7 +96,7 @@ const Dashboard = () => {
   useEffect(() => {
     setLiveWinners(generateLiveWinners());
     setLoading(false);
-  }, [generateLiveWinners]);
+  }, []); // Array vazio - executa apenas uma vez
 
   // Detectar código de indicação na URL
   useEffect(() => {
@@ -108,14 +110,22 @@ const Dashboard = () => {
     }
   }, []);
 
-  // Verificar autenticação quando o componente carrega
+  // Log de autenticação apenas uma vez usando useRef
+  const authLoggedRef = useRef(false);
+  
   useEffect(() => {
-    if (isAuthenticated && user) {
-      console.log('Usuário autenticado:', user);
-    } else {
-      console.log('Usuário não autenticado');
+    if (!authLoggedRef.current) {
+      // Aguardar um pouco para o estado se estabilizar
+      setTimeout(() => {
+        if (isAuthenticated && user) {
+          console.log('Usuário autenticado:', user);
+        } else {
+          console.log('Usuário não autenticado');
+        }
+        authLoggedRef.current = true;
+      }, 50);
     }
-  }, [isAuthenticated, user]);
+  }, []); // Array vazio - executa apenas uma vez
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -369,7 +379,7 @@ const Dashboard = () => {
     }, 8000); // Aumentar intervalo para 8 segundos para reduzir carga
 
     return () => clearInterval(interval);
-  }, [generateRandomName, generateRandomPrize]);
+  }, []); // Array vazio - executa apenas uma vez
 
   // Fechar dropdown quando clicar fora
   useEffect(() => {
@@ -443,7 +453,7 @@ const Dashboard = () => {
 
   // Handlers otimizados para navegação
   const handleNavigateToDashboard = useCallback(() => {
-    navigate('/dashboard');
+    navigate('/');
   }, [navigate]);
 
   const handleNavigateToProfile = useCallback(() => {
@@ -454,50 +464,96 @@ const Dashboard = () => {
     navigate(route);
   }, [navigate]);
 
-  // Função para carregar caixas dinamicamente
+  // Função para carregar caixas (sem dependências problemáticas)
   const loadCases = useCallback(async () => {
+    if (casesLoading || casesLoaded) {
+      console.log('🚫 Já está carregando ou já carregou caixas, evitando duplicação');
+      return;
+    }
+    
     try {
       setCasesLoading(true);
+      console.log('🔄 Carregando caixas...');
+      
       const response = await api.get('/cases');
       
       if (response.success && response.data) {
         setCases(response.data);
+        setCasesLoaded(true);
         console.log('✅ Caixas carregadas:', response.data.length);
       } else {
         console.error('❌ Erro na estrutura da resposta:', response);
-        // Fallback para dados hardcoded em caso de erro
-        setCases([
+        // Fallback para dados hardcoded
+        const fallbackCases = [
           { id: 'weekend-case', nome: 'FIM DE SEMANA PREMIADO!!!', imagem_url: '/imagens/fim de semana.png', preco: 1.50, route: '/weekend-case' },
           { id: 'nike-case', nome: 'CAIXA KIT NIKE', imagem_url: '/imagens/nike.png', preco: 2.50, route: '/nike-case' },
           { id: 'samsung-case', nome: 'CAIXA SAMSUNG HAPPY', imagem_url: '/imagens/caixa samsung.png', preco: 3.00, route: '/samsung-case' },
           { id: 'console-case', nome: 'CAIXA CONSOLE DO SONHOS!', imagem_url: '/imagens/console.png', preco: 3.50, route: '/console-case' },
           { id: 'apple-case', nome: 'CAIXA DA APPLE HAPPY!', imagem_url: '/imagens/caixa apple.png', preco: 7.00, route: '/apple-case' },
           { id: 'premium-master-case', nome: 'CAIXA PREMIUM MASTER !', imagem_url: '/imagens/caixa premium.png', preco: 15.00, route: '/premium-master-case' }
-        ]);
+        ];
+        setCases(fallbackCases);
+        setCasesLoaded(true);
       }
     } catch (error) {
       console.error('❌ Erro ao carregar caixas:', error);
       toast.error('Erro ao carregar caixas. Usando dados padrão.');
-      // Fallback para dados hardcoded em caso de erro
-      setCases([
+      // Fallback para dados hardcoded
+      const fallbackCases = [
         { id: 'weekend-case', nome: 'FIM DE SEMANA PREMIADO!!!', imagem_url: '/imagens/fim de semana.png', preco: 1.50, route: '/weekend-case' },
         { id: 'nike-case', nome: 'CAIXA KIT NIKE', imagem_url: '/imagens/nike.png', preco: 2.50, route: '/nike-case' },
         { id: 'samsung-case', nome: 'CAIXA SAMSUNG HAPPY', imagem_url: '/imagens/caixa samsung.png', preco: 3.00, route: '/samsung-case' },
         { id: 'console-case', nome: 'CAIXA CONSOLE DO SONHOS!', imagem_url: '/imagens/console.png', preco: 3.50, route: '/console-case' },
         { id: 'apple-case', nome: 'CAIXA DA APPLE HAPPY!', imagem_url: '/imagens/caixa apple.png', preco: 7.00, route: '/apple-case' },
         { id: 'premium-master-case', nome: 'CAIXA PREMIUM MASTER !', imagem_url: '/imagens/caixa premium.png', preco: 15.00, route: '/premium-master-case' }
-      ]);
+      ];
+      setCases(fallbackCases);
+      setCasesLoaded(true);
     } finally {
       setCasesLoading(false);
     }
-  }, []);
+  }, [casesLoading, casesLoaded]); // Incluir casesLoaded para evitar carregamentos desnecessários
 
+  // Carregar dados apenas uma vez usando useRef
+  const hasLoadedRef = useRef(false);
+  const loadingTimeoutRef = useRef(null);
+  
   useEffect(() => {
-    loadRolloverData();
-    loadCases();
-  }, [loadRolloverData, loadCases]);
+    // Limpar timeout anterior se existir
+    if (loadingTimeoutRef.current) {
+      clearTimeout(loadingTimeoutRef.current);
+    }
+    
+    // Aguardar um pouco para evitar carregamentos múltiplos
+    loadingTimeoutRef.current = setTimeout(() => {
+      if (!hasLoadedRef.current) {
+        console.log('🚀 Carregando dados iniciais...');
+        hasLoadedRef.current = true;
+        
+        const loadInitialData = async () => {
+          try {
+            if (isAuthenticated && user) {
+              await loadRolloverData();
+            }
+            await loadCases();
+          } catch (error) {
+            console.error('Erro no carregamento inicial:', error);
+          }
+        };
+        
+        loadInitialData();
+      }
+    }, 100); // Aguardar 100ms para estabilizar
+    
+    return () => {
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+      }
+    };
+  }, []); // Array vazio - executa apenas uma vez
 
-  if (loading) {
+  // Mostrar loading apenas se ainda não carregou os dados iniciais
+  if (loading || (!hasLoadedRef.current && isAuthenticated && user)) {
     return (
       <div className="min-h-screen bg-[#0E1015] flex flex-col">
         <div className="flex-1 flex flex-col items-center justify-center">
@@ -893,7 +949,10 @@ const Dashboard = () => {
                   <h3 className="text-white text-xl font-bold mb-2">Nenhuma caixa disponível</h3>
                   <p className="text-gray-400 text-center">Não foi possível carregar as caixas. Tente novamente mais tarde.</p>
                   <button 
-                    onClick={loadCases}
+                    onClick={() => {
+                      setCasesLoaded(false);
+                      loadCases();
+                    }}
                     className="mt-4 px-4 py-2 bg-yellow-500 text-black font-bold rounded-lg hover:bg-yellow-400 transition-colors"
                   >
                     Tentar novamente

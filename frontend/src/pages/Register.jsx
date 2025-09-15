@@ -129,7 +129,7 @@ const Register = () => {
       const result = await register(userData);
       if (result.success) {
         toast.success('Conta criada com sucesso!');
-        navigate('/dashboard');
+        navigate('/');
       } else {
         toast.error(result.message || 'Erro ao criar conta');
       }

@@ -409,7 +409,7 @@ const PremiumMasterCase = () => {
     setShowResult(false);
     setShowIncentive(false);
     setSelectedPrize(null);
-    navigate('/dashboard');
+    navigate('/');
   };
 
   const playAgain = () => {
@@ -432,7 +432,7 @@ const PremiumMasterCase = () => {
     setIsSimulating(false);
     setSelectedPrize(null);
     setCreditedPrizes(new Set()); // Reset dos prêmios creditados
-    navigate('/dashboard');
+    navigate('/');
   };
 
   // Funções para navegar entre prêmios
@@ -478,21 +478,16 @@ const PremiumMasterCase = () => {
         prizeName: prize.apiPrize.nome
       });
 
-      const response = await api.post(`/cases/credit/${caseInfo.id}`, {
-        prizeId: prize.apiPrize.id,
-        prizeValue: prize.apiPrize.valor
-      });
-
-      if (response.data.credited) {
-        // Marcar prêmio como creditado
-        setCreditedPrizes(prev => new Set([...prev, prizeKey]));
-        
-        // Atualizar dados do usuário (saldo) - apenas uma vez por operação
-        await refreshUserData(true); // force = true para garantir atualização
-        toast.success(`Prêmio de R$ ${parseFloat(prize.apiPrize.valor).toFixed(2).replace('.', ',')} creditado na sua carteira!`);
-      } else {
-        toast.error('Falha ao creditar prêmio');
-      }
+      // ✅ CORREÇÃO: O buyCase já faz débito + crédito automaticamente
+      // Não precisamos mais chamar o endpoint de crédito separadamente
+      console.log('✅ Prêmio já foi creditado automaticamente pelo buyCase');
+      
+      // Marcar prêmio como creditado
+      setCreditedPrizes(prev => new Set([...prev, prizeKey]));
+      
+      // Atualizar dados do usuário (saldo) - apenas uma vez por operação
+      await refreshUserData(true); // force = true para garantir atualização
+      toast.success(`Prêmio de R$ ${parseFloat(prize.apiPrize.valor).toFixed(2).replace('.', ',')} creditado na sua carteira!`);
     } catch (error) {
       console.error('Erro ao creditar prêmio:', error);
       const message = error.response?.data?.error || 'Erro ao creditar prêmio';
