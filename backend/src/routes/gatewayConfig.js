@@ -14,30 +14,30 @@ router.use(authMiddleware.authenticateToken);
 router.use(adminMiddleware);
 
 // Listar todas as configurações de gateway
-router.get('/', gatewayConfigController.listConfigs.bind(gatewayConfigController));
+router.get('/', (req, res) => gatewayConfigController.listConfigs(req, res));
 
 // Obter lista de gateways suportados
-router.get('/supported', gatewayConfigController.getSupportedGateways.bind(gatewayConfigController));
+router.get('/supported', (req, res) => gatewayConfigController.getSupportedGateways(req, res));
 
 // Obter configuração ativa
-router.get('/active', gatewayConfigController.getActiveConfig.bind(gatewayConfigController));
+router.get('/active', (req, res) => gatewayConfigController.getActiveConfig(req, res));
 
 // Obter configuração de um gateway específico
-router.get('/:gatewayName', gatewayConfigController.getConfig.bind(gatewayConfigController));
+router.get('/:gatewayName', (req, res) => gatewayConfigController.getConfig(req, res));
 
 // Salvar/atualizar configuração de gateway
-router.post('/:gatewayName', gatewayConfigController.saveConfig.bind(gatewayConfigController));
+router.post('/:gatewayName', (req, res) => gatewayConfigController.saveConfig(req, res));
 
 // Ativar/desativar gateway
-router.patch('/:gatewayName/toggle', gatewayConfigController.toggleGateway.bind(gatewayConfigController));
+router.patch('/:gatewayName/toggle', (req, res) => gatewayConfigController.toggleGateway(req, res));
 
 // Testar conexão com gateway
-router.post('/:gatewayName/test', gatewayConfigController.testConnection.bind(gatewayConfigController));
+router.post('/:gatewayName/test', (req, res) => gatewayConfigController.testConnection(req, res));
 
 // Validar configuração
-router.post('/:gatewayName/validate', gatewayConfigController.validateConfig.bind(gatewayConfigController));
+router.post('/:gatewayName/validate', (req, res) => gatewayConfigController.validateConfig(req, res));
 
 // Deletar configuração de gateway
-router.delete('/:gatewayName', gatewayConfigController.deleteConfig.bind(gatewayConfigController));
+router.delete('/:gatewayName', (req, res) => gatewayConfigController.deleteConfig(req, res));
 
 module.exports = router;

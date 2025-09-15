@@ -12,15 +12,15 @@ const prizeController = new PrizeController();
  */
 
 // GET /api/prizes/stats - Estatísticas detalhadas do sistema
-router.get('/stats', authenticateToken, prizeController.getPrizeStats.bind(prizeController));
+router.get('/stats', authenticateToken, (req, res) => prizeController.getPrizeStats(req, res));
 
 // GET /api/prizes/caixa-liquido - Dados do caixa líquido atual
-router.get('/caixa-liquido', authenticateToken, prizeController.getCaixaLiquido.bind(prizeController));
+router.get('/caixa-liquido', authenticateToken, (req, res) => prizeController.getCaixaLiquido(req, res));
 
 // GET /api/prizes/fundo-premios - Dados do fundo de prêmios
-router.get('/fundo-premios', authenticateToken, prizeController.getFundoPremios.bind(prizeController));
+router.get('/fundo-premios', authenticateToken, (req, res) => prizeController.getFundoPremios(req, res));
 
 // POST /api/prizes/simulate - Simular abertura de caixa (para testes)
-router.post('/simulate', authenticateToken, prizeController.simulatePrize.bind(prizeController));
+router.post('/simulate', authenticateToken, (req, res) => prizeController.simulatePrize(req, res));
 
 module.exports = router;

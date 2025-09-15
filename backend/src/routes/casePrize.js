@@ -15,27 +15,27 @@ router.use(requireAdmin);
  * @desc Lista todas as caixas disponíveis
  * @access Admin
  */
-router.get('/caixas', casePrizeController.getAllCases.bind(casePrizeController));
+router.get('/caixas', (req, res) => casePrizeController.getAllCases(req, res));
 
 /**
  * @route GET /api/admin/caixas/:caixaId/premios
  * @desc Busca todos os prêmios de uma caixa específica
  * @access Admin
  */
-router.get('/caixas/:caixaId/premios', casePrizeController.getPrizesByCase.bind(casePrizeController));
+router.get('/caixas/:caixaId/premios', (req, res) => casePrizeController.getPrizesByCase(req, res));
 
 /**
  * @route POST /api/admin/caixas/:caixaId/audit
  * @desc Executa auditoria apenas nos prêmios de uma caixa específica
  * @access Admin
  */
-router.post('/caixas/:caixaId/audit', casePrizeController.auditCasePrizes.bind(casePrizeController));
+router.post('/caixas/:caixaId/audit', (req, res) => casePrizeController.auditCasePrizes(req, res));
 
 /**
  * @route PUT /api/admin/premios/:prizeId
  * @desc Atualiza um prêmio específico
  * @access Admin
  */
-router.put('/premios/:prizeId', casePrizeController.updatePrize.bind(casePrizeController));
+router.put('/premios/:prizeId', (req, res) => casePrizeController.updatePrize(req, res));
 
 module.exports = router;

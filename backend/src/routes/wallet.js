@@ -7,15 +7,15 @@ const { authenticateToken } = require('../middleware/auth');
 const walletController = new WalletController();
 
 // GET /wallet - Consultar saldo
-router.get('/', authenticateToken, walletController.getBalance.bind(walletController));
+router.get('/', authenticateToken, (req, res) => walletController.getBalance(req, res));
 
 // POST /wallet/deposit - Fazer depósito
-router.post('/deposit', authenticateToken, walletController.deposit.bind(walletController));
+router.post('/deposit', authenticateToken, (req, res) => walletController.deposit(req, res));
 
 // POST /wallet/withdraw - Solicitar saque
-router.post('/withdraw', authenticateToken, walletController.withdraw.bind(walletController));
+router.post('/withdraw', authenticateToken, (req, res) => walletController.withdraw(req, res));
 
 // POST /wallet/recharge-demo - Recarregar saldo demo (apenas contas demo)
-router.post('/recharge-demo', authenticateToken, walletController.rechargeDemo.bind(walletController));
+router.post('/recharge-demo', authenticateToken, (req, res) => walletController.rechargeDemo(req, res));
 
 module.exports = router;

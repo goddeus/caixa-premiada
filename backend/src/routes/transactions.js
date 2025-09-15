@@ -7,15 +7,15 @@ const TransactionsController = require('../controllers/transactionsController');
 const transactionsController = new TransactionsController();
 
 // GET /transactions - Listar transações do usuário
-router.get('/', authenticateToken, transactionsController.getUserTransactions.bind(transactionsController));
+router.get('/', authenticateToken, (req, res) => transactionsController.getUserTransactions(req, res));
 
 // GET /transactions/recent-winners - Feed de ganhadores recentes
-router.get('/recent-winners', transactionsController.getRecentWinners.bind(transactionsController));
+router.get('/recent-winners', (req, res) => transactionsController.getRecentWinners(req, res));
 
 // GET /transactions/daily-ranking - Ranking diário de ganhadores
-router.get('/daily-ranking', transactionsController.getDailyWinnersRanking.bind(transactionsController));
+router.get('/daily-ranking', (req, res) => transactionsController.getDailyWinnersRanking(req, res));
 
 // POST /transactions/deposit - Processar depósito
-router.post('/deposit', authenticateToken, transactionsController.processDeposit.bind(transactionsController));
+router.post('/deposit', authenticateToken, (req, res) => transactionsController.processDeposit(req, res));
 
 module.exports = router;

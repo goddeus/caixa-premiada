@@ -15,59 +15,59 @@ router.use(authenticateToken);
 router.use(requireAdmin);
 
 // Dashboard
-router.get('/dashboard/stats', adminController.getDashboardStats.bind(adminController));
+router.get('/dashboard/stats', (req, res) => adminController.getDashboardStats(req, res));
 
 // Usuários
-router.get('/users', adminController.getUsers.bind(adminController));
-router.put('/users/:userId', adminController.updateUser.bind(adminController));
-router.post('/users/:userId/reset-password', adminController.resetUserPassword.bind(adminController));
+router.get('/users', (req, res) => adminController.getUsers(req, res));
+router.put('/users/:userId', (req, res) => adminController.updateUser(req, res));
+router.post('/users/:userId/reset-password', (req, res) => adminController.resetUserPassword(req, res));
 
 // Financeiro - Depósitos
-router.get('/deposits', adminController.getDeposits.bind(adminController));
+router.get('/deposits', (req, res) => adminController.getDeposits(req, res));
 
 // Financeiro - Saques
-router.get('/withdrawals', adminController.getWithdrawals.bind(adminController));
-router.put('/withdrawals/:withdrawalId/status', adminController.updateWithdrawalStatus.bind(adminController));
+router.get('/withdrawals', (req, res) => adminController.getWithdrawals(req, res));
+router.put('/withdrawals/:withdrawalId/status', (req, res) => adminController.updateWithdrawalStatus(req, res));
 
 // Afiliados
-router.get('/affiliates', adminController.getAffiliates.bind(adminController));
-router.put('/affiliate-withdrawals/:withdrawalId/status', adminController.updateAffiliateWithdrawalStatus.bind(adminController));
+router.get('/affiliates', (req, res) => adminController.getAffiliates(req, res));
+router.put('/affiliate-withdrawals/:withdrawalId/status', (req, res) => adminController.updateAffiliateWithdrawalStatus(req, res));
 
 // Logs e Histórico
-router.get('/logs', adminController.getAdminLogs.bind(adminController));
-router.get('/login-history', adminController.getLoginHistory.bind(adminController));
+router.get('/logs', (req, res) => adminController.getAdminLogs(req, res));
+router.get('/login-history', (req, res) => adminController.getLoginHistory(req, res));
 
 // Fundos de Teste
-router.post('/add-test-funds', adminController.addTestFunds.bind(adminController));
+router.post('/add-test-funds', (req, res) => adminController.addTestFunds(req, res));
 
 // Limpar dados do controle da casa
-router.post('/clear-house-data', adminController.clearHouseData.bind(adminController));
+router.post('/clear-house-data', (req, res) => adminController.clearHouseData(req, res));
 
 // Configurações do Sistema
-router.get('/settings', adminController.getSettings.bind(adminController));
-router.put('/settings/:key', adminController.updateSetting.bind(adminController));
+router.get('/settings', (req, res) => adminController.getSettings(req, res));
+router.put('/settings/:key', (req, res) => adminController.updateSetting(req, res));
 
 // Adicionar saldo de teste com rollover
-router.post('/add-test-balance/:userId', adminController.addTestBalance.bind(adminController));
+router.post('/add-test-balance/:userId', (req, res) => adminController.addTestBalance(req, res));
 
 // Controle da Casa - RTP
-router.get('/rtp/config', rtpController.getRTPConfig.bind(rtpController));
-router.put('/rtp/target', rtpController.updateRTPTarget.bind(rtpController));
-router.get('/rtp/recommended', rtpController.getRecommendedRTP.bind(rtpController));
-router.post('/rtp/apply-recommendation', rtpController.applyRecommendation.bind(rtpController));
-router.get('/rtp/cashflow-stats', rtpController.getCashFlowStats.bind(rtpController));
-router.get('/rtp/history', rtpController.getRTPHistory.bind(rtpController));
+router.get('/rtp/config', (req, res) => rtpController.getRTPConfig(req, res));
+router.put('/rtp/target', (req, res) => rtpController.updateRTPTarget(req, res));
+router.get('/rtp/recommended', (req, res) => rtpController.getRecommendedRTP(req, res));
+router.post('/rtp/apply-recommendation', (req, res) => rtpController.applyRecommendation(req, res));
+router.get('/rtp/cashflow-stats', (req, res) => rtpController.getCashFlowStats(req, res));
+router.get('/rtp/history', (req, res) => rtpController.getRTPHistory(req, res));
 
 // Fluxo de Caixa Centralizado
-router.get('/cashflow/liquido', cashFlowController.getCaixaLiquido.bind(cashFlowController));
-router.get('/cashflow/stats', cashFlowController.getCashFlowStats.bind(cashFlowController));
-router.post('/cashflow/transacao', cashFlowController.registrarTransacao.bind(cashFlowController));
-router.get('/cashflow/history', cashFlowController.getCashFlowHistory.bind(cashFlowController));
-router.post('/cashflow/validar', cashFlowController.validarTransacao.bind(cashFlowController));
+router.get('/cashflow/liquido', (req, res) => cashFlowController.getCaixaLiquido(req, res));
+router.get('/cashflow/stats', (req, res) => cashFlowController.getCashFlowStats(req, res));
+router.post('/cashflow/transacao', (req, res) => cashFlowController.registrarTransacao(req, res));
+router.get('/cashflow/history', (req, res) => cashFlowController.getCashFlowHistory(req, res));
+router.post('/cashflow/validar', (req, res) => cashFlowController.validarTransacao(req, res));
 
 // Auditoria e Proteção RTP
-router.get('/audit/logs', adminController.getAuditLogs.bind(adminController));
-router.get('/rtp/protection-stats', adminController.getRTPProtectionStats.bind(adminController));
+router.get('/audit/logs', (req, res) => adminController.getAuditLogs(req, res));
+router.get('/rtp/protection-stats', (req, res) => adminController.getRTPProtectionStats(req, res));
 
 // Corrigir preços das caixas
 router.post('/fix-case-prices', async (req, res) => {
@@ -149,11 +149,11 @@ router.post('/fix-case-prices', async (req, res) => {
 });
 
 // Prêmios e Imagens - Sincronização
-router.post('/sync-prizes-images', adminController.syncPrizesAndImages.bind(adminController));
-router.get('/prizes-consistency-report', adminController.getPrizeConsistencyReport.bind(adminController));
+router.post('/sync-prizes-images', (req, res) => adminController.syncPrizesAndImages(req, res));
+router.get('/prizes-consistency-report', (req, res) => adminController.getPrizeConsistencyReport(req, res));
 
 // Migrações e Seeds
-router.get('/migrations/status', adminController.getMigrationStatus.bind(adminController));
-router.post('/migrations/seed-audit', adminController.runAuditSeed.bind(adminController));
+router.get('/migrations/status', (req, res) => adminController.getMigrationStatus(req, res));
+router.post('/migrations/seed-audit', (req, res) => adminController.runAuditSeed(req, res));
 
 module.exports = router;
