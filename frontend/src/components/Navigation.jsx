@@ -96,7 +96,7 @@ export function Navigation() {
             <Link
               to="/wallet"
               className={`flex flex-col items-center space-y-1 p-2 ${
-                isActive('/wallet') ? 'text-primary-600' : 'text-gray-600'
+                isActive('/profile') ? 'text-primary-600' : 'text-gray-600'
               }`}
             >
               <WalletIcon className="w-6 h-6" />

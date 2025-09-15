@@ -1,17 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const GatewayConfigController = require('../controllers/gatewayConfigController');
-const authMiddleware = require('../middleware/auth');
-const adminMiddleware = require('../middleware/admin');
+const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
 // Criar instância do controller
 const gatewayConfigController = new GatewayConfigController();
 
 // Middleware de autenticação para todas as rotas
-router.use(authMiddleware.authenticateToken);
+router.use(authenticateToken);
 
 // Middleware de admin para operações de configuração
-router.use(adminMiddleware);
+router.use(requireAdmin);
 
 // Listar todas as configurações de gateway
 router.get('/', (req, res) => gatewayConfigController.listConfigs(req, res));

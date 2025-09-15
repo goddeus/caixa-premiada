@@ -396,7 +396,7 @@ const CaseOpener = ({
           <>
             <p className="text-gray-400 text-sm mb-2">Faça um depósito para abrir caixas de verdade e ganhar prêmios reais!</p>
             <button 
-              onClick={() => navigate('/wallet')}
+              onClick={() => navigate('/profile')}
               className="px-6 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg hover:from-green-400 hover:to-green-500 transition-all duration-200 transform hover:scale-105"
             >
               Depositar

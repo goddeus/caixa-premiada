@@ -511,7 +511,7 @@ const SamsungCase = () => {
                   </span>
                 </div>
                 <button 
-                  onClick={() => navigate('/wallet')}
+                  onClick={() => navigate('/profile')}
                   className="px-3 py-1 rounded-lg bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold hover:opacity-90 transition flex items-center text-sm"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
@@ -520,7 +520,7 @@ const SamsungCase = () => {
                   Depositar
                 </button>
                 <button 
-                  onClick={() => navigate('/wallet')}
+                  onClick={() => navigate('/profile')}
                   className="px-3 py-1 rounded-lg bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold hover:opacity-90 transition flex items-center text-sm"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
@@ -529,7 +529,7 @@ const SamsungCase = () => {
                   Sacar
                 </button>
                 <button 
-                  onClick={() => navigate('/wallet')}
+                  onClick={() => navigate('/profile')}
                   className="px-4 py-2 rounded-lg bg-transparent text-white font-bold hover:opacity-90 transition flex items-center"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user w-5 h-5 mr-2">
@@ -612,7 +612,7 @@ const SamsungCase = () => {
                   </span>
                 </div>
                 <button 
-                  onClick={() => navigate('/wallet')}
+                  onClick={() => navigate('/profile')}
                   className="px-2 py-1 rounded bg-transparent text-white font-bold hover:opacity-90 transition flex items-center text-sm"
                   style={{minWidth:'0',height:'32px'}}
                 >
@@ -728,7 +728,7 @@ const SamsungCase = () => {
               </div>
               <p className="text-gray-400 text-sm mb-2">Faça um depósito para abrir caixas de verdade e ganhar prêmios reais!</p>
               <button 
-                onClick={() => navigate('/wallet')}
+                onClick={() => navigate('/profile')}
                 className="px-6 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg hover:from-green-400 hover:to-green-500 transition-all duration-200 transform hover:scale-105"
               >
                 Depositar
