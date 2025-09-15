@@ -403,36 +403,36 @@ class CasesController {
       
       // ERRO: Modelo não existe no schema
       // await prisma.purchaseAudit.create({
-        data: {
-          purchase_id: `buy_multiple_${userId}_${caseData.id}_${Date.now()}`,
-          user_id: userId,
-          caixas_compradas: JSON.stringify([{
-            caixaId: caseData.id,
-            quantidade: quantity,
-            preco: precoUnitario
-          }]),
-          total_preco: totalCost,
-          saldo_antes: saldoAntes,
-          saldo_depois: saldoDepois,
-          status: discrepanciaDetectada ? 'investigar' : 'concluido'
-        }
-      });
+      //   data: {
+      //     purchase_id: `buy_multiple_${userId}_${caseData.id}_${Date.now()}`,
+      //     user_id: userId,
+      //     caixas_compradas: JSON.stringify([{
+      //       caixaId: caseData.id,
+      //       quantidade: quantity,
+      //       preco: precoUnitario
+      //     }]),
+      //     total_preco: totalCost,
+      //     saldo_antes: saldoAntes,
+      //     saldo_depois: saldoDepois,
+      //     status: discrepanciaDetectada ? 'investigar' : 'concluido'
+      //   }
+      // });
 
       // Verificar discrepância e registrar anomalia se necessário
       if (discrepanciaDetectada) {
         const diferenca = Math.abs(totalCost - (precoUnitario * quantity));
         // ERRO: Modelo não existe no schema
         // await prisma.purchaseAnomaly.create({
-          data: {
-            user_id: userId,
-            caixa_id: caseData.id,
-            quantidade: quantity,
-            preco_esperado: precoUnitario * quantity,
-            preco_cobrado: totalCost,
-            diferenca: diferenca,
-            descricao: `Caixa ${caseData.nome} (${quantity}x) deveria custar ${precoUnitario * quantity} mas foi cobrado ${totalCost}`
-          }
-        });
+        //   data: {
+        //     user_id: userId,
+        //     caixa_id: caseData.id,
+        //     quantidade: quantity,
+        //     preco_esperado: precoUnitario * quantity,
+        //     preco_cobrado: totalCost,
+        //     diferenca: diferenca,
+        //     descricao: `Caixa ${caseData.nome} (${quantity}x) deveria custar ${precoUnitario * quantity} mas foi cobrado ${totalCost}`
+        //   }
+        // });
         console.log(`⚠️ Discrepância detectada: Caixa ${caseData.nome} (${quantity}x) deveria custar ${precoUnitario * quantity} mas foi cobrado ${totalCost}`);
       }
 
@@ -556,36 +556,36 @@ class CasesController {
       
       // ERRO: Modelo não existe no schema
       // await prisma.purchaseAudit.create({
-        data: {
-          purchase_id: `debit_${userId}_${caseData.id}_${Date.now()}`,
-          user_id: userId,
-          caixas_compradas: JSON.stringify([{
-            caixaId: caseData.id,
-            quantidade: 1,
-            preco: precoUnitario
-          }]),
-          total_preco: totalPreco,
-          saldo_antes: saldoAntes,
-          saldo_depois: saldoDepois,
-          status: discrepanciaDetectada ? 'investigar' : 'concluido'
-        }
-      });
+      //   data: {
+      //     purchase_id: `debit_${userId}_${caseData.id}_${Date.now()}`,
+      //     user_id: userId,
+      //     caixas_compradas: JSON.stringify([{
+      //       caixaId: caseData.id,
+      //       quantidade: 1,
+      //       preco: precoUnitario
+      //     }]),
+      //     total_preco: totalPreco,
+      //     saldo_antes: saldoAntes,
+      //     saldo_depois: saldoDepois,
+      //     status: discrepanciaDetectada ? 'investigar' : 'concluido'
+      //   }
+      // });
 
       // Verificar discrepância e registrar anomalia se necessário
       if (discrepanciaDetectada) {
         const diferenca = Math.abs(totalPreco - precoUnitario);
         // ERRO: Modelo não existe no schema
         // await prisma.purchaseAnomaly.create({
-          data: {
-            user_id: userId,
-            caixa_id: caseData.id,
-            quantidade: 1,
-            preco_esperado: precoUnitario,
-            preco_cobrado: totalPreco,
-            diferenca: diferenca,
-            descricao: `Caixa ${caseData.nome} deveria custar ${precoUnitario} mas foi cobrado ${totalPreco}`
-          }
-        });
+        //   data: {
+        //     user_id: userId,
+        //     caixa_id: caseData.id,
+        //     quantidade: 1,
+        //     preco_esperado: precoUnitario,
+        //     preco_cobrado: totalPreco,
+        //     diferenca: diferenca,
+        //     descricao: `Caixa ${caseData.nome} deveria custar ${precoUnitario} mas foi cobrado ${totalPreco}`
+        //   }
+        // });
         console.log(`⚠️ Discrepância detectada: Caixa ${caseData.nome} deveria custar ${precoUnitario} mas foi cobrado ${totalPreco}`);
       }
 
