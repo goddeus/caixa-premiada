@@ -152,4 +152,8 @@ router.post('/fix-case-prices', async (req, res) => {
 router.post('/sync-prizes-images', adminController.syncPrizesAndImages.bind(adminController));
 router.get('/prizes-consistency-report', adminController.getPrizeConsistencyReport.bind(adminController));
 
+// Migrações e Seeds
+router.get('/migrations/status', adminController.getMigrationStatus.bind(adminController));
+router.post('/migrations/seed-audit', adminController.runAuditSeed.bind(adminController));
+
 module.exports = router;

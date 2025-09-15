@@ -1571,6 +1571,97 @@ class AdminController {
       });
     }
   }
+
+  // Executar seed de auditoria
+  async runAuditSeed(req, res) {
+    try {
+      console.log('[ADMIN] Executando seed de auditoria...');
+      
+      const { seedAuditAccounts } = require('../../prisma/seed-audit');
+      await seedAuditAccounts();
+      
+      // Log da ação administrativa
+      await createAdminLog(req.user.id, 'run_audit_seed', {
+        message: 'Seed de auditoria executado com sucesso'
+      });
+      
+      res.json({
+        success: true,
+        message: 'Seed de auditoria executado com sucesso'
+      });
+
+    } catch (error) {
+      console.error('[ADMIN] Erro ao executar seed de auditoria:', error);
+      
+      // Log do erro
+      await createAdminLog(req.user.id, 'run_audit_seed_error', {
+        error: error.message
+      });
+      
+      res.status(500).json({
+        success: false,
+        error: 'Erro interno do servidor',
+        details: error.message
+      });
+    }
+  }
+
+  // Obter status das migrações
+  async getMigrationStatus(req, res) {
+    try {
+      const { execSync } = require('child_process');
+      const path = require('path');
+      
+      // Executar prisma migrate status
+      const output = execSync('npx prisma migrate status', { 
+        cwd: path.join(__dirname, '../../'),
+        encoding: 'utf8'
+      });
+      
+      // Parsear output
+      const lines = output.split('\n');
+      const migrations = [];
+      let pendingCount = 0;
+      
+      for (const line of lines) {
+        if (line.includes('Pending') || line.includes('pending')) {
+          pendingCount++;
+          const migrationName = line.split(' ')[0];
+          if (migrationName && migrationName !== '') {
+            migrations.push({
+              name: migrationName,
+              status: 'pending'
+            });
+          }
+        } else if (line.includes('Applied') || line.includes('applied')) {
+          const migrationName = line.split(' ')[0];
+          if (migrationName && migrationName !== '') {
+            migrations.push({
+              name: migrationName,
+              status: 'applied'
+            });
+          }
+        }
+      }
+      
+      res.json({
+        success: true,
+        status: {
+          pendingCount,
+          totalMigrations: migrations.length,
+          migrations: migrations.slice(-10) // Últimas 10 migrações
+        }
+      });
+
+    } catch (error) {
+      console.error('[ADMIN] Erro ao obter status das migrações:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erro interno do servidor',
+        details: error.message
+      });
+    }
+  }
 }
 
 module.exports = AdminController;
