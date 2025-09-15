@@ -337,9 +337,16 @@ jobs:
     runs-on: ubuntu-latest
     needs: [unit-tests, integration-tests, e2e-tests, stress-tests]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
 
       - name: Download frontend build
         uses: actions/download-artifact@v3
@@ -347,11 +354,50 @@ jobs:
           name: frontend-build
           path: frontend/dist/
 
-      - name: Deploy to production
+      - name: Install backend dependencies
         run: |
-          echo "Deploying to production..."
-          # Aqui você adicionaria os comandos de deploy específicos
-          # Por exemplo, deploy para Render, Vercel, etc.
+          cd backend
+          npm ci
+
+      - name: Run database migrations
+        run: |
+          cd backend
+          npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Run audit seed
+        run: |
+          cd backend
+          node ../scripts/apply-migrations-staging.js
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Deploy backend to Render
+        run: |
+          echo "Deploying backend to Render..."
+          # Trigger Render deployment via webhook
+          curl -X POST "${{ secrets.RENDER_DEPLOY_WEBHOOK }}"
+
+      - name: Deploy frontend to Hostinger
+        run: |
+          echo "Deploying frontend to Hostinger..."
+          # Upload files to Hostinger via FTP/SSH
+          # This would be implemented based on your hosting setup
+
+      - name: Run smoke tests
+        run: |
+          echo "Running smoke tests..."
+          # Test critical endpoints
+          curl -f "${{ secrets.PRODUCTION_API_URL }}/api/health"
+          curl -f "${{ secrets.PRODUCTION_API_URL }}/api/cases"
+
+      - name: Create deployment tag
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag -a "deploy-$(date +%Y%m%d-%H%M%S)" -m "Production deployment"
+          git push origin "deploy-$(date +%Y%m%d-%H%M%S)"
 
   # Job de Notificação
   notify:

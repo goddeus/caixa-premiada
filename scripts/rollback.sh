@@ -115,8 +115,39 @@ rebuild_and_redeploy() {
     success "Build do frontend concluído"
     cd ..
     
-    # Deploy
-    # Aqui você adicionaria os comandos específicos de deploy
+    # Deploy baseado no ambiente
+    if [ "$NODE_ENV" = "production" ]; then
+        # Deploy para produção
+        if [ -n "$RENDER_DEPLOY_WEBHOOK" ]; then
+            log "Disparando redeploy no Render..."
+            curl -X POST "$RENDER_DEPLOY_WEBHOOK" || {
+                error "Falha ao disparar redeploy no Render"
+                exit 1
+            }
+        fi
+        
+        if [ -n "$HOSTINGER_FTP_HOST" ] && [ -n "$HOSTINGER_FTP_USER" ]; then
+            log "Fazendo upload para Hostinger..."
+            lftp -c "
+                set ftp:ssl-allow no;
+                open -u $HOSTINGER_FTP_USER,$HOSTINGER_FTP_PASS $HOSTINGER_FTP_HOST;
+                lcd frontend/dist;
+                cd public_html;
+                mirror -R . . --delete --verbose;
+                quit
+            " || {
+                error "Falha no upload para Hostinger"
+                exit 1
+            }
+        fi
+    else
+        # Deploy local
+        log "Iniciando serviços localmente..."
+        cd backend && npm start &
+        cd frontend && npm run preview &
+        success "Serviços iniciados localmente"
+    fi
+    
     success "Redeploy concluído"
 }
 

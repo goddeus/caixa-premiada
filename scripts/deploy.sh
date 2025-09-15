@@ -120,11 +120,29 @@ build_frontend() {
 deploy_backend() {
     log "Fazendo deploy do backend..."
     
-    # Aqui você adicionaria os comandos específicos para deploy do backend
-    # Por exemplo, para Render:
-    # git push origin main
-    
-    success "Deploy do backend concluído"
+    # Verificar se estamos em produção
+    if [ "$NODE_ENV" = "production" ]; then
+        # Deploy para Render via webhook
+        if [ -n "$RENDER_DEPLOY_WEBHOOK" ]; then
+            log "Disparando deploy no Render..."
+            curl -X POST "$RENDER_DEPLOY_WEBHOOK" || {
+                error "Falha ao disparar deploy no Render"
+                exit 1
+            }
+            success "Deploy do backend disparado no Render"
+        else
+            warning "RENDER_DEPLOY_WEBHOOK não configurado, pulando deploy do backend"
+        fi
+    else
+        # Deploy local ou staging
+        log "Deploy local/staging do backend..."
+        cd backend
+        npm start &
+        BACKEND_PID=$!
+        echo $BACKEND_PID > ../backend.pid
+        cd ..
+        success "Backend iniciado localmente (PID: $BACKEND_PID)"
+    fi
 }
 
 # Deploy do frontend
@@ -134,10 +152,51 @@ deploy_frontend() {
     # Copiar arquivos para diretório de deploy
     cp -r frontend/dist/* frontend/deploy-files/
     
-    # Aqui você adicionaria os comandos específicos para deploy do frontend
-    # Por exemplo, upload para Hostinger via FTP/SSH
-    
-    success "Deploy do frontend concluído"
+    if [ "$NODE_ENV" = "production" ]; then
+        # Deploy para Hostinger via FTP
+        if [ -n "$HOSTINGER_FTP_HOST" ] && [ -n "$HOSTINGER_FTP_USER" ]; then
+            log "Fazendo upload para Hostinger..."
+            
+            # Instalar lftp se não estiver disponível
+            if ! command -v lftp &> /dev/null; then
+                log "Instalando lftp..."
+                if command -v apt-get &> /dev/null; then
+                    sudo apt-get update && sudo apt-get install -y lftp
+                elif command -v yum &> /dev/null; then
+                    sudo yum install -y lftp
+                else
+                    error "lftp não disponível e não foi possível instalar"
+                    exit 1
+                fi
+            fi
+            
+            # Upload via FTP
+            lftp -c "
+                set ftp:ssl-allow no;
+                open -u $HOSTINGER_FTP_USER,$HOSTINGER_FTP_PASS $HOSTINGER_FTP_HOST;
+                lcd frontend/deploy-files;
+                cd public_html;
+                mirror -R . . --delete --verbose;
+                quit
+            " || {
+                error "Falha no upload para Hostinger"
+                exit 1
+            }
+            
+            success "Deploy do frontend concluído no Hostinger"
+        else
+            warning "Credenciais do Hostinger não configuradas, pulando deploy do frontend"
+        fi
+    else
+        # Deploy local
+        log "Deploy local do frontend..."
+        cd frontend
+        npm run preview &
+        FRONTEND_PID=$!
+        echo $FRONTEND_PID > ../frontend.pid
+        cd ..
+        success "Frontend iniciado localmente (PID: $FRONTEND_PID)"
+    fi
 }
 
 # Executar smoke tests
