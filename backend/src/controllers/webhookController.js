@@ -1,4 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
+const withdrawService = require('../services/withdrawService');
 
 const prisma = new PrismaClient();
 
@@ -137,14 +138,14 @@ class WebhookController {
    */
   static async handleWithdrawWebhook(req, res) {
     try {
-      console.log('[DEBUG] Webhook saque recebido da VizzionPay:', JSON.stringify(req.body, null, 2));
+      console.log('[WITHDRAW] Webhook saque recebido da VizzionPay:', JSON.stringify(req.body, null, 2));
       
       // Validar headers de segurança
       const publicKey = req.headers['x-public-key'];
       const secretKey = req.headers['x-secret-key'];
       
       if (publicKey !== process.env.VIZZION_PUBLIC_KEY || secretKey !== process.env.VIZZION_SECRET_KEY) {
-        console.error('[DEBUG] Headers de segurança inválidos');
+        console.error('[WITHDRAW] Headers de segurança inválidos');
         return res.status(401).json({
           success: false,
           error: 'Unauthorized'
@@ -155,84 +156,28 @@ class WebhookController {
       
       // Validações
       if (!identifier || !status) {
-        console.error('[DEBUG] Dados obrigatórios não fornecidos:', { identifier, status });
+        console.error('[WITHDRAW] Dados obrigatórios não fornecidos:', { identifier, status });
         return res.status(400).json({
           success: false,
           error: 'Dados obrigatórios não fornecidos'
         });
       }
       
-      // Extrair userId do identifier (withdraw_userId_timestamp)
-      const identifierParts = identifier.split('_');
-      if (identifierParts.length < 3 || identifierParts[0] !== 'withdraw') {
-        console.error('[DEBUG] Identifier inválido:', identifier);
-        return res.status(400).json({
-          success: false,
-          error: 'Identifier inválido'
-        });
-      }
-      
-      const userId = identifierParts[1];
-      
-      // Buscar transação de saque pelo identifier
-      const withdrawTransaction = await prisma.transaction.findFirst({
-        where: { identifier },
-        include: { user: true }
+      // Usar serviço de saques para processar webhook
+      const result = await withdrawService.processWithdrawWebhook({
+        identifier,
+        status,
+        transactionId
       });
       
-      if (!withdrawTransaction) {
-        console.error(`[DEBUG] Transação de saque não encontrada para identifier: ${identifier}`);
-        return res.status(404).json({
-          success: false,
-          error: 'Transação não encontrada'
-        });
+      if (!result.success) {
+        return res.status(400).json(result);
       }
-      
-      // Processar resultado do saque
-      await prisma.$transaction(async (tx) => {
-        if (status === 'approved' || status === 'paid') {
-          // Saque aprovado - manter saldo debitado
-          await tx.transaction.update({
-            where: { id: withdrawTransaction.id },
-            data: {
-              status: 'concluido',
-              processado_em: new Date()
-            }
-          });
-          
-          console.log(`[DEBUG] Saque aprovado para usuário: ${withdrawTransaction.user.email} - Valor: R$ ${withdrawTransaction.valor}`);
-          
-        } else if (status === 'rejected' || status === 'failed') {
-          // Saque rejeitado - devolver saldo
-          await tx.transaction.update({
-            where: { id: withdrawTransaction.id },
-            data: {
-              status: 'rejeitado',
-              processado_em: new Date()
-            }
-          });
-          
-          // Devolver saldo ao usuário
-          if (withdrawTransaction.user.tipo_conta === 'afiliado_demo') {
-            await tx.user.update({
-              where: { id: withdrawTransaction.user_id },
-              data: { saldo_demo: { increment: withdrawTransaction.valor } }
-            });
-          } else {
-            await tx.user.update({
-              where: { id: withdrawTransaction.user_id },
-              data: { saldo_reais: { increment: withdrawTransaction.valor } }
-            });
-          }
-          
-          console.log(`[DEBUG] Saque rejeitado - saldo devolvido para usuário: ${withdrawTransaction.user.email} - Valor: +R$ ${withdrawTransaction.valor}`);
-        }
-      });
       
       res.status(200).json({ success: true });
       
     } catch (error) {
-      console.error('[DEBUG] Erro no webhook de saque:', error);
+      console.error('[WITHDRAW] Erro no webhook de saque:', error);
       res.status(500).json({
         success: false,
         error: 'Erro interno do servidor'
