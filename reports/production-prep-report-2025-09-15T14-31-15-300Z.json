@@ -1,0 +1,81 @@
+{
+  "timestamp": "2025-09-15T14:31:14.500Z",
+  "checks": {
+    "git": {
+      "branch": {
+        "passed": true,
+        "message": "Branch correta: audit/full-rebuild-20250915-100238",
+        "timestamp": "2025-09-15T14:31:14.996Z"
+      },
+      "status": {
+        "passed": false,
+        "message": "Há mudanças não commitadas",
+        "timestamp": "2025-09-15T14:31:15.273Z"
+      }
+    },
+    "frontend": {
+      "build": {
+        "passed": true,
+        "message": "Build existe com 5 arquivos",
+        "timestamp": "2025-09-15T14:31:15.278Z"
+      }
+    },
+    "config": {
+      "backend": {
+        "passed": true,
+        "message": "Configuração do backend existe",
+        "timestamp": "2025-09-15T14:31:15.279Z"
+      },
+      "frontend": {
+        "passed": true,
+        "message": "Configuração do frontend existe",
+        "timestamp": "2025-09-15T14:31:15.283Z"
+      }
+    },
+    "scripts": {
+      "deploy": {
+        "passed": true,
+        "message": "Script de deploy existe",
+        "timestamp": "2025-09-15T14:31:15.286Z"
+      },
+      "rollback": {
+        "passed": true,
+        "message": "Script de rollback existe",
+        "timestamp": "2025-09-15T14:31:15.287Z"
+      },
+      "monitor": {
+        "passed": true,
+        "message": "Script de monitoramento existe",
+        "timestamp": "2025-09-15T14:31:15.289Z"
+      }
+    },
+    "backup": {
+      "database": {
+        "passed": true,
+        "message": "9 arquivos de backup encontrados",
+        "timestamp": "2025-09-15T14:31:15.291Z"
+      }
+    },
+    "tests": {
+      "reports": {
+        "passed": true,
+        "message": "Todos os relatórios de teste existem",
+        "timestamp": "2025-09-15T14:31:15.294Z"
+      }
+    },
+    "deploy": {
+      "checklist": {
+        "passed": true,
+        "message": "Checklist de deploy gerado",
+        "timestamp": "2025-09-15T14:31:15.297Z"
+      }
+    }
+  },
+  "summary": {
+    "total": 11,
+    "passed": 10,
+    "failed": 1,
+    "successRate": 90.91,
+    "duration": 801
+  }
+}
