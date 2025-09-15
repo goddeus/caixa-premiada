@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const { createAdminLog } = require('../middleware/auth');
 const prizeCalculationService = require('../services/prizeCalculationService');
 const cashFlowService = require('../services/cashFlowService');
+const prizeImageSyncService = require('../services/prizeImageSyncService');
 
 class AdminController {
   // Dashboard - Métricas gerais
@@ -1441,6 +1442,132 @@ class AdminController {
       res.status(500).json({ 
         success: false, 
         error: 'Erro interno do servidor' 
+      });
+    }
+  }
+
+  // Sincronizar prêmios e imagens
+  async syncPrizesAndImages(req, res) {
+    try {
+      console.log('[ADMIN] Iniciando sincronização de prêmios e imagens...');
+      
+      // Executar sincronização
+      const report = await prizeImageSyncService.syncAll();
+      
+      // Log da ação administrativa
+      await createAdminLog(req.user.id, 'sync_prizes_images', {
+        casesProcessed: report.casesProcessed,
+        prizesProcessed: report.prizesProcessed,
+        inconsistencies: report.inconsistencies.length,
+        actions: report.actions.length
+      });
+      
+      res.json({
+        success: true,
+        message: 'Sincronização concluída com sucesso',
+        report: {
+          timestamp: report.timestamp,
+          casesProcessed: report.casesProcessed,
+          prizesProcessed: report.prizesProcessed,
+          imagesFound: report.imagesFound,
+          imagesMissing: report.imagesMissing,
+          prizesWithoutImages: report.prizesWithoutImages,
+          inconsistencies: report.inconsistencies.length,
+          actions: report.actions.length,
+          summary: {
+            totalIssues: report.inconsistencies.length,
+            criticalIssues: report.inconsistencies.filter(inc => 
+              inc.type === 'negative_value' || 
+              inc.type === 'case_sync_error' ||
+              inc.type === 'prize_sync_error'
+            ).length
+          }
+        }
+      });
+
+    } catch (error) {
+      console.error('[ADMIN] Erro ao sincronizar prêmios e imagens:', error);
+      
+      // Log do erro
+      await createAdminLog(req.user.id, 'sync_prizes_images_error', {
+        error: error.message
+      });
+      
+      res.status(500).json({
+        success: false,
+        error: 'Erro interno do servidor',
+        details: error.message
+      });
+    }
+  }
+
+  // Obter relatório de consistência de prêmios
+  async getPrizeConsistencyReport(req, res) {
+    try {
+      // Buscar prêmios sem imagens
+      const prizesWithoutImages = await prisma.prize.findMany({
+        where: {
+          ativo: true,
+          imagem: null
+        },
+        include: { case: true },
+        take: 50
+      });
+
+      // Buscar prêmios com valores inconsistentes
+      const inconsistentPrizes = await prisma.prize.findMany({
+        where: {
+          ativo: true,
+          OR: [
+            { valor: { lt: 0 } },
+            { valor: { gt: 10000 } }
+          ]
+        },
+        include: { case: true },
+        take: 50
+      });
+
+      // Estatísticas gerais
+      const stats = await Promise.all([
+        prisma.case.count({ where: { ativo: true } }),
+        prisma.prize.count({ where: { ativo: true } }),
+        prisma.prize.count({ where: { ativo: true, imagem: null } }),
+        prisma.prize.count({ where: { ativo: true, valor: { lt: 0 } } })
+      ]);
+
+      res.json({
+        success: true,
+        report: {
+          timestamp: new Date().toISOString(),
+          stats: {
+            totalCases: stats[0],
+            totalPrizes: stats[1],
+            prizesWithoutImages: stats[2],
+            prizesWithNegativeValue: stats[3]
+          },
+          issues: {
+            prizesWithoutImages: prizesWithoutImages.map(p => ({
+              id: p.id,
+              nome: p.nome,
+              case: p.case.nome,
+              valor: p.valor
+            })),
+            inconsistentPrizes: inconsistentPrizes.map(p => ({
+              id: p.id,
+              nome: p.nome,
+              case: p.case.nome,
+              valor: p.valor,
+              issue: p.valor < 0 ? 'negative_value' : 'high_value'
+            }))
+          }
+        }
+      });
+
+    } catch (error) {
+      console.error('[ADMIN] Erro ao obter relatório de consistência:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erro interno do servidor'
       });
     }
   }

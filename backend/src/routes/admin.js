@@ -148,4 +148,8 @@ router.post('/fix-case-prices', async (req, res) => {
   }
 });
 
+// Prêmios e Imagens - Sincronização
+router.post('/sync-prizes-images', adminController.syncPrizesAndImages.bind(adminController));
+router.get('/prizes-consistency-report', adminController.getPrizeConsistencyReport.bind(adminController));
+
 module.exports = router;
