@@ -1,0 +1,372 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop, audit/* ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # Job de Lint e Análise Estática
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          npm ci
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Run backend lint
+        run: |
+          cd backend
+          npm run lint || echo "Lint errors found"
+
+      - name: Run frontend lint
+        run: |
+          cd frontend
+          npm run lint || echo "Lint errors found"
+
+      - name: Run npm audit
+        run: |
+          cd backend && npm audit --audit-level=high
+          cd ../frontend && npm audit --audit-level=high
+
+  # Job de Testes Unitários
+  unit-tests:
+    runs-on: ubuntu-latest
+    needs: lint
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: slotbox_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          npm ci
+          cd ../tests
+          npm ci
+
+      - name: Setup test database
+        run: |
+          cd backend
+          npx prisma migrate deploy
+          npx prisma db seed
+
+      - name: Run unit tests
+        run: |
+          cd tests
+          npm run test:unit
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/slotbox_test
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./tests/coverage/lcov.info
+          flags: unit-tests
+
+  # Job de Testes de Integração
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: slotbox_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          npm ci
+          cd ../tests
+          npm ci
+
+      - name: Setup test database
+        run: |
+          cd backend
+          npx prisma migrate deploy
+          npx prisma db seed
+
+      - name: Start backend server
+        run: |
+          cd backend
+          npm start &
+          sleep 10
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/slotbox_test
+          PORT: 3001
+
+      - name: Run integration tests
+        run: |
+          cd tests
+          npm run test:integration
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/slotbox_test
+          API_URL: http://localhost:3001
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./tests/coverage/lcov.info
+          flags: integration-tests
+
+  # Job de Build do Frontend
+  build-frontend:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
+        env:
+          VITE_API_URL: https://slotbox-api.onrender.com/api
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-build
+          path: frontend/dist/
+
+  # Job de Testes E2E
+  e2e-tests:
+    runs-on: ubuntu-latest
+    needs: [integration-tests, build-frontend]
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: slotbox_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          npm ci
+          cd ../frontend
+          npm ci
+          cd ../tests
+          npm ci
+
+      - name: Setup test database
+        run: |
+          cd backend
+          npx prisma migrate deploy
+          npx prisma db seed
+
+      - name: Start backend server
+        run: |
+          cd backend
+          npm start &
+          sleep 10
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/slotbox_test
+          PORT: 3001
+
+      - name: Start frontend server
+        run: |
+          cd frontend
+          npm run preview &
+          sleep 5
+        env:
+          VITE_API_URL: http://localhost:3001/api
+
+      - name: Install Playwright
+        run: |
+          cd tests
+          npx playwright install
+
+      - name: Run E2E tests
+        run: |
+          cd tests
+          npm run test:e2e
+        env:
+          FRONTEND_URL: http://localhost:4173
+
+      - name: Upload E2E test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: e2e-test-results
+          path: tests/test-results/
+
+  # Job de Testes de Stress
+  stress-tests:
+    runs-on: ubuntu-latest
+    needs: integration-tests
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: slotbox_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          npm ci
+          cd ../tests
+          npm ci
+
+      - name: Setup test database
+        run: |
+          cd backend
+          npx prisma migrate deploy
+          npx prisma db seed
+
+      - name: Start backend server
+        run: |
+          cd backend
+          npm start &
+          sleep 10
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/slotbox_test
+          PORT: 3001
+
+      - name: Run stress tests
+        run: |
+          cd tests
+          npm run test:stress
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/slotbox_test
+          API_URL: http://localhost:3001
+
+  # Job de Deploy (apenas para branch main)
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, e2e-tests, stress-tests]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download frontend build
+        uses: actions/download-artifact@v3
+        with:
+          name: frontend-build
+          path: frontend/dist/
+
+      - name: Deploy to production
+        run: |
+          echo "Deploying to production..."
+          # Aqui você adicionaria os comandos de deploy específicos
+          # Por exemplo, deploy para Render, Vercel, etc.
+
+  # Job de Notificação
+  notify:
+    runs-on: ubuntu-latest
+    needs: [deploy]
+    if: always()
+    steps:
+      - name: Notify success
+        if: needs.deploy.result == 'success'
+        run: |
+          echo "✅ Deploy realizado com sucesso!"
+          # Aqui você adicionaria notificações (Slack, Discord, etc.)
+
+      - name: Notify failure
+        if: needs.deploy.result == 'failure'
+        run: |
+          echo "❌ Deploy falhou!"
+          # Aqui você adicionaria notificações de erro
