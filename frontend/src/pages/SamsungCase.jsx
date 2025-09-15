@@ -301,7 +301,7 @@ const SamsungCase = () => {
           setTimeout(() => {
             allPrizes.forEach((prize, index) => {
               setTimeout(() => {
-                creditPrize(prize, weekendCase);
+                creditPrize(prize);
               }, index * 1000); // Delay de 1 segundo entre cada crédito
             });
           }, 2000);
@@ -393,7 +393,7 @@ const SamsungCase = () => {
       
       // Creditar o prêmio atual
       setTimeout(() => {
-        creditPrize(wonPrizes[newIndex], currentWeekendCase);
+        creditPrize(wonPrizes[newIndex]);
       }, 500);
     }
   };
@@ -413,7 +413,7 @@ const SamsungCase = () => {
     try {
       // Usar dados passados como parâmetro ou do estado
       const prize = prizeData || selectedPrize;
-      const caseInfo = caseData || currentWeekendCase;
+      const caseInfo = caseData || currentSamsungCase;
       
       if (!caseInfo || !prize?.apiPrize) {
         toast.error('Dados do prêmio não encontrados');

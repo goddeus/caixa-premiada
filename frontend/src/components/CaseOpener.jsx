@@ -99,8 +99,7 @@ const CaseOpener = ({
     setShowResult(false);
     
     // Para contas demo, usar RTP fixo de 70%
-    const isDemo = isDemoAccount();
-    const rtp = isDemo ? 0.7 : 0.85; // RTP padrão para contas normais
+    const rtp = isDemoAccount() ? 0.7 : 0.85; // RTP padrão para contas normais
     
     // Selecionar prêmio baseado no RTP
     const randomValue = Math.random();

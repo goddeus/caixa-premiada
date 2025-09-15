@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../contexts/AuthContext';
@@ -7,9 +8,9 @@ import PixPaymentModal from '../components/PixPaymentModal';
 import Footer from '../components/Footer';
 
 const Dashboard = () => {
-  const { user, isAuthenticated, login, logout, register, setTestBalance, isDemoAccount, canWithdraw, getUserBalance } = useAuth();
+  const { user, isAuthenticated, login, logout, register, isDemoAccount, getUserBalance } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  // const [searchParams] = useSearchParams(); // Removido - não utilizado
   const [loading, setLoading] = useState(true);
   const [winnersTodayAmount, setWinnersTodayAmount] = useState(42118.00);
   const [liveWinners, setLiveWinners] = useState([]);

@@ -1,0 +1,11 @@
+# Build files
+dist/
+deploy-files/
+build/
+
+# Dependencies
+node_modules/
+
+# Generated files
+*.min.js
+*.bundle.js
