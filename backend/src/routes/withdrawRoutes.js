@@ -1,17 +1,16 @@
 const express = require('express');
 const WithdrawController = require('../controllers/withdrawController');
-const authMiddleware = require('../middleware/auth');
-const adminMiddleware = require('../middleware/admin');
+const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
 // POST /api/withdraw/pix - Criar saque PIX
-router.post('/pix', authMiddleware, (req, res) => WithdrawController.createPixWithdraw(req, res));
+router.post('/pix', authenticateToken, (req, res) => WithdrawController.createPixWithdraw(req, res));
 
 // GET /api/withdraw/history/:userId - Histórico de saques do usuário
-router.get('/history/:userId', authMiddleware, (req, res) => WithdrawController.getWithdrawHistory(req, res));
+router.get('/history/:userId', authenticateToken, (req, res) => WithdrawController.getWithdrawHistory(req, res));
 
 // GET /api/withdraw/stats - Estatísticas de saques (Admin)
-router.get('/stats', authMiddleware, adminMiddleware, (req, res) => WithdrawController.getWithdrawStats(req, res));
+router.get('/stats', authenticateToken, requireAdmin, (req, res) => WithdrawController.getWithdrawStats(req, res));
 
 module.exports = router;
