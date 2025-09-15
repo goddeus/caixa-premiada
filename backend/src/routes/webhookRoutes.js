@@ -7,9 +7,9 @@ const router = express.Router();
 router.use(express.json({ type: "*/*" }));
 
 // POST /api/webhook/pix - Webhook de confirmação PIX
-router.post('/pix', WebhookController.handlePixWebhook);
+router.post('/pix', (req, res) => WebhookController.handlePixWebhook(req, res));
 
 // POST /api/webhook/withdraw - Webhook de confirmação saque
-router.post('/withdraw', WebhookController.handleWithdrawWebhook);
+router.post('/withdraw', (req, res) => WebhookController.handleWithdrawWebhook(req, res));
 
 module.exports = router;
