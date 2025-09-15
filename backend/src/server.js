@@ -1697,12 +1697,11 @@ app.use('/api/withdraw', withdrawRoutes);
 app.use('/api/webhook', webhookRoutes);
 
 // Servir arquivos estáticos do frontend (para produção)
+// CORREÇÃO: Backend não deve servir frontend em produção
+// O frontend é servido separadamente no Hostinger
 if (config.nodeEnv === 'production') {
-  const path = require('path');
-  app.use(express.static(path.join(__dirname, '../../frontend/dist')));
-  
-  // Rota para servir o index.html para todas as rotas do frontend (SPA)
-  app.get('*', (req, res) => {
+  // Em produção, apenas retornar 404 para rotas não encontradas
+  app.use('*', (req, res) => {
     // Se for uma rota da API, retornar 404
     if (req.path.startsWith('/api/')) {
       return res.status(404).json({
@@ -1711,8 +1710,11 @@ if (config.nodeEnv === 'production') {
       });
     }
     
-    // Para todas as outras rotas, servir o index.html do frontend
-    res.sendFile(path.join(__dirname, '../../frontend/dist/index.html'));
+    // Para outras rotas, redirecionar para o frontend
+    res.status(404).json({
+      success: false,
+      message: 'Rota não encontrada. Acesse o frontend em: https://slotbox.shop'
+    });
   });
 } else {
   // Em desenvolvimento, apenas retornar 404 para rotas não encontradas
