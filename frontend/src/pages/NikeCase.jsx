@@ -117,7 +117,7 @@ const NikeCase = () => {
       setShowResult(false);
 
       // Buscar ID da caixa Nike primeiro
-      const casesResponse = await api.get('/cases');
+      const casesResponse = await api.getCaixas();
       const nikeCase = casesResponse.data?.find(c =>
         c.nome === 'CAIXA KIT NIKE' || c.nome.includes('KIT NIKE')
       );

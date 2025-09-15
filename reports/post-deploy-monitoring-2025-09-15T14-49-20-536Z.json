@@ -1,0 +1,79 @@
+{
+  "timestamp": "2025-09-15T14:49:15.783Z",
+  "tests": {
+    "connectivity": {
+      "api": {
+        "passed": true,
+        "message": "API respondendo (200)",
+        "timestamp": "2025-09-15T14:49:16.970Z"
+      },
+      "frontend": {
+        "passed": false,
+        "message": "Frontend não responde: Request failed with status code 403",
+        "timestamp": "2025-09-15T14:49:17.069Z"
+      }
+    },
+    "health": {
+      "api": {
+        "passed": true,
+        "message": "Health check passou",
+        "timestamp": "2025-09-15T14:49:17.711Z"
+      }
+    },
+    "routes": {
+      "Lista de caixas": {
+        "passed": true,
+        "message": "Rota /api/cases funcionando (200)",
+        "timestamp": "2025-09-15T14:49:18.178Z"
+      },
+      "Lista de prêmios": {
+        "passed": true,
+        "message": "Rota /api/prizes funcionando (200)",
+        "timestamp": "2025-09-15T14:49:18.756Z"
+      },
+      "Teste de banco": {
+        "passed": true,
+        "message": "Rota /api/db-test funcionando (200)",
+        "timestamp": "2025-09-15T14:49:19.152Z"
+      }
+    },
+    "frontend": {
+      "html": {
+        "passed": false,
+        "message": "Frontend falhou: Request failed with status code 403",
+        "timestamp": "2025-09-15T14:49:19.179Z"
+      }
+    },
+    "performance": {
+      "api": {
+        "passed": true,
+        "message": "API rápida (247ms)",
+        "timestamp": "2025-09-15T14:49:19.428Z"
+      },
+      "frontend": {
+        "passed": false,
+        "message": "Teste de performance frontend falhou: Request failed with status code 403",
+        "timestamp": "2025-09-15T14:49:19.495Z"
+      }
+    },
+    "features": {
+      "cases": {
+        "passed": false,
+        "message": "Endpoint de casos falhou: Resposta inválida do endpoint de casos",
+        "timestamp": "2025-09-15T14:49:20.044Z"
+      },
+      "prizes": {
+        "passed": false,
+        "message": "Endpoint de prêmios falhou: Resposta inválida do endpoint de prêmios",
+        "timestamp": "2025-09-15T14:49:20.535Z"
+      }
+    }
+  },
+  "summary": {
+    "total": 11,
+    "passed": 6,
+    "failed": 5,
+    "successRate": 54.55,
+    "duration": 4753
+  }
+}

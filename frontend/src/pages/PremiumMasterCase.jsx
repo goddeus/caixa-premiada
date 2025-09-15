@@ -126,7 +126,7 @@ const PremiumMasterCase = () => {
       setIsShowingPrizes(false);
 
       // Buscar ID da caixa Premium primeiro
-      const casesResponse = await api.get('/cases');
+      const casesResponse = await api.getCaixas();
       const premiumCase = casesResponse.data?.find(c => 
         c.nome === 'CAIXA PREMIUM MASTER!' || c.nome.includes('PREMIUM MASTER!')
       );

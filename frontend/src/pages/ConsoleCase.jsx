@@ -136,7 +136,7 @@ const ConsoleCase = () => {
 
       // Buscar ID da caixa Console primeiro
       console.log('🔍 Buscando caixa Console...');
-      const casesResponse = await api.get('/cases');
+      const casesResponse = await api.getCaixas();
       const consoleCase = casesResponse.data?.find(c => 
         c.nome === 'CAIXA CONSOLE DOS SONHOS' || c.nome.includes('CONSOLE DOS SONHOS')
       );

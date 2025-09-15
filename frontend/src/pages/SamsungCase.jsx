@@ -129,7 +129,7 @@ const SamsungCase = () => {
         setIsShowingPrizes(false);
 
       // Buscar ID da caixa Samsung primeiro
-      const casesResponse = await api.get('/cases');
+      const casesResponse = await api.getCaixas();
       console.log('🔍 Todas as caixas disponíveis:', casesResponse.cases?.map(c => c.nome));
       const samsungCase = casesResponse.data?.find(c => 
         c.nome === 'CAIXA SAMSUNG' || c.nome.includes('SAMSUNG')

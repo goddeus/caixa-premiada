@@ -126,7 +126,7 @@ const WeekendCase = () => {
         setIsShowingPrizes(false);
 
       // Buscar ID da caixa Weekend primeiro
-      const casesResponse = await api.get('/cases');
+      const casesResponse = await api.getCaixas();
       const weekendCase = casesResponse.data?.find(c => 
         c.nome === 'CAIXA FINAL DE SEMANA' || c.nome.includes('FINAL DE SEMANA')
       );

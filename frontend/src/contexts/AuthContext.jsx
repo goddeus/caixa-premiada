@@ -36,21 +36,41 @@ export const AuthProvider = ({ children }) => {
       const userStr = localStorage.getItem('user');
       
       if (token && userStr) {
-        // Primeiro, tentar dados do servidor
+        // Verificar se o token é válido antes de chamar a API
         try {
-          const response = await api.getMe();
-          if (response.success && response.data.user) {
-            const serverUser = response.data.user;
-            setUser(serverUser);
-            setIsAuthenticated(true);
-            api.updateUserInStorage(serverUser);
-            return; // Sair aqui se servidor funcionou
+          // Verificar se o token não está expirado (formato JWT básico)
+          const tokenParts = token.split('.');
+          if (tokenParts.length === 3) {
+            const payload = JSON.parse(atob(tokenParts[1]));
+            const now = Math.floor(Date.now() / 1000);
+            
+            if (payload.exp && payload.exp > now) {
+              // Token válido, mas NÃO chamar API automaticamente
+              // Usar dados do localStorage por enquanto
+              console.log('Token válido encontrado, usando dados do localStorage');
+              const userData = JSON.parse(userStr);
+              setUser(userData);
+              setIsAuthenticated(true);
+              return;
+            } else {
+              // Token expirado, limpar dados
+              console.log('Token expirado, limpando dados');
+              api.logout();
+              setUser(null);
+              setIsAuthenticated(false);
+              return;
+            }
           }
-        } catch (serverError) {
-          console.warn('Erro ao atualizar dados do servidor:', serverError);
+        } catch (tokenError) {
+          console.warn('Erro ao verificar token:', tokenError);
+          // Token inválido, limpar dados
+          api.logout();
+          setUser(null);
+          setIsAuthenticated(false);
+          return;
         }
         
-        // Fallback: usar dados do localStorage se servidor falhar
+        // Fallback: usar dados do localStorage se token for inválido
         const userData = JSON.parse(userStr);
         setUser(userData);
         setIsAuthenticated(true);
@@ -147,6 +167,30 @@ export const AuthProvider = ({ children }) => {
         // Evitar chamadas múltiplas desnecessárias
         if (!force && refreshing) {
           console.log('[DEBUG] Evitando chamada duplicada de refreshUserData');
+          return;
+        }
+        
+        // Verificar se há token válido antes de chamar API
+        const token = localStorage.getItem('token');
+        if (!token) {
+          console.log('[DEBUG] Sem token, pulando refreshUserData');
+          return;
+        }
+        
+        // Verificar se token não está expirado
+        try {
+          const tokenParts = token.split('.');
+          if (tokenParts.length === 3) {
+            const payload = JSON.parse(atob(tokenParts[1]));
+            const now = Math.floor(Date.now() / 1000);
+            
+            if (payload.exp && payload.exp <= now) {
+              console.log('[DEBUG] Token expirado, pulando refreshUserData');
+              return;
+            }
+          }
+        } catch (tokenError) {
+          console.log('[DEBUG] Token inválido, pulando refreshUserData');
           return;
         }
         

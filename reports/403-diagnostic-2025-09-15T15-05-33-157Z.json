@@ -1,0 +1,81 @@
+{
+  "timestamp": "2025-09-15T15:05:31.955Z",
+  "tests": {
+    "main": {
+      "page": {
+        "passed": false,
+        "message": "Erro 403 na página principal",
+        "timestamp": "2025-09-15T15:05:32.896Z"
+      }
+    },
+    "index": {
+      "html": {
+        "passed": false,
+        "message": "Erro 403 no index.html",
+        "timestamp": "2025-09-15T15:05:32.933Z"
+      }
+    },
+    "assets": {
+      "css-index-2vyOSPKb.css": {
+        "passed": false,
+        "message": "Erro 403 no CSS index-2vyOSPKb.css",
+        "timestamp": "2025-09-15T15:05:32.965Z"
+      },
+      "js-index-BLCj0hNU.js": {
+        "passed": false,
+        "message": "Erro 403 no JS index-BLCj0hNU.js",
+        "timestamp": "2025-09-15T15:05:32.991Z"
+      },
+      "js-router-Cj7dMlqZ.js": {
+        "passed": false,
+        "message": "Erro 403 no JS router-Cj7dMlqZ.js",
+        "timestamp": "2025-09-15T15:05:33.006Z"
+      },
+      "js-utils-BgsGIbzM.js": {
+        "passed": false,
+        "message": "Erro 403 no JS utils-BgsGIbzM.js",
+        "timestamp": "2025-09-15T15:05:33.022Z"
+      },
+      "js-vendor-gH-7aFTg.js": {
+        "passed": false,
+        "message": "Erro 403 no JS vendor-gH-7aFTg.js",
+        "timestamp": "2025-09-15T15:05:33.038Z"
+      },
+      "js-ui-B3KIqm52.js": {
+        "passed": false,
+        "message": "Erro 403 no JS ui-B3KIqm52.js",
+        "timestamp": "2025-09-15T15:05:33.056Z"
+      }
+    },
+    "images": {
+      "imagens/banner.png": {
+        "passed": false,
+        "message": "Erro 403 na imagem imagens/banner.png",
+        "timestamp": "2025-09-15T15:05:33.091Z"
+      },
+      "imagens/caixa apple.png": {
+        "passed": false,
+        "message": "Erro 403 na imagem imagens/caixa apple.png",
+        "timestamp": "2025-09-15T15:05:33.120Z"
+      },
+      "imagens/caixa premium.png": {
+        "passed": false,
+        "message": "Erro 403 na imagem imagens/caixa premium.png",
+        "timestamp": "2025-09-15T15:05:33.140Z"
+      }
+    },
+    "htaccess": {
+      "file": {
+        "passed": false,
+        "message": "Erro 403 no .htaccess",
+        "timestamp": "2025-09-15T15:05:33.156Z"
+      }
+    }
+  },
+  "summary": {
+    "total": 12,
+    "passed": 0,
+    "failed": 12,
+    "successRate": 0
+  }
+}

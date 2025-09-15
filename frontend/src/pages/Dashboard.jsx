@@ -401,7 +401,7 @@ const Dashboard = () => {
     try {
       if (user && !user.is_admin) {
         // Buscar dados atualizados do usuário
-      const response = await api.get('/wallet');
+      const response = await api.get('/wallet/');
       if (response.success) {
         const userData = response.balance.usuario;
         setRolloverData({
@@ -476,7 +476,7 @@ const Dashboard = () => {
       setCasesLoading(true);
       console.log('🔄 Carregando caixas...');
       
-      const response = await api.get('/cases');
+      const response = await api.getCaixas();
       
       if (response.success && response.data) {
         setCases(response.data);

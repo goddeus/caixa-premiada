@@ -120,7 +120,7 @@ const Profile = () => {
   // Função para carregar dados de rollover
   const loadRolloverData = async () => {
     try {
-      const response = await api.get('/wallet');
+      const response = await api.get('/wallet/');
       if (response.success) {
         const userData = response.balance.usuario;
         setRolloverData({
@@ -144,7 +144,7 @@ const Profile = () => {
   const fetchProfileData = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/profile');
+      const response = await api.get('/profile/');
       const data = response.data; // A resposta vem diretamente em data
       
       setProfileData({
@@ -209,7 +209,7 @@ const Profile = () => {
 
     try {
       // Chamada real da API para salvar na database
-      const response = await api.put('/profile', {
+      const response = await api.put('/profile/', {
         [editingField]: editValue
       });
       

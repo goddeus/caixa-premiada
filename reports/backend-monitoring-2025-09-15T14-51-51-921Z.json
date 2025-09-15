@@ -1,0 +1,77 @@
+{
+  "timestamp": "2025-09-15T14:51:46.997Z",
+  "tests": {
+    "connectivity": {
+      "api": {
+        "passed": true,
+        "message": "API respondendo (200)",
+        "timestamp": "2025-09-15T14:51:48.270Z"
+      }
+    },
+    "health": {
+      "check": {
+        "passed": true,
+        "message": "Health check passou",
+        "timestamp": "2025-09-15T14:51:48.517Z"
+      }
+    },
+    "routes": {
+      "Lista de caixas": {
+        "passed": true,
+        "message": "Rota /api/cases funcionando",
+        "timestamp": "2025-09-15T14:51:49.006Z"
+      },
+      "Lista de prêmios": {
+        "passed": true,
+        "message": "Rota /api/prizes funcionando",
+        "timestamp": "2025-09-15T14:51:49.437Z"
+      },
+      "Teste de banco": {
+        "passed": true,
+        "message": "Rota /api/db-test funcionando",
+        "timestamp": "2025-09-15T14:51:49.841Z"
+      },
+      "Teste VizzionPay": {
+        "passed": true,
+        "message": "Rota /api/vizzionpay-test funcionando",
+        "timestamp": "2025-09-15T14:51:50.087Z"
+      }
+    },
+    "performance": {
+      "Health Check": {
+        "passed": true,
+        "message": "Health Check rápido (325ms)",
+        "timestamp": "2025-09-15T14:51:50.417Z"
+      },
+      "Lista de Caixas": {
+        "passed": true,
+        "message": "Lista de Caixas rápido (513ms)",
+        "timestamp": "2025-09-15T14:51:50.931Z"
+      },
+      "Lista de Prêmios": {
+        "passed": true,
+        "message": "Lista de Prêmios rápido (605ms)",
+        "timestamp": "2025-09-15T14:51:51.536Z"
+      }
+    },
+    "database": {
+      "connection": {
+        "passed": true,
+        "message": "Conexão com banco funcionando",
+        "timestamp": "2025-09-15T14:51:51.918Z"
+      },
+      "data": {
+        "passed": true,
+        "message": "Dados do banco válidos",
+        "timestamp": "2025-09-15T14:51:51.919Z"
+      }
+    }
+  },
+  "summary": {
+    "total": 11,
+    "passed": 11,
+    "failed": 0,
+    "successRate": 100,
+    "duration": 4924
+  }
+}

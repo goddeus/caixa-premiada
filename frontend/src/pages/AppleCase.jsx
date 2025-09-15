@@ -125,7 +125,7 @@ const AppleCase = () => {
       setIsShowingPrizes(false);
 
       // Buscar ID da caixa Apple primeiro
-      const casesResponse = await api.get('/cases');
+      const casesResponse = await api.getCaixas();
       const appleCase = casesResponse.data?.find(c => 
         c.nome === 'CAIXA APPLE' || c.nome.includes('APPLE')
       );
