@@ -892,16 +892,16 @@ class CasesController {
       });
       console.log('✅ Prêmio creditado com sucesso');
 
-      // Registrar transação do prêmio (sem related_id por enquanto)
-      await prisma.transaction.create({
-        data: {
-          user_id: userId,
-          tipo: 'premio',
-          valor: parseFloat(wonPrize.valor),
-          status: 'concluido',
-          descricao: `Prêmio ganho na caixa ${caseData.nome}: ${wonPrize.nome}`
-        }
-      });
+      // Registrar transação do prêmio (temporariamente desabilitado)
+      // await prisma.transaction.create({
+      //   data: {
+      //     user_id: userId,
+      //     tipo: 'premio',
+      //     valor: parseFloat(wonPrize.valor),
+      //     status: 'concluido',
+      //     descricao: `Prêmio ganho na caixa ${caseData.nome}: ${wonPrize.nome}`
+      //   }
+      // });
 
       // Verificar saldo após crédito
       const userAfterCredit = await prisma.user.findUnique({
