@@ -183,7 +183,7 @@ class WebhookController {
             saldo_depois: (deposit.user.tipo_conta === 'afiliado_demo' ? deposit.user.saldo_demo : deposit.user.saldo_reais) + amount,
             descricao: 'Depósito PIX aprovado',
             status: 'processado',
-            related_id: deposit.id,
+            // related_id: deposit.id, // Temporariamente removido
             created_at: new Date()
           }
         });

@@ -275,7 +275,7 @@ class CompraController {
             saldo_depois: saldoAposDebito,
             descricao: `Abertura de caixa ${caseData.nome}`,
             status: 'processado',
-            related_id: purchaseId,
+            // related_id: purchaseId, // Temporariamente removido
             created_at: new Date()
           }
         });
@@ -291,7 +291,7 @@ class CompraController {
               saldo_depois: saldoFinal,
               descricao: `Prêmio ganho na caixa ${caseData.nome}: ${wonPrize.nome}`,
               status: 'processado',
-              related_id: purchaseId,
+              // related_id: purchaseId, // Temporariamente removido
               created_at: new Date()
             }
           });
