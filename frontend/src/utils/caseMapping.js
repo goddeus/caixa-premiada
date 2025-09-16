@@ -23,7 +23,7 @@ export const getCaseName = (frontendId) => {
     'samsung-case': 'CAIXA SAMSUNG',
     'console-case': 'CAIXA CONSOLE DOS SONHOS',
     'apple-case': 'CAIXA APPLE',
-    'premium-master-case': 'CAIXA PREMIUM MASTER'
+    'premium-master-case': 'CAIXA PREMIUM MASTER!'
   };
   return mapping[frontendId] || null;
 };

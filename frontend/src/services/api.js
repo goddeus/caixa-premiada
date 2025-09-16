@@ -145,11 +145,11 @@ class ApiService {
 
   // ===== PAGAMENTOS =====
   async criarDeposito(valor) {
-    return this.client.post('/payments/deposit', { valor });
+    return this.client.post('/deposit/pix', { valor });
   }
 
   async criarSaque(valor, pixKey) {
-    return this.client.post('/payments/withdraw', { 
+    return this.client.post('/withdraw/pix', { 
       valor, 
       pix_key: pixKey 
     });
@@ -158,15 +158,15 @@ class ApiService {
   async getHistoricoPagamentos(page = 1, limit = 20, tipo = null) {
     const params = { page, limit };
     if (tipo) params.tipo = tipo;
-    return this.client.get('/payments/history', { params });
+    return this.client.get('/withdraw/history', { params });
   }
 
   async getPagamento(id) {
-    return this.client.get(`/payments/${id}`);
+    return this.client.get(`/deposit/${id}`);
   }
 
   async verificarStatusPagamento(id) {
-    return this.client.get(`/payments/${id}/status`);
+    return this.client.get(`/deposit/${id}/status`);
   }
 
   // ===== AFILIADOS =====

@@ -207,7 +207,7 @@ const NikeCase = () => {
         
         setSelectedPrize(mappedPrize);
         
-        // O backend já atualizou o saldo, não precisamos chamar refreshUserData aqui
+        // Dados serão atualizados após o crédito do prêmio
         
         // Tocar som de sorteio
         const audio = new Audio('/sounds/slot-machine.mp3');
@@ -357,15 +357,26 @@ const NikeCase = () => {
       console.log('📤 Prize Value:', prize.apiPrize.valor);
       console.log('📤 Prize Name:', prize.apiPrize.nome);
       
-      // ✅ CORREÇÃO: O buyCase já faz débito + crédito automaticamente
-      // Não precisamos mais chamar o endpoint de crédito separadamente
-      console.log('✅ Prêmio já foi creditado automaticamente pelo buyCase');
+      // ✅ CORREÇÃO: Chamar endpoint de crédito separadamente
+      console.log('📤 Chamando endpoint de crédito...');
       
-      // Marcar prêmio como creditado
-      setCreditedPrizes(prev => new Set([...prev, prizeKey]));
+      const creditResponse = await api.post(`/cases/credit/${caseInfo.id}`, {
+        prizeId: prize.apiPrize.id,
+        prizeValue: prize.apiPrize.valor
+      });
       
-      // O backend já atualizou o saldo, não precisamos chamar refreshUserData aqui
-      toast.success('Prêmio creditado na sua carteira!');
+      if (creditResponse.success || creditResponse.credited) {
+        console.log('✅ Prêmio creditado com sucesso!');
+        
+        // Marcar prêmio como creditado
+        setCreditedPrizes(prev => new Set([...prev, prizeKey]));
+        
+        // Atualizar dados do usuário após crédito
+        await refreshUserData(true);
+        toast.success('Prêmio creditado na sua carteira!');
+      } else {
+        throw new Error(creditResponse.message || 'Erro ao creditar prêmio');
+      }
     } catch (error) {
       console.error('❌ Erro ao creditar prêmio:', error);
       console.error('❌ Erro completo:', error.response?.data);

@@ -269,7 +269,7 @@ const AppleCase = () => {
         setIsShowingPrizes(true);
       }
           
-      // O backend já atualizou o saldo, não precisamos chamar refreshUserData aqui
+      // Dados serão atualizados após o crédito do prêmio
           
       // Tocar som de sorteio
       const audio = new Audio('/sounds/slot-machine.mp3');
@@ -398,13 +398,23 @@ const AppleCase = () => {
         return;
       }
 
-      // ✅ CORREÇÃO: O buyCase já faz débito + crédito automaticamente
-      // Não precisamos mais chamar o endpoint de crédito separadamente
-      console.log('✅ Prêmio já foi creditado automaticamente pelo buyCase');
+      // ✅ CORREÇÃO: Chamar endpoint de crédito separadamente
+      console.log('📤 Chamando endpoint de crédito...');
       
-      // Atualizar dados do usuário (saldo) - apenas uma vez por operação
-      await refreshUserData(true); // force = true para garantir atualização
-      toast.success(`Prêmio de R$ ${prize.apiPrize.valor.toFixed(2).replace('.', ',')} creditado na sua carteira!`);
+      const creditResponse = await api.post(`/cases/credit/${caseInfo.id}`, {
+        prizeId: prize.apiPrize.id,
+        prizeValue: prize.apiPrize.valor
+      });
+      
+      if (creditResponse.success || creditResponse.credited) {
+        console.log('✅ Prêmio creditado com sucesso!');
+        
+        // Atualizar dados do usuário após crédito
+        await refreshUserData(true);
+        toast.success(`Prêmio de R$ ${prize.apiPrize.valor.toFixed(2).replace('.', ',')} creditado na sua carteira!`);
+      } else {
+        throw new Error(creditResponse.message || 'Erro ao creditar prêmio');
+      }
     } catch (error) {
       console.error('Erro ao creditar prêmio:', error);
       const message = error.response?.data?.error || 'Erro ao creditar prêmio';
