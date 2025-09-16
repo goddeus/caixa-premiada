@@ -369,7 +369,7 @@ const ConsoleCase = () => {
     const illustrativePrizes = [
       { name: 'STEAM DECK', value: 'R$ 3.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/steamdeck.png', bgColor: 'rgb(255, 215, 0)', sorteavel: false },
       { name: 'PLAYSTATION 5', value: 'R$ 4.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/ps5.png', bgColor: 'rgb(255, 215, 0)', sorteavel: false },
-      { name: 'XBOX SERIES X', value: 'R$ 4.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/xboxone.webp', bgColor: 'rgb(255, 215, 0)', sorteavel: false }
+      { name: 'XBOX ONE X', value: 'R$ 4.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/xboxone.webp', bgColor: 'rgb(255, 215, 0)', sorteavel: false }
     ];
 
     // Combinar todos os prêmios (sorteáveis + ilustrativos para exibição)
@@ -561,7 +561,7 @@ const ConsoleCase = () => {
                       </svg>
                       Abrir Caixa
                       <span style={{marginLeft: '18px', background: 'rgb(14, 16, 21)', color: 'rgb(255, 255, 255)', fontWeight: 700, fontSize: '17px', borderRadius: '0.7rem', padding: '0.35rem 1.1rem', display: 'flex', alignItems: 'center', minWidth: '80px', position: 'relative', right: '-8px'}}>
-                        R$ 50,00
+                        R$ 3,50
                       </span>
                     </span>
                   </button>
@@ -618,9 +618,9 @@ const ConsoleCase = () => {
               {/* Mobile Grid */}
               <div className="grid md:hidden" style={{gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px 0px', padding: '0px', margin: '0px 0px 0px calc(50% - 50vw)', width: '100vw', maxWidth: '100vw'}}>
                 {[
-                  { name: 'PS5 1TB', value: 'R$ 5.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/ps5.png', bgColor: 'rgb(255, 215, 0)' },
-                  { name: 'XBOX ONE X 1TB', value: 'R$ 3.500,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/xboxone.webp', bgColor: 'rgb(255, 215, 0)' },
-                  { name: 'STEAMDECK', value: 'R$ 2.500,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/steamdeck.png', bgColor: 'rgb(255, 215, 0)' },
+                  { name: 'PS5 1TB', value: 'R$ 4.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/ps5.png', bgColor: 'rgb(255, 215, 0)' },
+                  { name: 'XBOX ONE X 1TB', value: 'R$ 4.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/xboxone.webp', bgColor: 'rgb(255, 215, 0)' },
+                  { name: 'STEAMDECK', value: 'R$ 3.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/steamdeck.png', bgColor: 'rgb(255, 215, 0)' },
                   { name: 'R$100,00', value: 'R$ 100,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/100reais.png', bgColor: 'rgb(255, 59, 59)' },
                   { name: 'R$10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/10reais.png', bgColor: 'rgb(176, 190, 197)' },
                   { name: 'R$5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/5reais.png', bgColor: 'rgb(176, 190, 197)' },
@@ -644,9 +644,9 @@ const ConsoleCase = () => {
               {/* Desktop Grid */}
               <div className="hidden md:grid" style={{gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px 0px', padding: '0px', margin: '0px', width: '100%', maxWidth: '100%', overflow: 'hidden'}}>
                 {[
-                  { name: 'PS5 1TB', value: 'R$ 5.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/ps5.png', bgColor: 'rgb(255, 215, 0)' },
-                  { name: 'XBOX ONE X 1TB', value: 'R$ 3.500,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/xboxone.webp', bgColor: 'rgb(255, 215, 0)' },
-                  { name: 'STEAMDECK', value: 'R$ 2.500,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/steamdeck.png', bgColor: 'rgb(255, 215, 0)' },
+                  { name: 'PS5 1TB', value: 'R$ 4.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/ps5.png', bgColor: 'rgb(255, 215, 0)' },
+                  { name: 'XBOX ONE X 1TB', value: 'R$ 4.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/xboxone.webp', bgColor: 'rgb(255, 215, 0)' },
+                  { name: 'STEAMDECK', value: 'R$ 3.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/steamdeck.png', bgColor: 'rgb(255, 215, 0)' },
                   { name: 'R$100,00', value: 'R$ 100,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/100reais.png', bgColor: 'rgb(255, 59, 59)' },
                   { name: 'R$10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/10reais.png', bgColor: 'rgb(176, 190, 197)' },
                   { name: 'R$5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/5reais.png', bgColor: 'rgb(176, 190, 197)' },

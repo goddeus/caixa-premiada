@@ -65,12 +65,12 @@ const AppleCase = () => {
     
     // Lista reduzida apenas com prêmios bons para incentivar depósito
     const incentivePrizes = [
-      { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA FINAL DE SEMANA/500.webp', bgColor: 'rgb(162, 89, 255)', sorteavel: true },
-      { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA FINAL DE SEMANA/100.png', bgColor: 'rgb(59, 130, 246)', sorteavel: true },
-      { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/10.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
-      { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/5.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
-      { name: 'R$ 2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/2.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
-      { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/1.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true }
+      { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA APPLE/500.webp', bgColor: 'rgb(162, 89, 255)', sorteavel: true },
+      { name: 'AIR PODS', value: 'R$ 2.500,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA APPLE/air pods.png', bgColor: 'rgb(255, 59, 59)', sorteavel: true },
+      { name: 'IPHONE 16 PRO MAX', value: 'R$ 10.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA APPLE/iphone 16 pro max.png', bgColor: 'rgb(255, 215, 0)', sorteavel: true },
+      { name: 'MACBOOK', value: 'R$ 15.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA APPLE/macbook.png', bgColor: 'rgb(255, 215, 0)', sorteavel: true },
+      { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA APPLE/10.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
+      { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA APPLE/5.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true }
     ];
     
     // Simular seleção aleatória de prêmio
@@ -188,7 +188,7 @@ const AppleCase = () => {
             name: apiPrize.nome,
             value: `R$ ${parseFloat(apiPrize.valor).toFixed(2).replace('.', ',')}`,
             rarity: 'rarity-1.png',
-          image: apiPrize.sem_imagem ? null : '/imagens/CAIXA FINAL DE SEMANA/1.png', // Imagem padrão da pasta local
+          image: apiPrize.sem_imagem ? null : '/imagens/CAIXA APPLE/1.png', // Imagem padrão da pasta local
             bgColor: 'rgb(176, 190, 197)',
             apiPrize: apiPrize,
             sem_imagem: apiPrize.sem_imagem || false
@@ -196,42 +196,60 @@ const AppleCase = () => {
           
           // Mapear prêmios específicos baseado no nome e valor (apenas se não for prêmio ilustrativo)
           if (!apiPrize.sem_imagem) {
-            if (apiPrize.nome.includes('R$ 500,00') || apiPrize.valor === 500) {
+            if (apiPrize.nome.includes('MACBOOK') || apiPrize.valor === 15000) {
+              mappedPrize.rarity = 'rarity-5.png';
+              mappedPrize.image = '/imagens/CAIXA APPLE/macbook.png';
+              mappedPrize.bgColor = 'rgb(255, 215, 0)';
+            } else if (apiPrize.nome.includes('IPHONE 16 PRO MAX') || apiPrize.valor === 10000) {
+              mappedPrize.rarity = 'rarity-5.png';
+              mappedPrize.image = '/imagens/CAIXA APPLE/iphone 16 pro max.png';
+              mappedPrize.bgColor = 'rgb(255, 215, 0)';
+            } else if (apiPrize.nome.includes('AIR PODS') || apiPrize.valor === 2500) {
+              mappedPrize.rarity = 'rarity-4.png';
+              mappedPrize.image = '/imagens/CAIXA APPLE/air pods.png';
+              mappedPrize.bgColor = 'rgb(255, 59, 59)';
+            } else if (apiPrize.nome.includes('R$ 500,00') || apiPrize.valor === 500) {
               mappedPrize.rarity = 'rarity-3.png';
-              mappedPrize.image = '/imagens/CAIXA FINAL DE SEMANA/500.webp';
+              mappedPrize.image = '/imagens/CAIXA APPLE/500.webp';
               mappedPrize.bgColor = 'rgb(162, 89, 255)';
-            } else if (apiPrize.nome.includes('R$ 100,00') || apiPrize.valor === 100) {
-              mappedPrize.rarity = 'rarity-2.png';
-              mappedPrize.image = '/imagens/CAIXA FINAL DE SEMANA/100.png';
-              mappedPrize.bgColor = 'rgb(59, 130, 246)';
             } else if (apiPrize.nome.includes('R$ 10,00') || apiPrize.valor === 10) {
               mappedPrize.rarity = 'rarity-1.png';
-              mappedPrize.image = '/imagens/CAIXA FINAL DE SEMANA/10.png';
+              mappedPrize.image = '/imagens/CAIXA APPLE/10.png';
               mappedPrize.bgColor = 'rgb(176, 190, 197)';
             } else if (apiPrize.nome.includes('R$ 5,00') || apiPrize.valor === 5) {
               mappedPrize.rarity = 'rarity-1.png';
-              mappedPrize.image = '/imagens/CAIXA FINAL DE SEMANA/5.png';
+              mappedPrize.image = '/imagens/CAIXA APPLE/5.png';
               mappedPrize.bgColor = 'rgb(176, 190, 197)';
             } else if (apiPrize.nome.includes('R$ 2,00') || apiPrize.valor === 2) {
               mappedPrize.rarity = 'rarity-1.png';
-              mappedPrize.image = '/imagens/CAIXA FINAL DE SEMANA/2.png';
+              mappedPrize.image = '/imagens/CAIXA APPLE/2.png';
               mappedPrize.bgColor = 'rgb(176, 190, 197)';
             } else if (apiPrize.nome.includes('R$ 1,00') || apiPrize.valor === 1) {
               mappedPrize.rarity = 'rarity-1.png';
-              mappedPrize.image = '/imagens/CAIXA FINAL DE SEMANA/1.png';
+              mappedPrize.image = '/imagens/CAIXA APPLE/1.png';
               mappedPrize.bgColor = 'rgb(176, 190, 197)';
             } else {
               // Fallback para outros prêmios baseado no valor
-              if (apiPrize.valor >= 100) {
-                mappedPrize.image = '/imagens/CAIXA FINAL DE SEMANA/100.png';
+              if (apiPrize.valor >= 10000) {
+                mappedPrize.image = '/imagens/CAIXA APPLE/iphone 16 pro max.png';
+                mappedPrize.rarity = 'rarity-5.png';
+                mappedPrize.bgColor = 'rgb(255, 215, 0)';
+              } else if (apiPrize.valor >= 1000) {
+                mappedPrize.image = '/imagens/CAIXA APPLE/air pods.png';
+                mappedPrize.rarity = 'rarity-4.png';
+                mappedPrize.bgColor = 'rgb(255, 59, 59)';
+              } else if (apiPrize.valor >= 500) {
+                mappedPrize.image = '/imagens/CAIXA APPLE/500.webp';
+                mappedPrize.rarity = 'rarity-3.png';
+                mappedPrize.bgColor = 'rgb(162, 89, 255)';
               } else if (apiPrize.valor >= 10) {
-                mappedPrize.image = '/imagens/CAIXA FINAL DE SEMANA/10.png';
+                mappedPrize.image = '/imagens/CAIXA APPLE/10.png';
               } else if (apiPrize.valor >= 5) {
-                mappedPrize.image = '/imagens/CAIXA FINAL DE SEMANA/5.png';
+                mappedPrize.image = '/imagens/CAIXA APPLE/5.png';
               } else if (apiPrize.valor >= 2) {
-                mappedPrize.image = '/imagens/CAIXA FINAL DE SEMANA/2.png';
+                mappedPrize.image = '/imagens/CAIXA APPLE/2.png';
               } else {
-                mappedPrize.image = '/imagens/CAIXA FINAL DE SEMANA/1.png';
+                mappedPrize.image = '/imagens/CAIXA APPLE/1.png';
               }
             }
           }
@@ -311,12 +329,11 @@ const AppleCase = () => {
   const generateRandomPrizeSequence = () => {
     // Prêmios sorteáveis da caixa de fim de semana
     const sorteablePrizes = [
-      { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/1.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
-      { name: 'R$ 2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/2.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
-      { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/5.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
-      { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/10.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
-      { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA FINAL DE SEMANA/100.png', bgColor: 'rgb(59, 130, 246)', sorteavel: true },
-      { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA FINAL DE SEMANA/500.webp', bgColor: 'rgb(162, 89, 255)', sorteavel: true }
+      { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA APPLE/1.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
+      { name: 'R$ 2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA APPLE/2.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
+      { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA APPLE/5.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
+      { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA APPLE/10.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
+      { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA APPLE/500.webp', bgColor: 'rgb(162, 89, 255)', sorteavel: true }
     ];
 
     // Combinar todos os prêmios (apenas os sorteáveis da caixa de fim de semana)
@@ -638,18 +655,18 @@ const AppleCase = () => {
               <div className="relative inline-block mb-4">
                 <div className="mx-auto" style={{width: '220px', height: '220px', minWidth: '140px', minHeight: '140px', maxWidth: '260px', maxHeight: '260px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', borderRadius: '1.2rem'}}>
                   <img 
-                    alt="CAIXA FINAL DE SEMANA" 
+                    alt="CAIXA APPLE" 
                     className="object-contain" 
-                    src="/imagens/fim de semana.png"
+                    src="/imagens/caixa apple.png"
                     style={{width: '100%', height: '100%', objectFit: 'contain', borderRadius: '1.2rem', background: 'transparent'}}
                   />
                 </div>
                 <div className="absolute -top-2 -right-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2 rounded-full text-lg font-bold shadow-lg">
-                  R$ 1,50
+                  R$ 7,00
                 </div>
               </div>
-              <h1 className="text-4xl font-extrabold text-white mb-2 drop-shadow-lg">CAIXA FINAL DE SEMANA</h1>
-              <p className="text-gray-300 mb-4 text-lg">Ganhe até R$500 NO PIX!</p>
+              <h1 className="text-4xl font-extrabold text-white mb-2 drop-shadow-lg">CAIXA APPLE</h1>
+              <p className="text-gray-300 mb-4 text-lg">Ganhe até R$15.000 em produtos Apple!</p>
               
               {/* Quantity Selector */}
               <div className="flex justify-center items-center mb-4">
@@ -745,12 +762,12 @@ const AppleCase = () => {
               {/* Mobile Grid */}
               <div className="grid md:hidden" style={{gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px 0px', padding: '0px', margin: '0px 0px 0px calc(50% - 50vw)', width: '100vw', maxWidth: '100vw'}}>
                 {[
-                  { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA FINAL DE SEMANA/500.webp', bgColor: 'rgb(162, 89, 255)', illustrative: false },
-                  { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA FINAL DE SEMANA/100.png', bgColor: 'rgb(59, 130, 246)', illustrative: false },
-                  { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/10.png', bgColor: 'rgb(176, 190, 197)', illustrative: false },
-                  { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/5.png', bgColor: 'rgb(176, 190, 197)', illustrative: false },
-                  { name: 'R$ 2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/2.png', bgColor: 'rgb(176, 190, 197)', illustrative: false },
-                  { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/1.png', bgColor: 'rgb(176, 190, 197)', illustrative: false }
+                  { name: 'MACBOOK', value: 'R$ 15.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA APPLE/macbook.png', bgColor: 'rgb(255, 215, 0)', illustrative: false },
+                  { name: 'IPHONE 16 PRO MAX', value: 'R$ 10.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA APPLE/iphone 16 pro max.png', bgColor: 'rgb(255, 215, 0)', illustrative: false },
+                  { name: 'AIR PODS', value: 'R$ 2.500,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA APPLE/air pods.png', bgColor: 'rgb(255, 59, 59)', illustrative: false },
+                  { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA APPLE/500.webp', bgColor: 'rgb(162, 89, 255)', illustrative: false },
+                  { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA APPLE/10.png', bgColor: 'rgb(176, 190, 197)', illustrative: false },
+                  { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA APPLE/5.png', bgColor: 'rgb(176, 190, 197)', illustrative: false }
                 ].map((prize, index) => (
                   <div key={index} className="rounded-none p-0 text-center relative overflow-hidden flex flex-col items-center justify-between transition-all duration-300 group" style={{width: '100%', maxWidth: '100%', minWidth: '0px', height: '200px', minHeight: '120px', maxHeight: '200px', margin: '0px', borderRadius: '0px 0px 12px 12px', border: '2px solid rgb(14, 16, 21)', boxSizing: 'border-box', background: `linear-gradient(0deg, ${prize.bgColor}32 0%, rgb(14, 16, 21) 100%)`}}>
                     <img alt="Raridade" className="absolute inset-0 pointer-events-none" src={`/imagens/${prize.rarity}`} style={{zIndex: 1, objectFit: 'contain', width: '75%', height: '75%', left: '50%', top: '44%', transform: 'translate(-50%, -50%)', opacity: 0.6, position: 'absolute'}} />

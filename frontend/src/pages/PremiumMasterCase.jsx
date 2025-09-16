@@ -66,10 +66,10 @@ const PremiumMasterCase = () => {
     
     // Lista reduzida apenas com prêmios bons para incentivar depósito
     const incentivePrizes = [
-      { name: 'HONDA CG FAN 160', value: 'R$ 25.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA PREMIUM MASTER/honda cg fan.webp', bgColor: 'rgb(255, 215, 0)' },
+      { name: 'HONDA CG FAN 160', value: 'R$ 8.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA PREMIUM MASTER/honda cg fan.webp', bgColor: 'rgb(255, 215, 0)' },
       { name: 'MACBOOK', value: 'R$ 15.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA PREMIUM MASTER/macbook.png', bgColor: 'rgb(255, 215, 0)' },
       { name: 'IPHONE 16 PRO MAX', value: 'R$ 10.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA PREMIUM MASTER/iphone 16 pro max.png', bgColor: 'rgb(255, 215, 0)' },
-      { name: 'S25 ULTRA', value: 'R$ 5.000,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA PREMIUM MASTER/samsung s25.png', bgColor: 'rgb(255, 59, 59)' },
+      { name: 'S25 ULTRA', value: 'R$ 6.000,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA PREMIUM MASTER/samsung s25.png', bgColor: 'rgb(255, 59, 59)' },
       { name: 'IPAD', value: 'R$ 8.000,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA PREMIUM MASTER/ipad.png', bgColor: 'rgb(255, 59, 59)' },
       { name: 'AIRPODS', value: 'R$ 2.500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA PREMIUM MASTER/airpods.png', bgColor: 'rgb(162, 89, 255)' }
     ];
@@ -128,7 +128,7 @@ const PremiumMasterCase = () => {
       // Buscar ID da caixa Premium primeiro
       const casesResponse = await api.getCaixas();
       const premiumCase = casesResponse.data?.find(c => 
-        c.nome === 'CAIXA PREMIUM MASTER!' || c.nome.includes('PREMIUM MASTER!')
+        c.nome === 'CAIXA PREMIUM MASTER' || c.nome === 'CAIXA PREMIUM MASTER!' || c.nome.includes('PREMIUM MASTER')
       );
       
       if (!premiumCase) {
@@ -828,10 +828,10 @@ const PremiumMasterCase = () => {
               {/* Mobile Grid */}
               <div className="grid md:hidden" style={{gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px 0px', padding: '0px', margin: '0px 0px 0px calc(50% - 50vw)', width: '100vw', maxWidth: '100vw'}}>
                 {[
-                  { name: 'HONDA CG FAN 160', value: 'R$ 25.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA PREMIUM MASTER/honda cg fan.webp', bgColor: 'rgb(255, 215, 0)' },
+                  { name: 'HONDA CG FAN 160', value: 'R$ 8.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA PREMIUM MASTER/honda cg fan.webp', bgColor: 'rgb(255, 215, 0)' },
                   { name: 'MACBOOK', value: 'R$ 15.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA PREMIUM MASTER/macbook.png', bgColor: 'rgb(255, 215, 0)' },
                   { name: 'IPHONE 16 PRO MAX', value: 'R$ 10.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA PREMIUM MASTER/iphone 16 pro max.png', bgColor: 'rgb(255, 215, 0)' },
-                  { name: 'S25 ULTRA', value: 'R$ 5.000,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA PREMIUM MASTER/samsung s25.png', bgColor: 'rgb(255, 59, 59)' },
+                  { name: 'S25 ULTRA', value: 'R$ 6.000,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA PREMIUM MASTER/samsung s25.png', bgColor: 'rgb(255, 59, 59)' },
                   { name: 'IPAD', value: 'R$ 8.000,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA PREMIUM MASTER/ipad.png', bgColor: 'rgb(255, 59, 59)' },
                   { name: 'AIRPODS', value: 'R$ 2.500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA PREMIUM MASTER/airpods.png', bgColor: 'rgb(162, 89, 255)' },
                   { name: 'R$500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA PREMIUM MASTER/500.webp', bgColor: 'rgb(162, 89, 255)' },
@@ -858,10 +858,10 @@ const PremiumMasterCase = () => {
               {/* Desktop Grid */}
               <div className="hidden md:grid" style={{gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px 0px', padding: '0px', margin: '0px', width: '100%', maxWidth: '100%', overflow: 'hidden'}}>
                 {[
-                  { name: 'HONDA CG FAN 160', value: 'R$ 25.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA PREMIUM MASTER/honda cg fan.webp', bgColor: 'rgb(255, 215, 0)' },
+                  { name: 'HONDA CG FAN 160', value: 'R$ 8.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA PREMIUM MASTER/honda cg fan.webp', bgColor: 'rgb(255, 215, 0)' },
                   { name: 'MACBOOK', value: 'R$ 15.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA PREMIUM MASTER/macbook.png', bgColor: 'rgb(255, 215, 0)' },
                   { name: 'IPHONE 16 PRO MAX', value: 'R$ 10.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA PREMIUM MASTER/iphone 16 pro max.png', bgColor: 'rgb(255, 215, 0)' },
-                  { name: 'S25 ULTRA', value: 'R$ 5.000,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA PREMIUM MASTER/samsung s25.png', bgColor: 'rgb(255, 59, 59)' },
+                  { name: 'S25 ULTRA', value: 'R$ 6.000,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA PREMIUM MASTER/samsung s25.png', bgColor: 'rgb(255, 59, 59)' },
                   { name: 'IPAD', value: 'R$ 8.000,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA PREMIUM MASTER/ipad.png', bgColor: 'rgb(255, 59, 59)' },
                   { name: 'AIRPODS', value: 'R$ 2.500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA PREMIUM MASTER/airpods.png', bgColor: 'rgb(162, 89, 255)' },
                   { name: 'R$500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA PREMIUM MASTER/500.webp', bgColor: 'rgb(162, 89, 255)' },
