@@ -773,6 +773,11 @@ class CasesController {
 
   async creditPrize(req, res) {
     try {
+      console.log('🚀 [CREDIT] Iniciando creditPrize...');
+      console.log('🚀 [CREDIT] Request body:', req.body);
+      console.log('🚀 [CREDIT] Request params:', req.params);
+      console.log('🚀 [CREDIT] Request user:', req.user);
+      
       const { id } = req.params;
       const { prizeId, prizeValue } = req.body; // Receber dados do prêmio
       const userId = req.user.id;
@@ -913,8 +918,16 @@ class CasesController {
       });
 
     } catch (error) {
-      console.error('Erro ao creditar prêmio:', error);
-      res.status(500).json({ error: 'Erro interno do servidor' });
+      console.error('❌ [CREDIT] Erro ao creditar prêmio:', error);
+      console.error('❌ [CREDIT] Stack trace:', error.stack);
+      console.error('❌ [CREDIT] Error message:', error.message);
+      console.error('❌ [CREDIT] Error name:', error.name);
+      
+      res.status(500).json({ 
+        error: 'Erro interno do servidor',
+        message: error.message,
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
     }
   }
 
