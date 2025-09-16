@@ -462,6 +462,7 @@ const Dashboard = () => {
   }, [navigate]);
 
   const handleNavigateToCase = useCallback((route) => {
+    console.log('🎯 Navegando para:', route);
     navigate(route);
   }, [navigate]);
 
@@ -479,9 +480,35 @@ const Dashboard = () => {
       const response = await api.getCaixas();
       
       if (response.success && response.data) {
-        setCases(response.data);
+        // Mapear caixas para rotas corretas
+        const casesWithRoutes = response.data.map(caseItem => {
+          let route = `/case/${caseItem.id}`; // fallback padrão
+          
+          // Mapear por nome para rotas específicas
+          if (caseItem.nome && caseItem.nome.toLowerCase().includes('final de semana')) {
+            route = '/weekend-case';
+          } else if (caseItem.nome && caseItem.nome.toLowerCase().includes('nike')) {
+            route = '/nike-case';
+          } else if (caseItem.nome && caseItem.nome.toLowerCase().includes('samsung')) {
+            route = '/samsung-case';
+          } else if (caseItem.nome && caseItem.nome.toLowerCase().includes('console')) {
+            route = '/console-case';
+          } else if (caseItem.nome && caseItem.nome.toLowerCase().includes('apple')) {
+            route = '/apple-case';
+          } else if (caseItem.nome && caseItem.nome.toLowerCase().includes('premium master')) {
+            route = '/premium-master-case';
+          }
+          
+          return {
+            ...caseItem,
+            route: route
+          };
+        });
+        
+        setCases(casesWithRoutes);
         setCasesLoaded(true);
         console.log('✅ Caixas carregadas:', response.data.length);
+        console.log('📋 Caixas com rotas:', casesWithRoutes);
       } else {
         console.error('❌ Erro na estrutura da resposta:', response);
         // Fallback para dados hardcoded
@@ -513,13 +540,18 @@ const Dashboard = () => {
     } finally {
       setCasesLoading(false);
     }
-  }, [casesLoading, casesLoaded]); // Incluir casesLoaded para evitar carregamentos desnecessários
+  }, []); // Remover dependências para evitar loops
 
   // Carregar dados apenas uma vez usando useRef
   const hasLoadedRef = useRef(false);
   const loadingTimeoutRef = useRef(null);
   
   useEffect(() => {
+    // Evitar carregamentos múltiplos
+    if (hasLoadedRef.current) {
+      return;
+    }
+    
     // Limpar timeout anterior se existir
     if (loadingTimeoutRef.current) {
       clearTimeout(loadingTimeoutRef.current);
@@ -544,7 +576,7 @@ const Dashboard = () => {
         
         loadInitialData();
       }
-    }, 100); // Aguardar 100ms para estabilizar
+    }, 500); // Aumentar para 500ms para estabilizar
     
     return () => {
       if (loadingTimeoutRef.current) {
@@ -927,7 +959,34 @@ const Dashboard = () => {
                   <span className="ml-2 text-white">Carregando caixas...</span>
                 </div>
               ) : cases.length > 0 ? cases.map((caseItem, index) => (
-                <div key={index} className="rounded-lg border bg-card text-card-foreground shadow-sm w-full border-none cursor-pointer transition-colors" style={{background: 'transparent', boxShadow: 'none', borderRadius: '1.5rem', padding: '0px', margin: '0px', overflow: 'visible', minWidth: '0px', maxWidth: '180px', position: 'relative'}} onClick={() => handleNavigateToCase(caseItem.route || `/case/${caseItem.id}`)}>
+                <div 
+                  key={index} 
+                  className="rounded-lg border bg-card text-card-foreground shadow-sm w-full border-none cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg" 
+                  style={{
+                    background: 'transparent', 
+                    boxShadow: 'none', 
+                    borderRadius: '1.5rem', 
+                    padding: '0px', 
+                    margin: '0px', 
+                    overflow: 'visible', 
+                    minWidth: '0px', 
+                    maxWidth: '180px', 
+                    position: 'relative',
+                    cursor: 'pointer'
+                  }} 
+                  onClick={() => {
+                    console.log('🎯 Clicando na caixa:', caseItem.nome, 'Rota:', caseItem.route || `/case/${caseItem.id}`);
+                    handleNavigateToCase(caseItem.route || `/case/${caseItem.id}`);
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.cursor = 'pointer';
+                    e.target.style.transform = 'scale(1.05)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.cursor = 'pointer';
+                    e.target.style.transform = 'scale(1)';
+                  }}
+                >
                   <div className="flex justify-center items-center mt-2 mb-2 group">
                     <div className="group-hover:scale-[1.18] group-hover:-rotate-6 transition-transform duration-300" style={{width: '200px', height: '200px', borderRadius: '1.5rem', overflow: 'hidden', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.3s cubic-bezier(0.4, 2, 0.6, 1)'}}>
                       <img alt={caseItem.nome} className="pointer-events-none" src={caseItem.imagem_url || caseItem.imagem || '/imagens/default-case.png'} style={{width: '100%', height: '100%', objectFit: 'contain', borderRadius: '1.5rem', background: 'transparent', transition: 'transform 0.3s cubic-bezier(0.4, 2, 0.6, 1)'}} />

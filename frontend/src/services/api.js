@@ -5,6 +5,11 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://slotbox-api.onrend
 
 console.log('🔧 API Service - Base URL:', API_BASE_URL);
 
+// Tornar a API disponível globalmente para debug
+if (typeof window !== 'undefined') {
+  window.apiService = null; // Será definido após a criação da instância
+}
+
 class ApiService {
   constructor() {
     this.client = axios.create({
@@ -243,4 +248,12 @@ class ApiService {
   }
 }
 
-export default new ApiService();
+const api = new ApiService();
+
+// Tornar a API disponível globalmente para debug
+if (typeof window !== 'undefined') {
+  window.api = api;
+  window.apiService = api;
+}
+
+export default api;

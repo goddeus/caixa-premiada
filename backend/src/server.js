@@ -9,6 +9,7 @@ const config = require('./config/index');
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const casesRoutes = require('./routes/cases');
+const compraRoutes = require('./routes/compra');
 const paymentsRoutes = require('./routes/payments');
 const affiliateRoutes = require('./routes/affiliate');
 const transactionsRoutes = require('./routes/transactions');
@@ -1674,6 +1675,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/cases', casesRoutes);
+app.use('/api/compra', compraRoutes);
 app.use('/api/payments', paymentsRoutes);
 app.use('/api/affiliate', affiliateRoutes);
 app.use('/api/transactions', transactionsRoutes);
