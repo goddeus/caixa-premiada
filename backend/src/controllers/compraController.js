@@ -70,16 +70,21 @@ class CompraController {
       }
       
       console.log(`🎁 Prêmio selecionado: ${selectedPrize.nome} - R$ ${selectedPrize.valor}`);
+      console.log('🔍 Dados do prêmio selecionado:', selectedPrize);
+      
+      const prizeReturn = {
+        id: selectedPrize.id,
+        nome: selectedPrize.nome,
+        valor: parseFloat(selectedPrize.valor), // Garantir que é número
+        tipo: 'cash',
+        imagem: null
+      };
+      
+      console.log('📤 Retornando prêmio:', prizeReturn);
       
       return {
         success: true,
-        prize: {
-          id: selectedPrize.id,
-          nome: selectedPrize.nome,
-          valor: selectedPrize.valor,
-          tipo: 'cash',
-          imagem: null
-        },
+        prize: prizeReturn,
         message: selectedPrize.valor > 0 ? 
           `Parabéns! Você ganhou R$ ${selectedPrize.valor.toFixed(2)}!` : 
           'Tente novamente na próxima!',
@@ -201,26 +206,48 @@ class CompraController {
         console.log('[BUY] Saldo debitado:', { saldoAntes: saldoAtual, saldoDepois: saldoAposDebito });
 
         // 4. Fazer sorteio
+        console.log('[BUY] Dados da caixa para sorteio:', { 
+          nome: caseData.nome, 
+          prizes: caseData.prizes?.length || 0 
+        });
+        
         const drawResult = await this.simpleDraw(caseData, userId, saldoAposDebito);
         
         if (!drawResult || !drawResult.success) {
+          console.error('[BUY] Erro no sorteio:', drawResult);
           throw new Error('Erro no sistema de sorteio');
         }
         
         const wonPrize = drawResult.prize;
         console.log('[BUY] Prêmio sorteado:', wonPrize);
+        console.log('[BUY] Valor do prêmio:', typeof wonPrize.valor, wonPrize.valor);
 
         // 5. Creditar prêmio se valor > 0
         let saldoFinal = saldoAposDebito;
+        console.log('[BUY] Verificando se deve creditar prêmio:', { 
+          valor: wonPrize.valor, 
+          tipo: typeof wonPrize.valor,
+          condicao: wonPrize.valor > 0 
+        });
+        
         if (wonPrize.valor > 0) {
           saldoFinal = saldoAposDebito + parseFloat(wonPrize.valor);
+          
+          console.log('[BUY] Creditando prêmio:', { 
+            saldoAntes: saldoAposDebito, 
+            valorPremio: wonPrize.valor,
+            saldoDepois: saldoFinal,
+            campo: saldoField
+          });
           
           await tx.user.update({
             where: { id: userId },
             data: { [saldoField]: saldoFinal }
           });
           
-          console.log('[BUY] Prêmio creditado:', { valor: wonPrize.valor, saldoFinal });
+          console.log('[BUY] Prêmio creditado com sucesso!');
+        } else {
+          console.log('[BUY] Prêmio sem valor, não creditando');
         }
 
         // 6. Registrar auditoria de compra
