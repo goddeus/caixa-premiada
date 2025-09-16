@@ -8,9 +8,11 @@
     "test:integration": "jest tests/integration",
     "test:e2e": "playwright test",
     "test:stress": "jest tests/stress",
+    "test:smoke": "node smoke-tests.js",
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
-    "test:ci": "jest --ci --coverage --watchAll=false"
+    "test:ci": "jest --ci --coverage --watchAll=false",
+    "test:all": "npm run test:unit && npm run test:integration && npm run test:stress"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.0",

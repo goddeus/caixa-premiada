@@ -1,5 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
 
 const prisma = new PrismaClient();
 
@@ -8,14 +10,18 @@ class DepositController {
   /**
    * POST /api/deposit/pix
    * Criar depósito via PIX usando VizzionPay
+   * Implementa idempotência e logging estruturado
    */
   static async createPixDeposit(req, res) {
+    const startTime = Date.now();
+    let deposit = null;
+    
     try {
-      console.log('[DEBUG] Depósito PIX iniciado:', req.body);
+      console.log('[DEPOSIT] Iniciando criação de depósito PIX:', req.body);
       
       const { userId, amount } = req.body;
       
-      // Validações
+      // Validações básicas
       if (!userId || !amount) {
         return res.status(400).json({
           success: false,
@@ -24,18 +30,20 @@ class DepositController {
       }
       
       const valorNumerico = Number(amount);
+      const MIN_DEPOSIT = 20.00;
+      const MAX_DEPOSIT = 10000.00;
       
-      if (valorNumerico < 20.00) {
+      if (valorNumerico < MIN_DEPOSIT) {
         return res.status(400).json({
           success: false,
-          error: 'Valor mínimo para depósito é R$ 20,00'
+          error: `Valor mínimo para depósito é R$ ${MIN_DEPOSIT.toFixed(2)}`
         });
       }
       
-      if (valorNumerico > 10000.00) {
+      if (valorNumerico > MAX_DEPOSIT) {
         return res.status(400).json({
           success: false,
-          error: 'Valor máximo para depósito é R$ 10.000,00'
+          error: `Valor máximo para depósito é R$ ${MAX_DEPOSIT.toFixed(2)}`
         });
       }
       
@@ -51,9 +59,45 @@ class DepositController {
         });
       }
       
-      // Gerar identifier único
+      // Gerar identifier único com idempotência
       const timestamp = Date.now();
       const identifier = `deposit_${userId}_${timestamp}`;
+      
+      // Verificar se já existe depósito pendente para este usuário (idempotência)
+      const existingDeposit = await prisma.deposit.findFirst({
+        where: {
+          user_id: userId,
+          status: 'pending',
+          amount: valorNumerico,
+          created_at: {
+            gte: new Date(Date.now() - 5 * 60 * 1000) // Últimos 5 minutos
+          }
+        }
+      });
+      
+      if (existingDeposit) {
+        console.log('[DEPOSIT] Depósito idempotente encontrado:', existingDeposit.identifier);
+        return res.json({
+          success: true,
+          qrCode: existingDeposit.qr_code,
+          qrCodeImage: existingDeposit.qr_base64,
+          identifier: existingDeposit.identifier
+        });
+      }
+      
+      // Criar registro de depósito no banco (com status pending)
+      deposit = await prisma.deposit.create({
+        data: {
+          user_id: userId,
+          amount: valorNumerico,
+          status: 'pending',
+          identifier,
+          created_at: new Date(),
+          updated_at: new Date()
+        }
+      });
+      
+      console.log('[DEPOSIT] Registro criado no banco:', deposit.id);
       
       // Preparar dados para VizzionPay
       const vizzionData = {
@@ -75,7 +119,24 @@ class DepositController {
         ]
       };
       
-      console.log('[DEBUG] Enviando para VizzionPay:', JSON.stringify(vizzionData, null, 2));
+      // Log da requisição (sanitizada)
+      const logData = {
+        timestamp: new Date().toISOString(),
+        identifier,
+        userId,
+        amount: valorNumerico,
+        request: {
+          ...vizzionData,
+          client: {
+            ...vizzionData.client,
+            document: vizzionData.client.document ? '***sanitized***' : null
+          }
+        }
+      };
+      
+      await this.logVizzionRequest(logData);
+      
+      console.log('[DEPOSIT] Enviando para VizzionPay:', JSON.stringify(vizzionData, null, 2));
       
       // Fazer requisição para VizzionPay
       const response = await axios.post('https://app.vizzionpay.com/api/v1/gateway/pix/receive', vizzionData, {
@@ -87,12 +148,20 @@ class DepositController {
         timeout: 30000
       });
       
-      console.log('[DEBUG] Resposta VizzionPay:', JSON.stringify(response.data, null, 2));
+      console.log('[DEPOSIT] Resposta VizzionPay:', JSON.stringify(response.data, null, 2));
+      
+      // Log da resposta
+      await this.logVizzionResponse({
+        timestamp: new Date().toISOString(),
+        identifier,
+        response: response.data
+      });
       
       // Extrair dados da resposta
       const responseData = response.data;
       let qrCode = null;
       let qrCodeImage = null;
+      let transactionId = responseData.transactionId || responseData.id || null;
       
       // Extrair dados do formato VizzionPay
       if (responseData.pix && responseData.pix.code) {
@@ -126,19 +195,21 @@ class DepositController {
         }
       }
       
-      // Salvar transação no banco
-      const transaction = await prisma.transaction.create({
+      // Atualizar registro no banco com dados do PIX
+      await prisma.deposit.update({
+        where: { id: deposit.id },
         data: {
-          user_id: userId,
-          tipo: 'deposito',
-          valor: valorNumerico,
-          status: 'pendente',
-          identifier,
-          criado_em: new Date()
+          qr_code: qrCode,
+          qr_base64: qrCodeImage,
+          provider_tx_id: transactionId,
+          updated_at: new Date()
         }
       });
       
-      console.log(`[DEBUG] Transação criada: ${transaction.id} - R$ ${valorNumerico}`);
+      console.log(`[DEPOSIT] Depósito criado com sucesso: ${deposit.id} - R$ ${valorNumerico}`);
+      
+      const processingTime = Date.now() - startTime;
+      console.log(`[DEPOSIT] Tempo de processamento: ${processingTime}ms`);
       
       res.json({
         success: true,
@@ -148,16 +219,96 @@ class DepositController {
       });
       
     } catch (error) {
-      console.error('[DEBUG] Erro ao criar depósito PIX:', error);
+      console.error('[DEPOSIT] Erro ao criar depósito PIX:', error);
+      
+      // Log do erro
+      await this.logVizzionError({
+        timestamp: new Date().toISOString(),
+        identifier: deposit?.identifier || 'unknown',
+        error: error.message,
+        response: error.response?.data || null
+      });
+      
+      // Se o depósito foi criado mas falhou na integração, marcar como erro
+      if (deposit) {
+        try {
+          await prisma.deposit.update({
+            where: { id: deposit.id },
+            data: {
+              status: 'error',
+              updated_at: new Date()
+            }
+          });
+        } catch (updateError) {
+          console.error('[DEPOSIT] Erro ao atualizar status do depósito:', updateError);
+        }
+      }
       
       if (error.response) {
-        console.error('[DEBUG] Resposta de erro VizzionPay:', JSON.stringify(error.response.data, null, 2));
+        console.error('[DEPOSIT] Resposta de erro VizzionPay:', JSON.stringify(error.response.data, null, 2));
       }
       
       res.status(500).json({
         success: false,
         error: error.message || 'Erro interno do servidor'
       });
+    }
+  }
+  
+  /**
+   * Log estruturado para requisições VizzionPay
+   */
+  static async logVizzionRequest(data) {
+    try {
+      const logDir = path.join(__dirname, '../../logs/vizzion');
+      if (!fs.existsSync(logDir)) {
+        fs.mkdirSync(logDir, { recursive: true });
+      }
+      
+      const logFile = path.join(logDir, `requests_${new Date().toISOString().split('T')[0]}.log`);
+      const logEntry = JSON.stringify(data) + '\n';
+      
+      fs.appendFileSync(logFile, logEntry);
+    } catch (error) {
+      console.error('[DEPOSIT] Erro ao salvar log de requisição:', error);
+    }
+  }
+  
+  /**
+   * Log estruturado para respostas VizzionPay
+   */
+  static async logVizzionResponse(data) {
+    try {
+      const logDir = path.join(__dirname, '../../logs/vizzion');
+      if (!fs.existsSync(logDir)) {
+        fs.mkdirSync(logDir, { recursive: true });
+      }
+      
+      const logFile = path.join(logDir, `responses_${new Date().toISOString().split('T')[0]}.log`);
+      const logEntry = JSON.stringify(data) + '\n';
+      
+      fs.appendFileSync(logFile, logEntry);
+    } catch (error) {
+      console.error('[DEPOSIT] Erro ao salvar log de resposta:', error);
+    }
+  }
+  
+  /**
+   * Log estruturado para erros VizzionPay
+   */
+  static async logVizzionError(data) {
+    try {
+      const logDir = path.join(__dirname, '../../logs/vizzion');
+      if (!fs.existsSync(logDir)) {
+        fs.mkdirSync(logDir, { recursive: true });
+      }
+      
+      const logFile = path.join(logDir, `errors_${new Date().toISOString().split('T')[0]}.log`);
+      const logEntry = JSON.stringify(data) + '\n';
+      
+      fs.appendFileSync(logFile, logEntry);
+    } catch (error) {
+      console.error('[DEPOSIT] Erro ao salvar log de erro:', error);
     }
   }
 }

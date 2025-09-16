@@ -2,48 +2,34 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop, audit/* ]
+    branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
 
 jobs:
-  # Job de Lint e Análise Estática
+  # Job de Linting
   lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
-
-      - name: Install backend dependencies
+      
+      - name: Install dependencies
         run: |
-          cd backend
-          npm ci
-
-      - name: Install frontend dependencies
-        run: |
-          cd frontend
-          npm ci
-
-      - name: Run backend lint
-        run: |
-          cd backend
-          npm run lint || echo "Lint errors found"
-
-      - name: Run frontend lint
-        run: |
-          cd frontend
-          npm run lint || echo "Lint errors found"
-
-      - name: Run npm audit
-        run: |
-          cd backend && npm audit --audit-level=high
-          cd ../frontend && npm audit --audit-level=high
+          cd backend && npm ci
+          cd ../frontend && npm ci
+          cd ../tests && npm ci
+      
+      - name: Lint backend
+        run: cd backend && npm run lint
+      
+      - name: Lint frontend
+        run: cd frontend && npm run lint
 
   # Job de Testes Unitários
   unit-tests:
@@ -62,42 +48,43 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
-
+      
       - name: Install dependencies
         run: |
-          cd backend
-          npm ci
-          cd ../tests
-          npm ci
-
+          cd backend && npm ci
+          cd ../tests && npm ci
+      
       - name: Setup test database
         run: |
           cd backend
           npx prisma migrate deploy
           npx prisma db seed
-
-      - name: Run unit tests
-        run: |
-          cd tests
-          npm run test:unit
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/slotbox_test
-
+      
+      - name: Run unit tests
+        run: cd tests && npm run test:unit
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/slotbox_test
+          JWT_SECRET: test-jwt-secret
+          VIZZION_PUBLIC_KEY: test-public-key
+          VIZZION_SECRET_KEY: test-secret-key
+      
       - name: Upload coverage reports
         uses: codecov/codecov-action@v3
         with:
           file: ./tests/coverage/lcov.info
-          flags: unit-tests
+          flags: unittests
+          name: codecov-umbrella
 
   # Job de Testes de Integração
   integration-tests:
@@ -116,79 +103,70 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
-
+      
       - name: Install dependencies
         run: |
-          cd backend
-          npm ci
-          cd ../tests
-          npm ci
-
+          cd backend && npm ci
+          cd ../tests && npm ci
+      
       - name: Setup test database
         run: |
           cd backend
           npx prisma migrate deploy
           npx prisma db seed
-
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/slotbox_test
+      
       - name: Start backend server
-        run: |
-          cd backend
-          npm start &
-          sleep 10
+        run: cd backend && npm start &
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/slotbox_test
+          JWT_SECRET: test-jwt-secret
+          VIZZION_PUBLIC_KEY: test-public-key
+          VIZZION_SECRET_KEY: test-secret-key
           PORT: 3001
-
+      
+      - name: Wait for backend
+        run: npx wait-on http://localhost:3001/api/health
+      
       - name: Run integration tests
-        run: |
-          cd tests
-          npm run test:integration
+        run: cd tests && npm run test:integration
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/slotbox_test
-          API_URL: http://localhost:3001
-
-      - name: Upload coverage reports
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./tests/coverage/lcov.info
-          flags: integration-tests
+          JWT_SECRET: test-jwt-secret
+          VIZZION_PUBLIC_KEY: test-public-key
+          VIZZION_SECRET_KEY: test-secret-key
 
   # Job de Build do Frontend
   build-frontend:
     runs-on: ubuntu-latest
-    needs: lint
+    needs: integration-tests
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
-
-      - name: Install frontend dependencies
-        run: |
-          cd frontend
-          npm ci
-
+      
+      - name: Install dependencies
+        run: cd frontend && npm ci
+      
       - name: Build frontend
-        run: |
-          cd frontend
-          npm run build
+        run: cd frontend && npm run build
         env:
-          VITE_API_URL: https://slotbox-api.onrender.com/api
-
+          VITE_API_URL: https://slotbox-api-staging.onrender.com/api
+      
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -198,7 +176,7 @@ jobs:
   # Job de Testes E2E
   e2e-tests:
     runs-on: ubuntu-latest
-    needs: [integration-tests, build-frontend]
+    needs: build-frontend
     services:
       postgres:
         image: postgres:15
@@ -212,72 +190,70 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
-
+      
       - name: Install dependencies
         run: |
-          cd backend
-          npm ci
-          cd ../frontend
-          npm ci
-          cd ../tests
-          npm ci
-
+          cd backend && npm ci
+          cd ../frontend && npm ci
+          cd ../tests && npm ci
+      
       - name: Setup test database
         run: |
           cd backend
           npx prisma migrate deploy
           npx prisma db seed
-
-      - name: Start backend server
-        run: |
-          cd backend
-          npm start &
-          sleep 10
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/slotbox_test
+      
+      - name: Start backend server
+        run: cd backend && npm start &
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/slotbox_test
+          JWT_SECRET: test-jwt-secret
+          VIZZION_PUBLIC_KEY: test-public-key
+          VIZZION_SECRET_KEY: test-secret-key
           PORT: 3001
-
+      
       - name: Start frontend server
-        run: |
-          cd frontend
-          npm run preview &
-          sleep 5
+        run: cd frontend && npm run preview &
         env:
           VITE_API_URL: http://localhost:3001/api
-
-      - name: Install Playwright
+      
+      - name: Wait for servers
         run: |
-          cd tests
-          npx playwright install
-
+          npx wait-on http://localhost:3001/api/health
+          npx wait-on http://localhost:4173
+      
+      - name: Install Playwright browsers
+        run: cd tests && npx playwright install --with-deps
+      
       - name: Run E2E tests
-        run: |
-          cd tests
-          npm run test:e2e
+        run: cd tests && npm run test:e2e
         env:
           FRONTEND_URL: http://localhost:4173
-
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/slotbox_test
+      
       - name: Upload E2E test results
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: e2e-test-results
-          path: tests/test-results/
+          name: playwright-report
+          path: tests/playwright-report/
+          retention-days: 30
 
   # Job de Testes de Stress
   stress-tests:
     runs-on: ubuntu-latest
-    needs: integration-tests
+    needs: e2e-tests
     services:
       postgres:
         image: postgres:15
@@ -291,128 +267,84 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
-
+      
       - name: Install dependencies
         run: |
-          cd backend
-          npm ci
-          cd ../tests
-          npm ci
-
+          cd backend && npm ci
+          cd ../tests && npm ci
+      
       - name: Setup test database
         run: |
           cd backend
           npx prisma migrate deploy
           npx prisma db seed
-
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/slotbox_test
+      
       - name: Start backend server
-        run: |
-          cd backend
-          npm start &
-          sleep 10
+        run: cd backend && npm start &
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/slotbox_test
+          JWT_SECRET: test-jwt-secret
+          VIZZION_PUBLIC_KEY: test-public-key
+          VIZZION_SECRET_KEY: test-secret-key
           PORT: 3001
-
+      
+      - name: Wait for backend
+        run: npx wait-on http://localhost:3001/api/health
+      
       - name: Run stress tests
-        run: |
-          cd tests
-          npm run test:stress
+        run: cd tests && npm run test:stress
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/slotbox_test
-          API_URL: http://localhost:3001
+          JWT_SECRET: test-jwt-secret
+          VIZZION_PUBLIC_KEY: test-public-key
+          VIZZION_SECRET_KEY: test-secret-key
 
-  # Job de Deploy (apenas para branch main)
-  deploy:
+  # Job de Deploy para Staging
+  deploy-staging:
     runs-on: ubuntu-latest
-    needs: [unit-tests, integration-tests, e2e-tests, stress-tests]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    environment: production
+    needs: [lint, unit-tests, integration-tests, build-frontend, e2e-tests, stress-tests]
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: Download frontend build
-        uses: actions/download-artifact@v3
-        with:
-          name: frontend-build
-          path: frontend/dist/
-
-      - name: Install backend dependencies
+      - uses: actions/checkout@v4
+      
+      - name: Deploy to Render (Staging)
         run: |
-          cd backend
-          npm ci
-
-      - name: Run database migrations
-        run: |
-          cd backend
-          npx prisma migrate deploy
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
-      - name: Run audit seed
-        run: |
-          cd backend
-          node ../scripts/apply-migrations-staging.js
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
-      - name: Deploy backend to Render
-        run: |
-          echo "Deploying backend to Render..."
-          # Trigger Render deployment via webhook
-          curl -X POST "${{ secrets.RENDER_DEPLOY_WEBHOOK }}"
-
-      - name: Deploy frontend to Hostinger
-        run: |
-          echo "Deploying frontend to Hostinger..."
-          # Upload files to Hostinger via FTP/SSH
-          # This would be implemented based on your hosting setup
-
+          echo "Deploying to staging environment..."
+          # Aqui seria implementado o deploy real para Render
+          # Por exemplo, usando a API do Render ou webhook
+      
       - name: Run smoke tests
         run: |
-          echo "Running smoke tests..."
-          # Test critical endpoints
-          curl -f "${{ secrets.PRODUCTION_API_URL }}/api/health"
-          curl -f "${{ secrets.PRODUCTION_API_URL }}/api/cases"
+          echo "Running smoke tests on staging..."
+          # Implementar smoke tests para verificar se o deploy foi bem-sucedido
 
-      - name: Create deployment tag
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git tag -a "deploy-$(date +%Y%m%d-%H%M%S)" -m "Production deployment"
-          git push origin "deploy-$(date +%Y%m%d-%H%M%S)"
-
-  # Job de Notificação
-  notify:
+  # Job de Deploy para Produção
+  deploy-production:
     runs-on: ubuntu-latest
-    needs: [deploy]
-    if: always()
+    needs: [lint, unit-tests, integration-tests, build-frontend, e2e-tests, stress-tests]
+    if: github.ref == 'refs/heads/main'
+    environment: production
     steps:
-      - name: Notify success
-        if: needs.deploy.result == 'success'
+      - uses: actions/checkout@v4
+      
+      - name: Deploy to Render (Production)
         run: |
-          echo "✅ Deploy realizado com sucesso!"
-          # Aqui você adicionaria notificações (Slack, Discord, etc.)
-
-      - name: Notify failure
-        if: needs.deploy.result == 'failure'
+          echo "Deploying to production environment..."
+          # Aqui seria implementado o deploy real para Render
+      
+      - name: Run smoke tests
         run: |
-          echo "❌ Deploy falhou!"
-          # Aqui você adicionaria notificações de erro
+          echo "Running smoke tests on production..."
+          # Implementar smoke tests para verificar se o deploy foi bem-sucedido

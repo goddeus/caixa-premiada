@@ -53,6 +53,9 @@ model User {
   login_history LoginHistory[]
   rtp_sessions UserRTPSession[]
   sessions    UserSession[]
+  deposits    Deposit[]
+  withdrawals Withdrawal[]
+  purchase_audits PurchaseAudit[]
 }
 
 model Wallet {
@@ -82,6 +85,8 @@ model Transaction {
   status      String   @default("pendente")
   referencia  String?
   identifier  String?  // Para identificar transações da VizzionPay
+  related_id  String?  // ID relacionado (purchase_id, deposit_id, etc.)
+  metadata    Json?    // Dados adicionais em JSON
   criado_em   DateTime @default(now())
   processado_em DateTime?
 
@@ -115,6 +120,7 @@ model Case {
 
   // Relacionamentos
   prizes      Prize[]
+  purchase_audits PurchaseAudit[]
 }
 
 model Prize {
@@ -261,4 +267,52 @@ model RTPConfig {
   ativo       Boolean  @default(true)
   criado_em   DateTime @default(now())
   atualizado_em DateTime @updatedAt
+}
+
+model Deposit {
+  id            String   @id @default(uuid())
+  user_id       String
+  amount        Float
+  status        String   @default("pending")
+  identifier    String   @unique
+  qr_code       String?
+  qr_base64     String?
+  provider_tx_id String?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  // Relacionamentos
+  user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model Withdrawal {
+  id            String   @id @default(uuid())
+  user_id       String
+  amount        Float
+  pix_key       String
+  pix_key_type  String
+  status        String   @default("processing")
+  provider_tx_id String?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  // Relacionamentos
+  user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model PurchaseAudit {
+  id            String   @id @default(uuid())
+  user_id       String
+  case_id       String
+  saldo_before  Float
+  saldo_after   Float
+  prize_id      String?
+  prize_value   Float    @default(0)
+  purchase_id   String
+  error_message String?
+  created_at    DateTime @default(now())
+
+  // Relacionamentos
+  user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  case          Case     @relation(fields: [case_id], references: [id], onDelete: Cascade)
 }

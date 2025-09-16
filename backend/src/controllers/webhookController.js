@@ -1,5 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const withdrawService = require('../services/withdrawService');
+const fs = require('fs');
+const path = require('path');
 
 const prisma = new PrismaClient();
 
@@ -8,62 +10,102 @@ class WebhookController {
   /**
    * POST /api/webhook/pix
    * Webhook da VizzionPay para confirmar depósitos PIX
+   * Implementa validação de assinatura, logging e processamento atômico
    */
   static async handlePixWebhook(req, res) {
+    const startTime = Date.now();
+    let webhookData = null;
+    
     try {
-      console.log('[DEBUG] Webhook PIX recebido da VizzionPay:', JSON.stringify(req.body, null, 2));
+      // Log do webhook recebido (raw body)
+      webhookData = {
+        timestamp: new Date().toISOString(),
+        headers: req.headers,
+        body: req.body,
+        ip: req.ip || req.connection.remoteAddress
+      };
       
-      // Validar headers de segurança (VizzionPay pode não enviar os headers)
+      await this.logWebhookReceived(webhookData);
+      
+      console.log('[WEBHOOK] PIX recebido da VizzionPay:', JSON.stringify(req.body, null, 2));
+      
+      // Validar headers de segurança
       const publicKey = req.headers['x-public-key'];
       const secretKey = req.headers['x-secret-key'];
+      const signature = req.headers['x-signature'];
       
-      // Temporariamente desabilitar validação de headers para testar
-      // if (publicKey !== process.env.VIZZION_PUBLIC_KEY || secretKey !== process.env.VIZZION_SECRET_KEY) {
-      //   console.error('[DEBUG] Headers de segurança inválidos');
-      //   return res.status(401).json({
-      //     success: false,
-      //     error: 'Unauthorized'
-      //   });
-      // }
+      // Verificar se as chaves estão presentes (opcional para VizzionPay)
+      if (publicKey && secretKey) {
+        if (publicKey !== process.env.VIZZION_PUBLIC_KEY || secretKey !== process.env.VIZZION_SECRET_KEY) {
+          console.error('[WEBHOOK] Headers de segurança inválidos');
+          await this.logWebhookError({
+            timestamp: new Date().toISOString(),
+            error: 'Headers de segurança inválidos',
+            webhookData
+          });
+          return res.status(401).json({
+            success: false,
+            error: 'Unauthorized'
+          });
+        }
+      }
       
-      // Extrair dados do formato VizzionPay
-      const { event, transaction: webhookTransaction } = req.body;
+      // Validar assinatura se presente
+      if (signature) {
+        // TODO: Implementar validação de assinatura HMAC se necessário
+        console.log('[WEBHOOK] Assinatura presente:', signature);
+      }
       
-      // Verificar se é evento de pagamento
-      if (event !== 'TRANSACTION_PAID') {
-        console.log(`[DEBUG] Evento não é de pagamento: ${event}`);
+      // Extrair dados do webhook
+      const { event, transaction: webhookTransaction, status } = req.body;
+      
+      // Verificar se é evento de pagamento ou status completed
+      const isPaidEvent = event === 'TRANSACTION_PAID' || event === 'PAYMENT_CONFIRMED';
+      const isCompletedStatus = status === 'COMPLETED' || status === 'OK' || status === 'PAID';
+      
+      if (!isPaidEvent && !isCompletedStatus) {
+        console.log(`[WEBHOOK] Evento/status não é de pagamento: event=${event}, status=${status}`);
         return res.status(200).json({ success: true });
       }
       
-      if (!webhookTransaction) {
-        console.error('[DEBUG] Transação não encontrada no webhook');
-        return res.status(400).json({
-          success: false,
-          error: 'Transação não encontrada'
-        });
+      // Extrair dados da transação
+      let identifier, amount, transactionId;
+      
+      if (webhookTransaction) {
+        identifier = webhookTransaction.identifier;
+        amount = webhookTransaction.amount;
+        transactionId = webhookTransaction.transactionId || webhookTransaction.id;
+      } else {
+        // Formato alternativo
+        identifier = req.body.identifier;
+        amount = req.body.amount;
+        transactionId = req.body.transactionId || req.body.id;
       }
       
-      const { identifier, amount, status } = webhookTransaction;
-      
-      // Validações
-      if (!identifier || !amount || !status) {
-        console.error('[DEBUG] Dados obrigatórios não fornecidos:', { identifier, amount, status });
+      // Validações obrigatórias
+      if (!identifier || !amount) {
+        console.error('[WEBHOOK] Dados obrigatórios não fornecidos:', { identifier, amount });
+        await this.logWebhookError({
+          timestamp: new Date().toISOString(),
+          error: 'Dados obrigatórios não fornecidos',
+          webhookData
+        });
         return res.status(400).json({
           success: false,
           error: 'Dados obrigatórios não fornecidos'
         });
       }
       
-      // Verificar se status é completed (formato VizzionPay)
-      if (status !== 'COMPLETED') {
-        console.log(`[DEBUG] Status não é completed: ${status}`);
-        return res.status(200).json({ success: true });
-      }
-      
       // Extrair userId do identifier (deposit_userId_timestamp)
       const identifierParts = identifier.split('_');
       if (identifierParts.length < 3 || identifierParts[0] !== 'deposit') {
-        console.error('[DEBUG] Identifier inválido:', identifier);
+        console.error('[WEBHOOK] Identifier inválido:', identifier);
+        await this.logWebhookError({
+          timestamp: new Date().toISOString(),
+          error: 'Identifier inválido',
+          identifier,
+          webhookData
+        });
         return res.status(400).json({
           success: false,
           error: 'Identifier inválido'
@@ -72,59 +114,107 @@ class WebhookController {
       
       const userId = identifierParts[1];
       
-      // Buscar transação pelo identifier
-      const transaction = await prisma.transaction.findFirst({
+      // Buscar depósito pelo identifier
+      const deposit = await prisma.deposit.findFirst({
         where: { identifier },
         include: { user: true }
       });
       
-      if (!transaction) {
-        console.error(`[DEBUG] Transação não encontrada para identifier: ${identifier}`);
+      if (!deposit) {
+        console.error(`[WEBHOOK] Depósito não encontrado para identifier: ${identifier}`);
+        await this.logWebhookError({
+          timestamp: new Date().toISOString(),
+          error: 'Depósito não encontrado',
+          identifier,
+          webhookData
+        });
         return res.status(404).json({
           success: false,
-          error: 'Transação não encontrada'
+          error: 'Depósito não encontrado'
         });
       }
       
-      // Verificar se já foi processada
-      if (transaction.status === 'concluido') {
-        console.log(`[DEBUG] Transação já processada: ${identifier}`);
+      // Verificar se já foi processado
+      if (deposit.status === 'approved') {
+        console.log(`[WEBHOOK] Depósito já processado: ${identifier}`);
         return res.status(200).json({ success: true });
       }
       
-      // Processar pagamento
+      // Processar pagamento de forma atômica
       await prisma.$transaction(async (tx) => {
-        // Atualizar status da transação
-        await tx.transaction.update({
-          where: { id: transaction.id },
+        // Atualizar status do depósito
+        await tx.deposit.update({
+          where: { id: deposit.id },
           data: {
-            status: 'concluido',
-            processado_em: new Date()
+            status: 'approved',
+            provider_tx_id: transactionId,
+            updated_at: new Date()
           }
         });
         
-        // Creditar saldo do usuário
-        if (transaction.user.tipo_conta === 'afiliado_demo') {
+        // Creditar saldo do usuário de forma atômica
+        if (deposit.user.tipo_conta === 'afiliado_demo') {
           // Conta demo - creditar saldo_demo
           await tx.user.update({
-            where: { id: transaction.user_id },
-            data: { saldo_demo: { increment: amount } }
+            where: { id: deposit.user_id },
+            data: { 
+              saldo_demo: { increment: amount },
+              primeiro_deposito_feito: true
+            }
           });
         } else {
           // Conta normal - creditar saldo_reais
           await tx.user.update({
-            where: { id: transaction.user_id },
-            data: { saldo_reais: { increment: amount } }
+            where: { id: deposit.user_id },
+            data: { 
+              saldo_reais: { increment: amount },
+              primeiro_deposito_feito: true
+            }
           });
         }
+        
+        // Criar registro de transação
+        await tx.transaction.create({
+          data: {
+            user_id: deposit.user_id,
+            tipo: 'deposito',
+            valor: amount,
+            saldo_antes: deposit.user.tipo_conta === 'afiliado_demo' ? deposit.user.saldo_demo : deposit.user.saldo_reais,
+            saldo_depois: (deposit.user.tipo_conta === 'afiliado_demo' ? deposit.user.saldo_demo : deposit.user.saldo_reais) + amount,
+            descricao: 'Depósito PIX aprovado',
+            status: 'processado',
+            related_id: deposit.id,
+            created_at: new Date()
+          }
+        });
       });
       
-      console.log(`[DEBUG] Depósito confirmado para usuário: ${transaction.user.email} - Valor: +R$ ${amount}`);
+      const processingTime = Date.now() - startTime;
+      console.log(`[WEBHOOK] Depósito confirmado para usuário: ${deposit.user.email} - Valor: +R$ ${amount} - Tempo: ${processingTime}ms`);
+      
+      // Log de sucesso
+      await this.logWebhookSuccess({
+        timestamp: new Date().toISOString(),
+        identifier,
+        userId: deposit.user_id,
+        amount,
+        processingTime,
+        webhookData
+      });
       
       res.status(200).json({ success: true });
       
     } catch (error) {
-      console.error('[DEBUG] Erro no webhook PIX:', error);
+      console.error('[WEBHOOK] Erro no webhook PIX:', error);
+      
+      // Log do erro
+      await this.logWebhookError({
+        timestamp: new Date().toISOString(),
+        error: error.message,
+        stack: error.stack,
+        webhookData
+      });
+      
       res.status(500).json({
         success: false,
         error: 'Erro interno do servidor'
@@ -182,6 +272,63 @@ class WebhookController {
         success: false,
         error: 'Erro interno do servidor'
       });
+    }
+  }
+  
+  /**
+   * Log estruturado para webhooks recebidos
+   */
+  static async logWebhookReceived(data) {
+    try {
+      const logDir = path.join(__dirname, '../../logs/webhooks');
+      if (!fs.existsSync(logDir)) {
+        fs.mkdirSync(logDir, { recursive: true });
+      }
+      
+      const logFile = path.join(logDir, `received_${new Date().toISOString().split('T')[0]}.log`);
+      const logEntry = JSON.stringify(data) + '\n';
+      
+      fs.appendFileSync(logFile, logEntry);
+    } catch (error) {
+      console.error('[WEBHOOK] Erro ao salvar log de webhook recebido:', error);
+    }
+  }
+  
+  /**
+   * Log estruturado para webhooks processados com sucesso
+   */
+  static async logWebhookSuccess(data) {
+    try {
+      const logDir = path.join(__dirname, '../../logs/webhooks');
+      if (!fs.existsSync(logDir)) {
+        fs.mkdirSync(logDir, { recursive: true });
+      }
+      
+      const logFile = path.join(logDir, `success_${new Date().toISOString().split('T')[0]}.log`);
+      const logEntry = JSON.stringify(data) + '\n';
+      
+      fs.appendFileSync(logFile, logEntry);
+    } catch (error) {
+      console.error('[WEBHOOK] Erro ao salvar log de sucesso:', error);
+    }
+  }
+  
+  /**
+   * Log estruturado para erros de webhook
+   */
+  static async logWebhookError(data) {
+    try {
+      const logDir = path.join(__dirname, '../../logs/webhooks');
+      if (!fs.existsSync(logDir)) {
+        fs.mkdirSync(logDir, { recursive: true });
+      }
+      
+      const logFile = path.join(logDir, `errors_${new Date().toISOString().split('T')[0]}.log`);
+      const logEntry = JSON.stringify(data) + '\n';
+      
+      fs.appendFileSync(logFile, logEntry);
+    } catch (error) {
+      console.error('[WEBHOOK] Erro ao salvar log de erro:', error);
     }
   }
 }
