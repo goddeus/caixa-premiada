@@ -335,21 +335,46 @@ const Dashboard = () => {
       return;
     }
 
+    if (!isAuthenticated || !user) {
+      toast.error('Você precisa estar logado para fazer um saque');
+      setShowLoginModal(true);
+      return;
+    }
+
     try {
       setLoading(true);
-      await api.post('/withdraw/pix', { 
-        valor: parseFloat(withdrawAmount.replace(',', '.')),
-        pix_key: pixKey,
-        pix_key_type: pixKeyType
+      console.log('[DEBUG] Iniciando saque PIX:', { 
+        userId: user.id, 
+        amount: parseFloat(withdrawAmount.replace(',', '.')),
+        pixKey,
+        pixKeyType
       });
       
-      toast.success('Saque solicitado com sucesso!');
-      setWithdrawAmount('20,00');
-      setPixKey('');
-      setShowWithdrawModal(false);
+      const response = await api.post('/withdraw/pix', { 
+        userId: user.id,
+        amount: parseFloat(withdrawAmount.replace(',', '.')),
+        pixKey: pixKey,
+        pixKeyType: pixKeyType
+      });
+      
+      console.log('[DEBUG] Resposta do saque PIX:', response);
+      
+      if (response.success) {
+        toast.success('Saque solicitado com sucesso!');
+        setWithdrawAmount('20,00');
+        setPixKey('');
+        setPixKeyType('phone');
+        setShowWithdrawModal(false);
+        
+        // Atualizar saldo do usuário
+        await refreshUserData();
+      } else {
+        toast.error(response.error || 'Erro ao solicitar saque');
+      }
       
     } catch (error) {
-      const message = error.response?.data?.message || 'Erro ao solicitar saque';
+      console.error('[DEBUG] Erro no saque PIX:', error);
+      const message = error.response?.data?.error || error.response?.data?.message || 'Erro ao solicitar saque';
       toast.error(message);
     } finally {
       setLoading(false);
@@ -1319,7 +1344,7 @@ const Dashboard = () => {
 
                 {/* Botões de valores rápidos */}
                 <div className="flex gap-1 md:gap-2 overflow-x-auto pb-2">
-                  {['30,00', '50,00', '100,00', '200,00', '500,00'].map((amount) => (
+                  {['20,00', '50,00', '100,00', '200,00', '500,00'].map((amount) => (
                     <button
                       key={amount}
                       type="button"

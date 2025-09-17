@@ -121,16 +121,16 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* RTP do Sistema */}
+        {/* Sistema de Prêmios */}
         <div className="bg-gray-800 rounded-lg p-6">
           <div className="flex items-center">
             <div className="p-3 rounded-full bg-purple-600">
               <FaChartLine className="text-white text-xl" />
             </div>
             <div className="ml-4">
-              <p className="text-gray-400 text-sm">RTP Atual</p>
+              <p className="text-gray-400 text-sm">Sistema de Prêmios</p>
               <p className="text-white font-bold text-2xl">
-                {(stats.prize_system?.rtp * 100 || 15).toFixed(0)}%
+                Ativo
               </p>
             </div>
           </div>

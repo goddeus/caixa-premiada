@@ -46,16 +46,15 @@ const CaseOpener = ({
   };
 
   const simulateDemoCase = async (totalCost) => {
-    // Simular RTP 70% para contas demo
-    const rtp = 0.70;
+    // Simular sorteio para contas demo
     const random = Math.random();
     
     let wonPrize = null;
     const userBalance = (user.tipo_conta === 'afiliado_demo' ? (user.saldo_demo || 0) : (user.saldo_reais || 0)) - totalCost;
     
-    if (random <= rtp) {
-      // Usuário ganha - calcular prêmio baseado no RTP
-      const prizeValue = totalCost * (rtp + Math.random() * 0.3); // Entre 70% e 100% do valor investido
+    if (random <= 0.7) {
+      // Usuário ganha - calcular prêmio baseado no valor investido
+      const prizeValue = totalCost * (0.7 + Math.random() * 0.3); // Entre 70% e 100% do valor investido
       
       // Encontrar prêmio mais próximo do valor calculado
       const sortedPrizes = prizes.sort((a, b) => {
@@ -98,14 +97,14 @@ const CaseOpener = ({
     setShowSimulation(true);
     setShowResult(false);
     
-    // Para contas demo, usar RTP fixo de 70%
-    const rtp = isDemoAccount() ? 0.7 : 0.85; // RTP padrão para contas normais
+    // Para contas demo, usar taxa de vitória de 70%
+    const winRate = isDemoAccount() ? 0.7 : 0.85; // Taxa de vitória padrão para contas normais
     
-    // Selecionar prêmio baseado no RTP
+    // Selecionar prêmio baseado na taxa de vitória
     const randomValue = Math.random();
     let selectedPrizeData;
     
-    if (randomValue <= rtp) {
+    if (randomValue <= winRate) {
       // Usuário ganha - selecionar prêmio real
       const realPrizes = prizes.filter(p => !p.illustrative);
       selectedPrizeData = realPrizes[Math.floor(Math.random() * realPrizes.length)];
@@ -157,7 +156,7 @@ const CaseOpener = ({
     try {
       let response;
       
-      // Se for conta demo, simular RTP 70%
+      // Se for conta demo, simular taxa de vitória de 70%
       if (isDemoAccount()) {
         response = await simulateDemoCase(totalCost);
       } else {
@@ -407,7 +406,7 @@ const CaseOpener = ({
         {isDemo && (
           <div className="mt-4 p-3 bg-yellow-500/20 border border-yellow-500/30 rounded-lg">
             <p className="text-yellow-400 text-sm">
-              🎮 Conta Demo - RTP 70% - Saques bloqueados
+              🎮 Conta Demo - Taxa de Vitória 70% - Saques bloqueados
             </p>
           </div>
         )}

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import api from '../../services/api';
-import RTPControlPanel from './RTPControlPanel';
 import { 
   FaHome, 
   FaDollarSign, 
@@ -140,24 +139,10 @@ const HouseControl = () => {
           <FaHome className="mr-2" />
           Visão Geral
         </button>
-        <button
-          onClick={() => setActiveTab('rtp')}
-          className={`flex items-center px-4 py-2 rounded-md transition-colors ${
-            activeTab === 'rtp'
-              ? 'bg-blue-600 text-white'
-              : 'text-gray-400 hover:text-white hover:bg-gray-700'
-          }`}
-        >
-          <FaCog className="mr-2" />
-          Controle de RTP
-        </button>
       </div>
 
       {/* Conteúdo das Tabs */}
-      {activeTab === 'rtp' ? (
-        <RTPControlPanel />
-      ) : (
-        <div className="space-y-6">
+      <div className="space-y-6">
 
       {/* Botões de Ação */}
       <div className="flex justify-end space-x-2 mb-6">
@@ -212,7 +197,7 @@ const HouseControl = () => {
             </p>
             {stats.prize_system && (
               <div className="mt-4 flex items-center space-x-4 text-blue-100">
-                <span className="text-sm">RTP: {(stats.prize_system.rtp * 100).toFixed(0)}%</span>
+                <span className="text-sm">Sistema de Prêmios Ativo</span>
                 <span className="text-sm">•</span>
                 <span className="text-sm">Fundo: {formatCurrency(stats.prize_system.fundo_restante)}</span>
               </div>
@@ -389,12 +374,12 @@ const HouseControl = () => {
           <h3 className="text-xl font-bold text-white mb-4">🎰 Sistema de Prêmios</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-gray-700 rounded-lg p-4">
-              <h4 className="text-lg font-semibold text-white mb-3">Informações do RTP</h4>
+              <h4 className="text-lg font-semibold text-white mb-3">Informações do Sistema</h4>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-gray-400">RTP Atual:</span>
-                  <span className="text-blue-400 font-semibold">
-                    {(stats.prize_system.rtp * 100).toFixed(0)}%
+                  <span className="text-gray-400">Status:</span>
+                  <span className="text-green-400 font-semibold">
+                    Ativo
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -511,8 +496,7 @@ const HouseControl = () => {
           )}
         </div>
       </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 };
