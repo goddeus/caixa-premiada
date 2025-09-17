@@ -41,6 +41,56 @@ class CasesController {
     return staticCases[caseId] || null;
   }
 
+  // NOVO SISTEMA DE PRÊMIOS - Diferencia contas normais e demo
+  getPrizeSystemForUser(caseId, isDemo = false) {
+    const caseData = this.getStaticCaseData(caseId);
+    if (!caseData) return null;
+
+    // Se for conta demo, manter prêmios originais (acima de R$50,00)
+    if (isDemo) {
+      return caseData;
+    }
+
+    // Para contas normais, aplicar novo sistema de prêmios controlados
+    const newPrizeSystem = {
+      ...caseData,
+      prizes: this.getControlledPrizes(caseId)
+    };
+
+    return newPrizeSystem;
+  }
+
+  // Prêmios controlados para contas normais (proteção do caixa)
+  getControlledPrizes(caseId) {
+    const controlledPrizes = {
+      '1abd77cf-472b-473d-9af0-6cd47f9f1452': [ // CAIXA WEEKEND (R$1,50)
+        { id: 'weekend_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 1.0 }
+      ],
+      '0b5e9b8a-9d56-4769-a45a-55a3025640f4': [ // CAIXA NIKE (R$2,50)
+        { id: 'nike_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.6 },
+        { id: 'nike_2', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.4 }
+      ],
+      '3f2a9f7a-cb4d-47e7-991a-0e72c0e0f415': [ // CAIXA SAMSUNG (R$3,00)
+        { id: 'samsung_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.6 },
+        { id: 'samsung_2', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.4 }
+      ],
+      'fb0c0175-b478-4fd5-9750-d673c0f374fd': [ // CAIXA CONSOLE (R$3,50)
+        { id: 'console_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.6 },
+        { id: 'console_2', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.4 }
+      ],
+      '61a19df9-d011-429e-a9b5-d2c837551150': [ // CAIXA APPLE (R$7,00)
+        { id: 'apple_1', nome: 'R$ 5,00', valor: 5.0, probabilidade: 1.0 }
+      ],
+      'db95bb2b-9b3e-444b-964f-547330010a59': [ // CAIXA PREMIUM MASTER (R$15,00)
+        { id: 'premium_1', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.4 },
+        { id: 'premium_2', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.4 },
+        { id: 'premium_3', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.2 }
+      ]
+    };
+
+    return controlledPrizes[caseId] || this.getStaticCaseData(caseId)?.prizes || []; // Fallback para prêmios originais
+  }
+
   // Sistema de sorteio simples SEM creditar (apenas sorteia o prêmio)
   async simpleDrawWithoutCredit(caseData, userId, userBalance) {
     try {
@@ -100,25 +150,27 @@ class CasesController {
   }
 
   // Sistema de sorteio simples com transações (fallback quando banco não está disponível)
-  async simpleDraw(caseData, userId, userBalance) {
+  async simpleDraw(caseData, userId, userBalance, isDemo = false) {
     try {
-      console.log('🎲 Executando sorteio simples com transações...');
+      console.log(`🎲 Executando sorteio simples com transações... (${isDemo ? 'DEMO' : 'NORMAL'})`);
       
-      if (!caseData.prizes || caseData.prizes.length === 0) {
+      // Aplicar novo sistema de prêmios baseado no tipo de conta
+      const prizeSystem = this.getPrizeSystemForUser(caseData.id, isDemo);
+      if (!prizeSystem || !prizeSystem.prizes || prizeSystem.prizes.length === 0) {
         return {
           success: false,
           message: 'Caixa não possui prêmios configurados'
         };
       }
 
-      // Calcular probabilidades
-      const totalProbability = caseData.prizes.reduce((sum, prize) => sum + prize.probabilidade, 0);
+      // Calcular probabilidades usando o sistema de prêmios correto
+      const totalProbability = prizeSystem.prizes.reduce((sum, prize) => sum + prize.probabilidade, 0);
       const random = Math.random() * totalProbability;
       
       let currentProbability = 0;
       let selectedPrize = null;
       
-      for (const prize of caseData.prizes) {
+      for (const prize of prizeSystem.prizes) {
         currentProbability += prize.probabilidade;
         if (random <= currentProbability) {
           selectedPrize = prize;
@@ -127,10 +179,10 @@ class CasesController {
       }
       
       if (!selectedPrize) {
-        selectedPrize = caseData.prizes[caseData.prizes.length - 1]; // Fallback
+        selectedPrize = prizeSystem.prizes[prizeSystem.prizes.length - 1]; // Fallback
       }
       
-      console.log(`🎁 Prêmio selecionado: ${selectedPrize.nome} - R$ ${selectedPrize.valor}`);
+      console.log(`🎁 Prêmio selecionado: ${selectedPrize.nome} - R$ ${selectedPrize.valor} (${isDemo ? 'DEMO' : 'NORMAL'})`);
       
       // Processar transações
       const casePrice = parseFloat(caseData.preco);
@@ -171,7 +223,7 @@ class CasesController {
         message: selectedPrize.valor > 0 ? 
           `Parabéns! Você ganhou R$ ${selectedPrize.valor.toFixed(2)}!` : 
           'Tente novamente na próxima!',
-        is_demo: false,
+        is_demo: isDemo,
         userBalance: finalBalance,
         transaction: {
           debited: casePrice,

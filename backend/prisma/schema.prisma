@@ -286,6 +286,8 @@ model Deposit {
 
   // Relacionamentos
   user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  
+  @@map("deposits")
 }
 
 model Withdrawal {
@@ -301,6 +303,8 @@ model Withdrawal {
 
   // Relacionamentos
   user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  
+  @@map("withdrawals")
 }
 
 model PurchaseAudit {
@@ -318,6 +322,8 @@ model PurchaseAudit {
   // Relacionamentos
   user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
   case          Case     @relation(fields: [case_id], references: [id], onDelete: Cascade)
+  
+  @@map("purchase_audit")
 }
 
 model UserBehavior {
