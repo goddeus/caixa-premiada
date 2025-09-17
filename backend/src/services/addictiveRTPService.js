@@ -20,34 +20,56 @@ class AddictiveRTPService {
    */
   async calculateDynamicRTP(userId, caseId, userBehavior) {
     try {
-      // 1. ANALISAR COMPORTAMENTO DO USUÁRIO
+      // 1. VERIFICAR SE É CONTA DEMO
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { tipo_conta: true }
+      });
+      
+      const isDemoAccount = user?.tipo_conta === 'afiliado_demo';
+      
+      // 2. ANALISAR COMPORTAMENTO DO USUÁRIO
       const behaviorProfile = await this.analyzeUserBehavior(userId);
       
-      // 2. CALCULAR RTP BASEADO NO PERFIL
+      // 3. CALCULAR RTP BASEADO NO PERFIL
       let baseRTP = 0.15; // RTP base muito baixo (15%)
       
-      // Ajustar RTP baseado no comportamento
-      if (behaviorProfile.isNewUser) {
-        // Usuários novos: RTP alto para criar vício
-        baseRTP = 0.45; // 45% para os primeiros jogos
-      } else if (behaviorProfile.isLossChasing) {
-        // Usuário perseguindo perdas: RTP baixo para maximizar lucro
-        baseRTP = 0.08; // 8% - quase impossível ganhar
-      } else if (behaviorProfile.isHighFrequency) {
-        // Usuário frequente: RTP médio para manter engajamento
-        baseRTP = 0.20; // 20%
-      } else if (behaviorProfile.isAboutToQuit) {
-        // Usuário prestes a desistir: RTP alto para reter
-        baseRTP = 0.60; // 60% - "sorte" para não sair
+      // AJUSTAR RTP PARA CONTAS DEMO (RTP MUITO MAIS ALTO)
+      if (isDemoAccount) {
+        console.log(`🎯 [DEMO] Conta demo detectada - aplicando RTP alto para afiliados`);
+        baseRTP = 0.85; // 85% para contas demo (muito alto para afiliados)
+      } else {
+        // Ajustar RTP baseado no comportamento (apenas para contas normais)
+        if (behaviorProfile.isNewUser) {
+          // Usuários novos: RTP alto para criar vício
+          baseRTP = 0.45; // 45% para os primeiros jogos
+        } else if (behaviorProfile.isLossChasing) {
+          // Usuário perseguindo perdas: RTP baixo para maximizar lucro
+          baseRTP = 0.08; // 8% - quase impossível ganhar
+        } else if (behaviorProfile.isHighFrequency) {
+          // Usuário frequente: RTP médio para manter engajamento
+          baseRTP = 0.20; // 20%
+        } else if (behaviorProfile.isAboutToQuit) {
+          // Usuário prestes a desistir: RTP alto para reter
+          baseRTP = 0.60; // 60% - "sorte" para não sair
+        }
       }
       
-      // 3. APLICAR MULTIPLICADORES PSICOLÓGICOS
+      // 4. APLICAR MULTIPLICADORES PSICOLÓGICOS
       const psychologicalMultipliers = this.calculatePsychologicalMultipliers(behaviorProfile);
       
-      // 4. RTP FINAL (com cap mínimo de 5% e máximo de 80%)
-      const finalRTP = Math.max(0.05, Math.min(0.80, baseRTP * psychologicalMultipliers));
+      // 5. RTP FINAL (com caps diferentes para demo e normal)
+      let finalRTP;
+      if (isDemoAccount) {
+        // Para contas demo: RTP muito alto (70% a 95%)
+        finalRTP = Math.max(0.70, Math.min(0.95, baseRTP * psychologicalMultipliers));
+      } else {
+        // Para contas normais: RTP baixo (5% a 80%)
+        finalRTP = Math.max(0.05, Math.min(0.80, baseRTP * psychologicalMultipliers));
+      }
       
       console.log(`🧠 RTP Dinâmico para usuário ${userId}:`);
+      console.log(`   - Tipo de Conta: ${isDemoAccount ? 'DEMO (Afiliado)' : 'NORMAL'}`);
       console.log(`   - RTP Base: ${(baseRTP * 100).toFixed(1)}%`);
       console.log(`   - Multiplicador Psicológico: ${psychologicalMultipliers.toFixed(2)}x`);
       console.log(`   - RTP Final: ${(finalRTP * 100).toFixed(1)}%`);
@@ -56,7 +78,8 @@ class AddictiveRTPService {
         rtp: finalRTP,
         behaviorProfile,
         psychologicalMultipliers,
-        strategy: this.getStrategy(behaviorProfile)
+        strategy: this.getStrategy(behaviorProfile),
+        isDemoAccount: isDemoAccount
       };
       
     } catch (error) {
@@ -207,24 +230,37 @@ class AddictiveRTPService {
       const rtp = rtpConfig.rtp;
       const strategy = rtpConfig.strategy;
       
+      // Verificar se é conta demo
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { tipo_conta: true }
+      });
+      
+      const isDemoAccount = user?.tipo_conta === 'afiliado_demo';
+      
       // Gerar prêmios baseados na estratégia
       let prizes = [];
       
-      switch (strategy) {
-        case 'honeymoon':
-          prizes = this.generateHoneymoonPrizes(caseData, rtp, caixaTotal);
-          break;
-        case 'extraction':
-          prizes = this.generateExtractionPrizes(caseData, rtp, caixaTotal);
-          break;
-        case 'retention':
-          prizes = this.generateRetentionPrizes(caseData, rtp, caixaTotal);
-          break;
-        case 'maintenance':
-          prizes = this.generateMaintenancePrizes(caseData, rtp, caixaTotal);
-          break;
-        default:
-          prizes = this.generateDefaultPrizes(caseData, rtp, caixaTotal);
+      if (isDemoAccount) {
+        // Estratégia especial para contas demo (RTP muito alto)
+        prizes = this.generateDemoPrizes(caseData, rtp, caixaTotal);
+      } else {
+        switch (strategy) {
+          case 'honeymoon':
+            prizes = this.generateHoneymoonPrizes(caseData, rtp, caixaTotal);
+            break;
+          case 'extraction':
+            prizes = this.generateExtractionPrizes(caseData, rtp, caixaTotal);
+            break;
+          case 'retention':
+            prizes = this.generateRetentionPrizes(caseData, rtp, caixaTotal);
+            break;
+          case 'maintenance':
+            prizes = this.generateMaintenancePrizes(caseData, rtp, caixaTotal);
+            break;
+          default:
+            prizes = this.generateDefaultPrizes(caseData, rtp, caixaTotal);
+        }
       }
 
       return prizes;
@@ -457,6 +493,87 @@ class AddictiveRTPService {
       probabilidade: 1.0,
       tipo: 'motivacional'
     }];
+  }
+
+  /**
+   * Estratégia Demo: Contas demo com RTP muito alto para afiliados
+   */
+  generateDemoPrizes(caseData, rtp, caixaTotal) {
+    const prizes = [];
+    const casePrice = parseFloat(caseData.preco);
+    
+    // Para contas demo: RTP muito alto (85% base)
+    // Calcular prêmio máximo baseado no caixa total (máximo 5% do caixa total)
+    const maxPrize = Math.min(caixaTotal * 0.05, 200); // Máximo 5% do caixa ou R$ 200
+    
+    console.log(`🎯 [DEMO] Prêmio máximo permitido: R$ ${maxPrize.toFixed(2)} (Caixa: R$ ${caixaTotal.toFixed(2)})`);
+    
+    // 80% de chance de ganhar algo (muito alto para demo)
+    const prize1 = Math.min(5.00, maxPrize);
+    const prize2 = Math.min(10.00, maxPrize);
+    const prize3 = Math.min(25.00, maxPrize);
+    const prize4 = Math.min(50.00, maxPrize);
+    const prize5 = Math.min(100.00, maxPrize);
+    
+    if (prize1 > 0) {
+      prizes.push({
+        nome: `R$ ${prize1.toFixed(2)}`,
+        valor: prize1,
+        probabilidade: 0.25,
+        tipo: 'cash'
+      });
+    }
+    
+    if (prize2 > 0) {
+      prizes.push({
+        nome: `R$ ${prize2.toFixed(2)}`,
+        valor: prize2,
+        probabilidade: 0.20,
+        tipo: 'cash'
+      });
+    }
+    
+    if (prize3 > 0) {
+      prizes.push({
+        nome: `R$ ${prize3.toFixed(2)}`,
+        valor: prize3,
+        probabilidade: 0.15,
+        tipo: 'cash'
+      });
+    }
+    
+    if (prize4 > 0) {
+      prizes.push({
+        nome: `R$ ${prize4.toFixed(2)}`,
+        valor: prize4,
+        probabilidade: 0.10,
+        tipo: 'cash'
+      });
+    }
+    
+    if (prize5 > 0) {
+      prizes.push({
+        nome: `R$ ${prize5.toFixed(2)}`,
+        valor: prize5,
+        probabilidade: 0.10,
+        tipo: 'cash'
+      });
+    }
+    
+    // Apenas 20% de chance de não ganhar nada (muito baixo para demo)
+    const totalWinProbability = prizes.reduce((sum, p) => sum + p.probabilidade, 0);
+    const noWinProbability = Math.max(0.20, 1 - totalWinProbability);
+    
+    prizes.push({
+      nome: 'Tente Novamente',
+      valor: 0,
+      probabilidade: noWinProbability,
+      tipo: 'motivacional'
+    });
+    
+    console.log(`🎯 [DEMO] Estratégia demo aplicada - RTP: ${(rtp * 100).toFixed(1)}%`);
+    
+    return prizes;
   }
 
   /**

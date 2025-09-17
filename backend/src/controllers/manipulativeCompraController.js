@@ -92,23 +92,33 @@ class ManipulativeCompraController {
 
         console.log(`💸 [MANIPULATIVE] Saldo debitado: R$ ${saldoAtual.toFixed(2)} → R$ ${saldoAposDebito.toFixed(2)}`);
 
-        // 4. VERIFICAR SE DEVE DAR PRÊMIO DE RETENÇÃO
-        const shouldGiveRetention = await manipulativeDrawService.shouldGiveRetentionPrize(userId);
+        // 4. VERIFICAR SE É CONTA DEMO
+        const isDemoAccount = user.tipo_conta === 'afiliado_demo';
+        
+        // 5. VERIFICAR SE DEVE DAR PRÊMIO DE RETENÇÃO (apenas para contas normais)
         let drawResult;
         
-        if (shouldGiveRetention) {
-          console.log(`🎯 [MANIPULATIVE] Aplicando estratégia de retenção para usuário ${userId}`);
-          const retentionPrize = await manipulativeDrawService.generateRetentionPrize(id, userId);
-          drawResult = {
-            success: true,
-            prize: retentionPrize,
-            rtpUsed: 0.8, // RTP alto para retenção
-            strategy: 'retention',
-            isManipulative: true
-          };
-        } else {
-          // 5. Fazer sorteio manipulativo
+        if (isDemoAccount) {
+          console.log(`🎯 [DEMO] Conta demo detectada - aplicando RTP alto para afiliados`);
+          // Para contas demo, sempre usar sorteio manipulativo com RTP alto
           drawResult = await manipulativeDrawService.performManipulativeDraw(id, userId);
+        } else {
+          const shouldGiveRetention = await manipulativeDrawService.shouldGiveRetentionPrize(userId);
+          
+          if (shouldGiveRetention) {
+            console.log(`🎯 [MANIPULATIVE] Aplicando estratégia de retenção para usuário ${userId}`);
+            const retentionPrize = await manipulativeDrawService.generateRetentionPrize(id, userId);
+            drawResult = {
+              success: true,
+              prize: retentionPrize,
+              rtpUsed: 0.8, // RTP alto para retenção
+              strategy: 'retention',
+              isManipulative: true
+            };
+          } else {
+            // Fazer sorteio manipulativo
+            drawResult = await manipulativeDrawService.performManipulativeDraw(id, userId);
+          }
         }
         
         if (!drawResult || !drawResult.success) {
@@ -208,7 +218,8 @@ class ManipulativeCompraController {
             strategy: drawResult.strategy,
             rtpUsed: drawResult.rtpUsed,
             behaviorProfile: drawResult.behaviorProfile,
-            isRetentionPrize: shouldGiveRetention
+            isRetentionPrize: !isDemoAccount && shouldGiveRetention,
+            isDemoAccount: isDemoAccount
           }
         };
       });

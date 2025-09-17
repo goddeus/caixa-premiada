@@ -327,7 +327,7 @@ const AppleCase = () => {
 
   // Função para gerar sequência aleatória de prêmios
   const generateRandomPrizeSequence = () => {
-    // Prêmios sorteáveis da caixa de fim de semana
+    // Prêmios sorteáveis da caixa Apple
     const sorteablePrizes = [
       { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA APPLE/1.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
       { name: 'R$ 2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA APPLE/2.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
@@ -336,7 +336,7 @@ const AppleCase = () => {
       { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA APPLE/500.webp', bgColor: 'rgb(162, 89, 255)', sorteavel: true }
     ];
 
-    // Combinar todos os prêmios (apenas os sorteáveis da caixa de fim de semana)
+    // Combinar todos os prêmios (apenas os sorteáveis da caixa Apple)
     const allPrizes = [...sorteablePrizes];
     
     // Criar uma sequência aleatória longa para simular sorteio real
@@ -709,7 +709,7 @@ const AppleCase = () => {
                       </svg>
                       Abrir Caixa
                       <span style={{marginLeft: '18px', background: 'rgb(14, 16, 21)', color: 'rgb(255, 255, 255)', fontWeight: 700, fontSize: '17px', borderRadius: '0.7rem', padding: '0.35rem 1.1rem', display: 'flex', alignItems: 'center', minWidth: '80px', position: 'relative', right: '-8px'}}>
-                        R$ 1,50
+                        R$ 7,00
                       </span>
                     </span>
                   </button>
@@ -786,12 +786,12 @@ const AppleCase = () => {
               {/* Desktop Grid */}
               <div className="hidden md:grid" style={{gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px 0px', padding: '0px', margin: '0px', width: '100%', maxWidth: '100%', overflow: 'hidden'}}>
                 {[
-                  { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA FINAL DE SEMANA/500.webp', bgColor: 'rgb(162, 89, 255)' },
-                  { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA FINAL DE SEMANA/100.png', bgColor: 'rgb(59, 130, 246)' },
-                  { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/10.png', bgColor: 'rgb(176, 190, 197)' },
-                  { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/5.png', bgColor: 'rgb(176, 190, 197)' },
-                  { name: 'R$ 2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/2.png', bgColor: 'rgb(176, 190, 197)' },
-                  { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/1.png', bgColor: 'rgb(176, 190, 197)' }
+                  { name: 'MACBOOK', value: 'R$ 15.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA APPLE/macbook.png', bgColor: 'rgb(255, 215, 0)' },
+                  { name: 'IPHONE 16 PRO MAX', value: 'R$ 10.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA APPLE/iphone 16 pro max.png', bgColor: 'rgb(255, 215, 0)' },
+                  { name: 'AIR PODS', value: 'R$ 2.500,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA APPLE/air pods.png', bgColor: 'rgb(255, 59, 59)' },
+                  { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA APPLE/500.webp', bgColor: 'rgb(162, 89, 255)' },
+                  { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA APPLE/10.png', bgColor: 'rgb(176, 190, 197)' },
+                  { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA APPLE/5.png', bgColor: 'rgb(176, 190, 197)' }
                 ].map((prize, index) => (
                   <div key={index} className="rounded-none p-0 text-center relative overflow-hidden flex flex-col items-center justify-between transition-all duration-300 group" style={{width: '100%', maxWidth: '100%', minWidth: '0px', height: '200px', minHeight: '120px', maxHeight: '200px', margin: '0px', borderRadius: '0px 0px 12px 12px', border: '2px solid rgb(14, 16, 21)', boxSizing: 'border-box', background: `linear-gradient(0deg, ${prize.bgColor}32 0%, rgb(14, 16, 21) 100%)`}}>
                     <img alt="Raridade" className="absolute inset-0 pointer-events-none" src={`/imagens/${prize.rarity}`} style={{zIndex: 1, objectFit: 'contain', width: '75%', height: '75%', left: '50%', top: '44%', transform: 'translate(-50%, -50%)', opacity: 0.6, position: 'absolute'}} />

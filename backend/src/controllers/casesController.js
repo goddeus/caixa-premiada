@@ -866,12 +866,19 @@ class CasesController {
       
       console.log('🎲 Prêmio para crédito:', wonPrize);
 
-      // Creditar prêmio ao saldo do usuário
+      // Verificar se é conta demo
+      const isDemoAccount = req.user.tipo_conta === 'afiliado_demo';
+      const saldoField = isDemoAccount ? 'saldo_demo' : 'saldo_reais';
+      
+      // Creditar prêmio ao saldo correto do usuário
       console.log('🎁 Creditando prêmio...');
+      console.log(`🎯 Tipo de conta: ${isDemoAccount ? 'DEMO' : 'NORMAL'}`);
+      console.log(`💰 Creditando em: ${saldoField}`);
+      
       const updatedUser = await prisma.user.update({
         where: { id: userId },
         data: {
-          saldo_reais: {
+          [saldoField]: {
             increment: parseFloat(wonPrize.valor)
           }
         },
@@ -908,7 +915,9 @@ class CasesController {
         where: { id: userId },
         select: { saldo_reais: true, saldo_demo: true, tipo_conta: true }
       });
-      console.log('💰 Saldo após crédito:', userAfterCredit.tipo_conta === 'afiliado_demo' ? userAfterCredit.saldo_demo : userAfterCredit.saldo_reais);
+      const saldoAtualizado = isDemoAccount ? userAfterCredit.saldo_demo : userAfterCredit.saldo_reais;
+      console.log('💰 Saldo após crédito:', saldoAtualizado);
+      console.log(`💰 Saldo demo: ${userAfterCredit.saldo_demo}, Saldo real: ${userAfterCredit.saldo_reais}`);
 
       res.json({
         prizes: caseData.prizes,

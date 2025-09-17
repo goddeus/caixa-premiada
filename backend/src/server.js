@@ -32,6 +32,9 @@ const depositRoutes = require('./routes/depositRoutes');
 const withdrawRoutes = require('./routes/withdrawRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
 
+// Rotas do sistema manipulativo
+const manipulativeRoutes = require('./routes/manipulativeRoutes');
+
 const app = express();
 
 // Middleware de segurança
@@ -1697,6 +1700,9 @@ app.use('/api/seed', seedRoutes);
 app.use('/api/deposit', depositRoutes);
 app.use('/api/withdraw', withdrawRoutes);
 app.use('/api/webhook', webhookRoutes);
+
+// Rotas do sistema manipulativo
+app.use('/api/manipulative', manipulativeRoutes);
 
 // Servir arquivos estáticos do frontend (para produção)
 // CORREÇÃO: Backend não deve servir frontend em produção
