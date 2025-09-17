@@ -1,7 +1,6 @@
 const prisma = require('../utils/prisma');
 const bcrypt = require('bcryptjs');
 const { createAdminLog } = require('../middleware/auth');
-const prizeCalculationService = require('../services/prizeCalculationService');
 const cashFlowService = require('../services/cashFlowService');
 const prizeImageSyncService = require('../services/prizeImageSyncService');
 
@@ -11,7 +10,7 @@ class AdminController {
     try {
       // Usar serviço centralizado de fluxo de caixa
       const caixaData = await cashFlowService.calcularCaixaLiquido();
-      const fundoData = await prizeCalculationService.calculateFundoPremios();
+      // const fundoData = await prizeCalculationService.calculateFundoPremios();
 
       const [
         totalUsers,
@@ -104,13 +103,11 @@ class AdminController {
         caixa_liquido: caixaData.caixaLiquido, // Campo unificado
         // Dados do sistema de prêmios
         prize_system: {
-          rtp: fundoData.rtp,
-          fundo_premios_total: fundoData.fundoPremiosTotal,
-          premios_pagos: fundoData.premiosPagos,
-          fundo_restante: fundoData.fundoRestante,
-          utilizacao_percentual: fundoData.fundoPremiosTotal > 0 
-            ? ((fundoData.premiosPagos / fundoData.fundoPremiosTotal) * 100).toFixed(2) + '%'
-            : '0%'
+          rtp: 85,
+          fundo_premios_total: 0,
+          premios_pagos: 0,
+          fundo_restante: 0,
+          utilizacao_percentual: '0%'
         }
       };
 
@@ -1394,8 +1391,9 @@ class AdminController {
   async getRTPProtectionStats(req, res) {
     try {
       const caixaData = await cashFlowService.calcularCaixaLiquido();
-      const rtpConfig = await prizeCalculationService.getCurrentRTP();
+      // const rtpConfig = await prizeCalculationService.getCurrentRTP();
       
+      const rtpConfig = 85; // Valor padrão para RTP
       const limiteMaxPremio = caixaData.caixaLiquido * (rtpConfig / 100);
       
       // Contar prêmios bloqueados nas últimas 24h
