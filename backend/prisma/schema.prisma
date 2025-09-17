@@ -317,6 +317,7 @@ model PurchaseAudit {
   // Relacionamentos
   user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
   case          Case     @relation(fields: [case_id], references: [id], onDelete: Cascade)
+}
 
 model UserBehavior {
   id            String   @id @default(uuid())
