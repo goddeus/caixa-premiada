@@ -92,25 +92,27 @@ class CasesController {
   }
 
   // Sistema de sorteio simples SEM creditar (apenas sorteia o prêmio)
-  async simpleDrawWithoutCredit(caseData, userId, userBalance) {
+  async simpleDrawWithoutCredit(caseData, userId, userBalance, isDemo = false) {
     try {
-      console.log('🎲 Executando sorteio simples (sem crédito)...');
+      console.log(`🎲 Executando sorteio simples (sem crédito)... (${isDemo ? 'DEMO' : 'NORMAL'})`);
       
-      if (!caseData.prizes || caseData.prizes.length === 0) {
+      // Aplicar novo sistema de prêmios baseado no tipo de conta
+      const prizeSystem = this.getPrizeSystemForUser(caseData.id, isDemo);
+      if (!prizeSystem || !prizeSystem.prizes || prizeSystem.prizes.length === 0) {
         return {
           success: false,
           message: 'Caixa não possui prêmios configurados'
         };
       }
 
-      // Calcular probabilidades
-      const totalProbability = caseData.prizes.reduce((sum, prize) => sum + prize.probabilidade, 0);
+      // Calcular probabilidades usando o sistema de prêmios correto
+      const totalProbability = prizeSystem.prizes.reduce((sum, prize) => sum + prize.probabilidade, 0);
       const random = Math.random() * totalProbability;
       
       let currentProbability = 0;
       let selectedPrize = null;
       
-      for (const prize of caseData.prizes) {
+      for (const prize of prizeSystem.prizes) {
         currentProbability += prize.probabilidade;
         if (random <= currentProbability) {
           selectedPrize = prize;
@@ -119,10 +121,10 @@ class CasesController {
       }
       
       if (!selectedPrize) {
-        selectedPrize = caseData.prizes[caseData.prizes.length - 1]; // Fallback
+        selectedPrize = prizeSystem.prizes[prizeSystem.prizes.length - 1]; // Fallback
       }
       
-      console.log(`🎁 Prêmio selecionado: ${selectedPrize.nome} - R$ ${selectedPrize.valor}`);
+      console.log(`🎁 Prêmio selecionado: ${selectedPrize.nome} - R$ ${selectedPrize.valor} (${isDemo ? 'DEMO' : 'NORMAL'})`);
       
       return {
         success: true,
@@ -136,7 +138,7 @@ class CasesController {
         message: selectedPrize.valor > 0 ? 
           `Parabéns! Você ganhou R$ ${selectedPrize.valor.toFixed(2)}!` : 
           'Tente novamente na próxima!',
-        is_demo: false,
+        is_demo: isDemo,
         userBalance: userBalance
       };
       
@@ -774,7 +776,8 @@ class CasesController {
 
       // 2. FAZER SORTEIO (sem creditar ainda)
       console.log('🎯 Fazendo sorteio...');
-      const drawResult = await this.simpleDrawWithoutCredit(caseData, userId, saldoAposDebito);
+      const isDemoAccount = req.user.tipo_conta === 'afiliado_demo';
+      const drawResult = await this.simpleDrawWithoutCredit(caseData, userId, saldoAposDebito, isDemoAccount);
       
       if (!drawResult || !drawResult.success) {
         console.error('❌ Erro no sistema de sorteio:', drawResult?.message || 'Resultado inválido');

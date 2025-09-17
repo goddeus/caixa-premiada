@@ -38,52 +38,72 @@ class CompraController {
     return staticCases[caseId] || null;
   }
 
+  // NOVO SISTEMA DE PRÊMIOS - Diferencia contas normais e demo
+  getPrizeSystemForUser(caseId, isDemo = false) {
+    const caseData = this.getStaticCaseData(caseId);
+    if (!caseData) return null;
+
+    // Se for conta demo, manter prêmios originais (acima de R$50,00)
+    if (isDemo) {
+      return caseData;
+    }
+
+    // Para contas normais, aplicar novo sistema de prêmios controlados
+    const newPrizeSystem = {
+      ...caseData,
+      prizes: this.getControlledPrizes(caseId)
+    };
+
+    return newPrizeSystem;
+  }
+
+  // Prêmios controlados para contas normais (proteção do caixa)
+  getControlledPrizes(caseId) {
+    const controlledPrizes = {
+      '1abd77cf-472b-473d-9af0-6cd47f9f1452': [ // CAIXA WEEKEND (R$1,50)
+        { id: 'weekend_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 1.0 }
+      ],
+      '0b5e9b8a-9d56-4769-a45a-55a3025640f4': [ // CAIXA NIKE (R$2,50)
+        { id: 'nike_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.6 },
+        { id: 'nike_2', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.4 }
+      ],
+      '3f2a9f7a-cb4d-47e7-991a-0e72c0e0f415': [ // CAIXA SAMSUNG (R$3,00)
+        { id: 'samsung_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.6 },
+        { id: 'samsung_2', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.4 }
+      ],
+      'fb0c0175-b478-4fd5-9750-d673c0f374fd': [ // CAIXA CONSOLE (R$3,50)
+        { id: 'console_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.6 },
+        { id: 'console_2', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.4 }
+      ],
+      '61a19df9-d011-429e-a9b5-d2c837551150': [ // CAIXA APPLE (R$7,00)
+        { id: 'apple_1', nome: 'R$ 5,00', valor: 5.0, probabilidade: 1.0 }
+      ],
+      'db95bb2b-9b3e-444b-964f-547330010a59': [ // CAIXA PREMIUM MASTER (R$15,00)
+        { id: 'premium_1', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.4 },
+        { id: 'premium_2', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.4 },
+        { id: 'premium_3', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.2 }
+      ]
+    };
+
+    return controlledPrizes[caseId] || this.getStaticCaseData(caseId)?.prizes || []; // Fallback para prêmios originais
+  }
+
   // Sistema de sorteio com filtro por tipo de conta
   async simpleDraw(caseData, userId, userBalance, userType = 'normal') {
     try {
       console.log(`🎲 Executando sorteio para conta ${userType}...`);
       
-      if (!caseData.prizes || caseData.prizes.length === 0) {
+      // Aplicar novo sistema de prêmios baseado no tipo de conta
+      const prizeSystem = this.getPrizeSystemForUser(caseData.id, userType === 'demo');
+      if (!prizeSystem || !prizeSystem.prizes || prizeSystem.prizes.length === 0) {
         return {
           success: false,
           message: 'Caixa não possui prêmios configurados'
         };
       }
 
-      // Filtrar prêmios baseado no tipo de conta
-      let availablePrizes = caseData.prizes;
-      
-      if (userType === 'normal') {
-        // Contas normais: apenas prêmios até R$ 10,00
-        availablePrizes = caseData.prizes.filter(prize => {
-          const valor = parseFloat(prize.valor);
-          return valor <= 10.00;
-        });
-        console.log(`🔒 [CONTA NORMAL] Filtrados prêmios acima de R$ 10,00. Prêmios disponíveis: ${availablePrizes.length}`);
-      } else if (userType === 'demo') {
-        // Contas demo: apenas prêmios acima de R$ 50,00 (ou prêmios baixos se não houver)
-        const highValuePrizes = caseData.prizes.filter(prize => {
-          const valor = parseFloat(prize.valor);
-          return valor >= 50.00;
-        });
-        
-        if (highValuePrizes.length > 0) {
-          availablePrizes = highValuePrizes;
-          console.log(`🎯 [CONTA DEMO] Focando em prêmios altos (R$ 50,00+). Prêmios disponíveis: ${availablePrizes.length}`);
-        } else {
-          // Se não há prêmios altos, usar todos os prêmios
-          availablePrizes = caseData.prizes;
-          console.log(`🎯 [CONTA DEMO] Nenhum prêmio alto encontrado, usando todos os prêmios: ${availablePrizes.length}`);
-        }
-      }
-
-      // Se não há prêmios disponíveis após filtro, usar prêmio de menor valor
-      if (availablePrizes.length === 0) {
-        availablePrizes = [caseData.prizes.reduce((min, prize) => 
-          parseFloat(prize.valor) < parseFloat(min.valor) ? prize : min
-        )];
-        console.log(`⚠️ Nenhum prêmio disponível após filtro, usando prêmio de menor valor`);
-      }
+      const availablePrizes = prizeSystem.prizes;
+      console.log(`🎯 [${userType.toUpperCase()}] Sistema de prêmios aplicado. Prêmios disponíveis: ${availablePrizes.length}`);
 
       // Calcular probabilidades dos prêmios filtrados
       const totalProbability = availablePrizes.reduce((sum, prize) => sum + prize.probabilidade, 0);

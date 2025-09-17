@@ -8,6 +8,47 @@ const prisma = new PrismaClient();
 class DepositController {
   
   /**
+   * Verificar e criar tabelas se necessário
+   */
+  static async ensureTablesExist() {
+    try {
+      // Verificar se a tabela deposits existe
+      await prisma.$queryRaw`SELECT 1 FROM "deposits" LIMIT 1`;
+      return true;
+    } catch (error) {
+      console.log('🔧 Tabela deposits não existe, criando...');
+      
+      try {
+        await prisma.$executeRaw`
+          CREATE TABLE "deposits" (
+            "id" TEXT NOT NULL,
+            "user_id" TEXT NOT NULL,
+            "amount" DOUBLE PRECISION NOT NULL,
+            "status" TEXT NOT NULL DEFAULT 'pending',
+            "identifier" TEXT NOT NULL,
+            "qr_code" TEXT,
+            "qr_base64" TEXT,
+            "provider_tx_id" TEXT,
+            "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            "updated_at" TIMESTAMP(3) NOT NULL,
+            CONSTRAINT "deposits_pkey" PRIMARY KEY ("id")
+          );
+        `;
+        
+        await prisma.$executeRaw`CREATE UNIQUE INDEX "deposits_identifier_key" ON "deposits"("identifier");`;
+        await prisma.$executeRaw`CREATE INDEX "deposits_user_id_idx" ON "deposits"("user_id");`;
+        await prisma.$executeRaw`CREATE INDEX "deposits_status_idx" ON "deposits"("status");`;
+        
+        console.log('✅ Tabela deposits criada com sucesso');
+        return true;
+      } catch (createError) {
+        console.error('❌ Erro ao criar tabela deposits:', createError);
+        return false;
+      }
+    }
+  }
+  
+  /**
    * POST /api/deposit/pix
    * Criar depósito via PIX usando VizzionPay
    * Implementa idempotência e logging estruturado
@@ -18,6 +59,15 @@ class DepositController {
     
     try {
       console.log('[DEPOSIT] Iniciando criação de depósito PIX:', req.body);
+      
+      // Verificar e criar tabelas se necessário
+      const tablesReady = await this.ensureTablesExist();
+      if (!tablesReady) {
+        return res.status(500).json({
+          success: false,
+          error: 'Erro ao inicializar tabelas de depósito'
+        });
+      }
       
       const { userId, amount } = req.body;
       
