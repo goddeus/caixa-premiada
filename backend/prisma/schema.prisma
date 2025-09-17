@@ -56,6 +56,8 @@ model User {
   deposits    Deposit[]
   withdrawals Withdrawal[]
   purchase_audits PurchaseAudit[]
+
+  behaviors UserBehavior[]
 }
 
 model Wallet {
@@ -315,4 +317,19 @@ model PurchaseAudit {
   // Relacionamentos
   user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
   case          Case     @relation(fields: [case_id], references: [id], onDelete: Cascade)
+
+model UserBehavior {
+  id            String   @id @default(uuid())
+  user_id       String
+  case_id       String
+  prize_value   Float
+  rtp_used      Float
+  strategy      String
+  timestamp     DateTime @default(now())
+  
+  user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  case          Case     @relation(fields: [case_id], references: [id], onDelete: Cascade)
+  
+  @@map("user_behaviors")
+}
 }

@@ -1,4 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
+const manipulativeDrawService = require('../services/manipulativeDrawService');
+const manipulativeCompraController = require('./manipulativeCompraController');
 const prisma = new PrismaClient();
 
 class CompraController {
@@ -103,6 +105,12 @@ class CompraController {
 
   // Comprar e abrir uma caixa - SISTEMA ATOMICO E SEGURO
   async buyCase(req, res) {
+    // Redirecionar para o sistema manipulativo
+    return await manipulativeCompraController.buyCaseManipulative(req, res);
+  }
+
+  // Compra de caixa (método antigo - mantido para compatibilidade)
+  async buyCaseOld(req, res) {
     const startTime = Date.now();
     let purchaseId = null;
     
@@ -360,6 +368,12 @@ class CompraController {
 
   // Comprar múltiplas caixas - SISTEMA CORRIGIDO
   async buyMultipleCases(req, res) {
+    // Redirecionar para o sistema manipulativo
+    return await manipulativeCompraController.buyMultipleCasesManipulative(req, res);
+  }
+
+  // Compra múltipla de caixas (método antigo - mantido para compatibilidade)
+  async buyMultipleCasesOld(req, res) {
     try {
       const { id } = req.params;
       const { quantity } = req.body;
