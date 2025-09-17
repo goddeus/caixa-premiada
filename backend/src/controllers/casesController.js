@@ -776,7 +776,6 @@ class CasesController {
 
       // 2. FAZER SORTEIO (sem creditar ainda)
       console.log('🎯 Fazendo sorteio...');
-      const isDemoAccount = req.user.tipo_conta === 'afiliado_demo';
       const drawResult = await this.simpleDrawWithoutCredit(caseData, userId, saldoAposDebito, isDemoAccount);
       
       if (!drawResult || !drawResult.success) {
@@ -923,7 +922,6 @@ class CasesController {
       console.log('🎲 Prêmio para crédito:', wonPrize);
 
       // Verificar se é conta demo
-      const isDemoAccount = req.user.tipo_conta === 'afiliado_demo';
       const saldoField = isDemoAccount ? 'saldo_demo' : 'saldo_reais';
       
       // Creditar prêmio ao saldo correto do usuário
