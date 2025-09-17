@@ -434,41 +434,41 @@ class AdminController {
 
       const skip = (page - 1) * limit;
       
-      const where = { tipo: 'deposito' };
+      const where = {};
       
       if (status !== 'all') {
         where.status = status;
       }
       
       if (start_date) {
-        where.criado_em = { ...where.criado_em, gte: new Date(start_date) };
+        where.created_at = { ...where.created_at, gte: new Date(start_date) };
       }
       
       if (end_date) {
-        where.criado_em = { ...where.criado_em, lte: new Date(end_date) };
+        where.created_at = { ...where.created_at, lte: new Date(end_date) };
       }
       
       if (min_value) {
-        where.valor = { ...where.valor, gte: parseFloat(min_value) };
+        where.amount = { ...where.amount, gte: parseFloat(min_value) };
       }
       
       if (max_value) {
-        where.valor = { ...where.valor, lte: parseFloat(max_value) };
+        where.amount = { ...where.amount, lte: parseFloat(max_value) };
       }
 
       const [deposits, total] = await Promise.all([
-        prisma.payment.findMany({
+        prisma.deposit.findMany({
           where,
           skip,
           take: parseInt(limit),
-          orderBy: { criado_em: 'desc' },
+          orderBy: { created_at: 'desc' },
           include: {
             user: {
               select: { id: true, nome: true, email: true }
             }
           }
         }),
-        prisma.payment.count({ where })
+        prisma.deposit.count({ where })
       ]);
 
       res.json({
@@ -507,41 +507,41 @@ class AdminController {
 
       const skip = (page - 1) * limit;
       
-      const where = { tipo: 'saque' };
+      const where = {};
       
       if (status !== 'all') {
         where.status = status;
       }
       
       if (start_date) {
-        where.criado_em = { ...where.criado_em, gte: new Date(start_date) };
+        where.created_at = { ...where.created_at, gte: new Date(start_date) };
       }
       
       if (end_date) {
-        where.criado_em = { ...where.criado_em, lte: new Date(end_date) };
+        where.created_at = { ...where.created_at, lte: new Date(end_date) };
       }
       
       if (min_value) {
-        where.valor = { ...where.valor, gte: parseFloat(min_value) };
+        where.amount = { ...where.amount, gte: parseFloat(min_value) };
       }
       
       if (max_value) {
-        where.valor = { ...where.valor, lte: parseFloat(max_value) };
+        where.amount = { ...where.amount, lte: parseFloat(max_value) };
       }
 
       const [withdrawals, total] = await Promise.all([
-        prisma.payment.findMany({
+        prisma.withdrawal.findMany({
           where,
           skip,
           take: parseInt(limit),
-          orderBy: { criado_em: 'desc' },
+          orderBy: { created_at: 'desc' },
           include: {
             user: {
               select: { id: true, nome: true, email: true }
             }
           }
         }),
-        prisma.payment.count({ where })
+        prisma.withdrawal.count({ where })
       ]);
 
       res.json({
@@ -571,7 +571,7 @@ class AdminController {
       const { withdrawalId } = req.params;
       const { status, motivo } = req.body;
 
-      const withdrawal = await prisma.payment.findUnique({
+      const withdrawal = await prisma.withdrawal.findUnique({
         where: { id: withdrawalId },
         include: {
           user: {
@@ -587,21 +587,14 @@ class AdminController {
         });
       }
 
-      if (withdrawal.tipo !== 'saque') {
-        return res.status(400).json({
-          success: false,
-          error: 'Transação não é um saque'
-        });
-      }
-
       // Se está aprovando o saque
-      if (status === 'concluido') {
+      if (status === 'approved') {
         // Verificar se o usuário tem saldo suficiente
         const saldoAtual = withdrawal.user.tipo_conta === 'afiliado_demo' 
           ? withdrawal.user.saldo_demo 
           : withdrawal.user.saldo_reais;
           
-        if (saldoAtual < withdrawal.valor) {
+        if (saldoAtual < withdrawal.amount) {
           return res.status(400).json({
             success: false,
             error: 'Usuário não possui saldo suficiente'
@@ -611,10 +604,10 @@ class AdminController {
         // Atualizar status e processar saque
         await prisma.$transaction(async (tx) => {
           // Atualizar status do saque
-          await tx.payment.update({
+          await tx.withdrawal.update({
             where: { id: withdrawalId },
             data: { 
-              status: 'concluido',
+              status: 'approved',
               processado_em: new Date()
             }
           });
@@ -625,7 +618,7 @@ class AdminController {
               where: { id: withdrawal.user.id },
               data: {
                 saldo_demo: {
-                  decrement: withdrawal.valor
+                  decrement: withdrawal.amount
                 }
               }
             });
@@ -634,7 +627,7 @@ class AdminController {
               where: { id: withdrawal.user.id },
               data: {
                 saldo_reais: {
-                  decrement: withdrawal.valor
+                  decrement: withdrawal.amount
                 }
               }
             });
@@ -645,8 +638,8 @@ class AdminController {
             data: {
               user_id: withdrawal.user.id,
               tipo: 'saque',
-              valor: withdrawal.valor,
-              status: 'concluido',
+              valor: withdrawal.amount,
+              status: 'processado',
               descricao: `Saque aprovado - ${motivo || 'Aprovado por administrador'}`
             }
           });
@@ -656,19 +649,19 @@ class AdminController {
         await createAdminLog(
           req.user.id,
           'APROVAR_SAQUE',
-          `Saque de R$ ${withdrawal.valor} aprovado para ${withdrawal.user.nome}`,
+          `Saque de R$ ${withdrawal.amount} aprovado para ${withdrawal.user.nome}`,
           { status: withdrawal.status },
-          { status: 'concluido', valor: withdrawal.valor },
+          { status: 'approved', valor: withdrawal.amount },
           withdrawal.user.id,
           req
         );
 
-      } else if (status === 'cancelado') {
-        // Apenas atualizar status para cancelado
-        await prisma.payment.update({
+      } else if (status === 'failed') {
+        // Apenas atualizar status para failed
+        await prisma.withdrawal.update({
           where: { id: withdrawalId },
           data: { 
-            status: 'cancelado',
+            status: 'failed',
             processado_em: new Date()
           }
         });

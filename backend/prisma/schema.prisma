@@ -332,4 +332,3 @@ model UserBehavior {
   
   @@map("user_behaviors")
 }
-}

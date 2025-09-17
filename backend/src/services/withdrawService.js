@@ -35,8 +35,8 @@ class WithdrawService {
       errors.push('Valor deve ser um número positivo');
     }
     
-    if (valorNumerico < 50.00) {
-      errors.push('Valor mínimo para saque é R$ 50,00');
+    if (valorNumerico < 20.00) {
+      errors.push('Valor mínimo para saque é R$ 20,00');
     }
     
     if (valorNumerico > 5000.00) {

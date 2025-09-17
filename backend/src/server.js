@@ -24,7 +24,6 @@ const prizeSyncRoutes = require('./routes/prizeSync');
 const prizeValidationRoutes = require('./routes/prizeValidation');
 const imageUploadRoutes = require('./routes/imageUpload');
 const gatewayConfigRoutes = require('./routes/gatewayConfig');
-const globalDrawRoutes = require('./routes/globalDraw');
 const seedRoutes = require('./routes/seedRoutes');
 
 // Novas rotas VizzionPay
@@ -32,8 +31,6 @@ const depositRoutes = require('./routes/depositRoutes');
 const withdrawRoutes = require('./routes/withdrawRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
 
-// Rotas do sistema manipulativo
-const manipulativeRoutes = require('./routes/manipulativeRoutes');
 
 const app = express();
 
@@ -1693,7 +1690,6 @@ app.use('/api/prize-sync', prizeSyncRoutes);
 app.use('/api/prize-validation', prizeValidationRoutes);
 app.use('/api/image-upload', imageUploadRoutes);
 app.use('/api/gateway-config', gatewayConfigRoutes);
-app.use('/api/global-draw', globalDrawRoutes);
 app.use('/api/seed', seedRoutes);
 
 // Novas rotas VizzionPay
@@ -1701,8 +1697,6 @@ app.use('/api/deposit', depositRoutes);
 app.use('/api/withdraw', withdrawRoutes);
 app.use('/api/webhook', webhookRoutes);
 
-// Rotas do sistema manipulativo
-app.use('/api/manipulative', manipulativeRoutes);
 
 // Servir arquivos estáticos do frontend (para produção)
 // CORREÇÃO: Backend não deve servir frontend em produção

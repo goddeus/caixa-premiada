@@ -1,6 +1,4 @@
 const { PrismaClient } = require('@prisma/client');
-const manipulativeDrawService = require('../services/manipulativeDrawService');
-const manipulativeCompraController = require('./manipulativeCompraController');
 const prisma = new PrismaClient();
 
 class CompraController {
@@ -40,10 +38,10 @@ class CompraController {
     return staticCases[caseId] || null;
   }
 
-  // Sistema de sorteio simples e direto
-  async simpleDraw(caseData, userId, userBalance) {
+  // Sistema de sorteio com filtro por tipo de conta
+  async simpleDraw(caseData, userId, userBalance, userType = 'normal') {
     try {
-      console.log('🎲 Executando sorteio simples...');
+      console.log(`🎲 Executando sorteio para conta ${userType}...`);
       
       if (!caseData.prizes || caseData.prizes.length === 0) {
         return {
@@ -52,14 +50,49 @@ class CompraController {
         };
       }
 
-      // Calcular probabilidades
-      const totalProbability = caseData.prizes.reduce((sum, prize) => sum + prize.probabilidade, 0);
+      // Filtrar prêmios baseado no tipo de conta
+      let availablePrizes = caseData.prizes;
+      
+      if (userType === 'normal') {
+        // Contas normais: apenas prêmios até R$ 10,00
+        availablePrizes = caseData.prizes.filter(prize => {
+          const valor = parseFloat(prize.valor);
+          return valor <= 10.00;
+        });
+        console.log(`🔒 [CONTA NORMAL] Filtrados prêmios acima de R$ 10,00. Prêmios disponíveis: ${availablePrizes.length}`);
+      } else if (userType === 'demo') {
+        // Contas demo: apenas prêmios acima de R$ 50,00 (ou prêmios baixos se não houver)
+        const highValuePrizes = caseData.prizes.filter(prize => {
+          const valor = parseFloat(prize.valor);
+          return valor >= 50.00;
+        });
+        
+        if (highValuePrizes.length > 0) {
+          availablePrizes = highValuePrizes;
+          console.log(`🎯 [CONTA DEMO] Focando em prêmios altos (R$ 50,00+). Prêmios disponíveis: ${availablePrizes.length}`);
+        } else {
+          // Se não há prêmios altos, usar todos os prêmios
+          availablePrizes = caseData.prizes;
+          console.log(`🎯 [CONTA DEMO] Nenhum prêmio alto encontrado, usando todos os prêmios: ${availablePrizes.length}`);
+        }
+      }
+
+      // Se não há prêmios disponíveis após filtro, usar prêmio de menor valor
+      if (availablePrizes.length === 0) {
+        availablePrizes = [caseData.prizes.reduce((min, prize) => 
+          parseFloat(prize.valor) < parseFloat(min.valor) ? prize : min
+        )];
+        console.log(`⚠️ Nenhum prêmio disponível após filtro, usando prêmio de menor valor`);
+      }
+
+      // Calcular probabilidades dos prêmios filtrados
+      const totalProbability = availablePrizes.reduce((sum, prize) => sum + prize.probabilidade, 0);
       const random = Math.random() * totalProbability;
       
       let currentProbability = 0;
       let selectedPrize = null;
       
-      for (const prize of caseData.prizes) {
+      for (const prize of availablePrizes) {
         currentProbability += prize.probabilidade;
         if (random <= currentProbability) {
           selectedPrize = prize;
@@ -68,10 +101,10 @@ class CompraController {
       }
       
       if (!selectedPrize) {
-        selectedPrize = caseData.prizes[caseData.prizes.length - 1]; // Fallback
+        selectedPrize = availablePrizes[availablePrizes.length - 1]; // Fallback
       }
       
-      console.log(`🎁 Prêmio selecionado: ${selectedPrize.nome} - R$ ${selectedPrize.valor}`);
+      console.log(`🎁 Prêmio selecionado para conta ${userType}: ${selectedPrize.nome} - R$ ${selectedPrize.valor}`);
       console.log('🔍 Dados do prêmio selecionado:', selectedPrize);
       
       const prizeReturn = {
@@ -90,8 +123,9 @@ class CompraController {
         message: selectedPrize.valor > 0 ? 
           `Parabéns! Você ganhou R$ ${selectedPrize.valor.toFixed(2)}!` : 
           'Tente novamente na próxima!',
-        is_demo: false,
-        userBalance: userBalance
+        is_demo: userType === 'demo',
+        userBalance: userBalance,
+        accountType: userType
       };
       
     } catch (error) {
@@ -103,10 +137,126 @@ class CompraController {
     }
   }
 
-  // Comprar e abrir uma caixa - SISTEMA ATOMICO E SEGURO
+  // Comprar e abrir uma caixa - SISTEMA SIMPLES
   async buyCase(req, res) {
-    // Redirecionar para o sistema manipulativo
-    return await manipulativeCompraController.buyCaseManipulative(req, res);
+    try {
+      const { caseId } = req.params;
+      const userId = req.user.id;
+
+      console.log(`🎲 Compra de caixa - Usuário: ${userId}, Caixa: ${caseId}`);
+
+      // Verificar se a caixa existe
+      const caseData = await prisma.case.findUnique({
+        where: { id: caseId },
+        include: { prizes: { where: { ativo: true } } }
+      });
+
+      if (!caseData) {
+        return res.status(404).json({
+          success: false,
+          error: 'Caixa não encontrada'
+        });
+      }
+
+      if (!caseData.ativo) {
+        return res.status(400).json({
+          success: false,
+          error: 'Caixa inativa'
+        });
+      }
+
+      // Verificar saldo do usuário
+      const user = await prisma.user.findUnique({
+        where: { id: userId }
+      });
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          error: 'Usuário não encontrado'
+        });
+      }
+
+      const casePrice = parseFloat(caseData.preco);
+      const userBalance = user.tipo_conta === 'afiliado_demo' ? (user.saldo_demo || 0) : (user.saldo_reais || 0);
+
+      if (userBalance < casePrice) {
+        return res.status(400).json({
+          success: false,
+          error: 'Saldo insuficiente'
+        });
+      }
+
+      // Determinar tipo de conta
+      const accountType = user.tipo_conta === 'afiliado_demo' ? 'demo' : 'normal';
+      console.log(`👤 Tipo de conta detectado: ${accountType} (${user.tipo_conta})`);
+
+      // Realizar sorteio com filtro por tipo de conta
+      const drawResult = await this.simpleDraw(caseData, userId, userBalance, accountType);
+
+      if (!drawResult.success) {
+        return res.status(500).json({
+          success: false,
+          error: drawResult.error
+        });
+      }
+
+      // Atualizar saldo do usuário
+      const newBalance = userBalance - casePrice + drawResult.prize.valor;
+      
+      if (user.tipo_conta === 'afiliado_demo') {
+        await prisma.user.update({
+          where: { id: userId },
+          data: { saldo_demo: newBalance }
+        });
+      } else {
+        await prisma.user.update({
+          where: { id: userId },
+          data: { saldo_reais: newBalance }
+        });
+      }
+
+      // Registrar transações
+      await prisma.transaction.create({
+        data: {
+          user_id: userId,
+          tipo: 'abertura_caixa',
+          valor: -casePrice,
+          saldo_antes: userBalance,
+          saldo_depois: userBalance - casePrice,
+          descricao: `Compra da caixa ${caseData.nome}`,
+          status: 'concluido'
+        }
+      });
+
+      if (drawResult.prize.valor > 0) {
+        await prisma.transaction.create({
+          data: {
+            user_id: userId,
+            tipo: 'premio',
+            valor: drawResult.prize.valor,
+            saldo_antes: userBalance - casePrice,
+            saldo_depois: newBalance,
+            descricao: `Prêmio: ${drawResult.prize.nome}`,
+            status: 'concluido'
+          }
+        });
+      }
+
+      res.json({
+        success: true,
+        prize: drawResult.prize,
+        newBalance: newBalance,
+        message: 'Caixa aberta com sucesso!'
+      });
+
+    } catch (error) {
+      console.error('❌ Erro ao comprar caixa:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erro interno do servidor'
+      });
+    }
   }
 
   // Compra de caixa (método antigo - mantido para compatibilidade)
@@ -366,10 +516,137 @@ class CompraController {
     }
   }
 
-  // Comprar múltiplas caixas - SISTEMA CORRIGIDO
+  // Comprar múltiplas caixas - SISTEMA SIMPLES
   async buyMultipleCases(req, res) {
-    // Redirecionar para o sistema manipulativo
-    return await manipulativeCompraController.buyMultipleCasesManipulative(req, res);
+    try {
+      const { caseId, quantity } = req.body;
+      const userId = req.user.id;
+
+      console.log(`🎲 Compra múltipla - Usuário: ${userId}, Caixa: ${caseId}, Quantidade: ${quantity}`);
+
+      if (!quantity || quantity < 1 || quantity > 10) {
+        return res.status(400).json({
+          success: false,
+          error: 'Quantidade deve ser entre 1 e 10'
+        });
+      }
+
+      // Verificar se a caixa existe
+      const caseData = await prisma.case.findUnique({
+        where: { id: caseId },
+        include: { prizes: { where: { ativo: true } } }
+      });
+
+      if (!caseData) {
+        return res.status(404).json({
+          success: false,
+          error: 'Caixa não encontrada'
+        });
+      }
+
+      if (!caseData.ativo) {
+        return res.status(400).json({
+          success: false,
+          error: 'Caixa inativa'
+        });
+      }
+
+      // Verificar saldo do usuário
+      const user = await prisma.user.findUnique({
+        where: { id: userId }
+      });
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          error: 'Usuário não encontrado'
+        });
+      }
+
+      const casePrice = parseFloat(caseData.preco);
+      const totalPrice = casePrice * quantity;
+      const userBalance = user.tipo_conta === 'afiliado_demo' ? (user.saldo_demo || 0) : (user.saldo_reais || 0);
+
+      if (userBalance < totalPrice) {
+        return res.status(400).json({
+          success: false,
+          error: 'Saldo insuficiente'
+        });
+      }
+
+      // Determinar tipo de conta
+      const accountType = user.tipo_conta === 'afiliado_demo' ? 'demo' : 'normal';
+      console.log(`👤 Tipo de conta detectado: ${accountType} (${user.tipo_conta})`);
+
+      // Realizar múltiplos sorteios com filtro por tipo de conta
+      const results = [];
+      let totalWinnings = 0;
+
+      for (let i = 0; i < quantity; i++) {
+        const drawResult = await this.simpleDraw(caseData, userId, userBalance, accountType);
+        if (drawResult.success) {
+          results.push(drawResult.prize);
+          totalWinnings += drawResult.prize.valor;
+        }
+      }
+
+      // Atualizar saldo do usuário
+      const newBalance = userBalance - totalPrice + totalWinnings;
+      
+      if (user.tipo_conta === 'afiliado_demo') {
+        await prisma.user.update({
+          where: { id: userId },
+          data: { saldo_demo: newBalance }
+        });
+      } else {
+        await prisma.user.update({
+          where: { id: userId },
+          data: { saldo_reais: newBalance }
+        });
+      }
+
+      // Registrar transações
+      await prisma.transaction.create({
+        data: {
+          user_id: userId,
+          tipo: 'abertura_caixa',
+          valor: -totalPrice,
+          saldo_antes: userBalance,
+          saldo_depois: userBalance - totalPrice,
+          descricao: `Compra múltipla: ${quantity}x ${caseData.nome}`,
+          status: 'concluido'
+        }
+      });
+
+      if (totalWinnings > 0) {
+        await prisma.transaction.create({
+          data: {
+            user_id: userId,
+            tipo: 'premio',
+            valor: totalWinnings,
+            saldo_antes: userBalance - totalPrice,
+            saldo_depois: newBalance,
+            descricao: `Prêmios múltiplos: R$ ${totalWinnings.toFixed(2)}`,
+            status: 'concluido'
+          }
+        });
+      }
+
+      res.json({
+        success: true,
+        prizes: results,
+        totalWinnings: totalWinnings,
+        newBalance: newBalance,
+        message: `${quantity} caixas abertas com sucesso!`
+      });
+
+    } catch (error) {
+      console.error('❌ Erro ao comprar múltiplas caixas:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erro interno do servidor'
+      });
+    }
   }
 
   // Compra múltipla de caixas (método antigo - mantido para compatibilidade)

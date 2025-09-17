@@ -1,13 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const AdminController = require('../controllers/adminController');
-const RTPController = require('../controllers/rtpController');
 const CashFlowController = require('../controllers/cashFlowController');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
 // Criar instâncias dos controllers
 const adminController = new AdminController();
-const rtpController = new RTPController();
 const cashFlowController = new CashFlowController();
 
 // Middleware para todas as rotas admin
@@ -50,13 +48,6 @@ router.put('/settings/:key', (req, res) => adminController.updateSetting(req, re
 // Adicionar saldo de teste com rollover
 router.post('/add-test-balance/:userId', (req, res) => adminController.addTestBalance(req, res));
 
-// Controle da Casa - RTP
-router.get('/rtp/config', (req, res) => rtpController.getRTPConfig(req, res));
-router.put('/rtp/target', (req, res) => rtpController.updateRTPTarget(req, res));
-router.get('/rtp/recommended', (req, res) => rtpController.getRecommendedRTP(req, res));
-router.post('/rtp/apply-recommendation', (req, res) => rtpController.applyRecommendation(req, res));
-router.get('/rtp/cashflow-stats', (req, res) => rtpController.getCashFlowStats(req, res));
-router.get('/rtp/history', (req, res) => rtpController.getRTPHistory(req, res));
 
 // Fluxo de Caixa Centralizado
 router.get('/cashflow/liquido', (req, res) => cashFlowController.getCaixaLiquido(req, res));
@@ -65,9 +56,8 @@ router.post('/cashflow/transacao', (req, res) => cashFlowController.registrarTra
 router.get('/cashflow/history', (req, res) => cashFlowController.getCashFlowHistory(req, res));
 router.post('/cashflow/validar', (req, res) => cashFlowController.validarTransacao(req, res));
 
-// Auditoria e Proteção RTP
+// Auditoria
 router.get('/audit/logs', (req, res) => adminController.getAuditLogs(req, res));
-router.get('/rtp/protection-stats', (req, res) => adminController.getRTPProtectionStats(req, res));
 
 // Corrigir preços das caixas
 router.post('/fix-case-prices', async (req, res) => {
