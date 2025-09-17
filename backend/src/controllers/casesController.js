@@ -35,6 +35,62 @@ class CasesController {
           { id: '11', nome: 'R$ 25,00', valor: 25.0, probabilidade: 0.05 },
           { id: '12', nome: 'Nada', valor: 0, probabilidade: 0.25 }
         ]
+      },
+      '3f2a9f7a-cb4d-47e7-991a-0e72c0e0f415': {
+        id: '3f2a9f7a-cb4d-47e7-991a-0e72c0e0f415',
+        nome: 'CAIXA SAMSUNG',
+        preco: 3.0,
+        ativo: true,
+        prizes: [
+          { id: '13', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.3 },
+          { id: '14', nome: 'R$ 3,00', valor: 3.0, probabilidade: 0.2 },
+          { id: '15', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.15 },
+          { id: '16', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.1 },
+          { id: '17', nome: 'R$ 25,00', valor: 25.0, probabilidade: 0.05 },
+          { id: '18', nome: 'Nada', valor: 0, probabilidade: 0.2 }
+        ]
+      },
+      'fb0c0175-b478-4fd5-9750-d673c0f374fd': {
+        id: 'fb0c0175-b478-4fd5-9750-d673c0f374fd',
+        nome: 'CAIXA CONSOLE DOS SONHOS',
+        preco: 3.5,
+        ativo: true,
+        prizes: [
+          { id: '19', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.25 },
+          { id: '20', nome: 'R$ 3,50', valor: 3.5, probabilidade: 0.2 },
+          { id: '21', nome: 'R$ 7,00', valor: 7.0, probabilidade: 0.15 },
+          { id: '22', nome: 'R$ 15,00', valor: 15.0, probabilidade: 0.1 },
+          { id: '23', nome: 'R$ 35,00', valor: 35.0, probabilidade: 0.05 },
+          { id: '24', nome: 'Nada', valor: 0, probabilidade: 0.25 }
+        ]
+      },
+      '61a19df9-d011-429e-a9b5-d2c837551150': {
+        id: '61a19df9-d011-429e-a9b5-d2c837551150',
+        nome: 'CAIXA APPLE',
+        preco: 7.0,
+        ativo: true,
+        prizes: [
+          { id: '25', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.3 },
+          { id: '26', nome: 'R$ 7,00', valor: 7.0, probabilidade: 0.2 },
+          { id: '27', nome: 'R$ 15,00', valor: 15.0, probabilidade: 0.15 },
+          { id: '28', nome: 'R$ 35,00', valor: 35.0, probabilidade: 0.1 },
+          { id: '29', nome: 'R$ 70,00', valor: 70.0, probabilidade: 0.05 },
+          { id: '30', nome: 'Nada', valor: 0, probabilidade: 0.2 }
+        ]
+      },
+      'db95bb2b-9b3e-444b-964f-547330010a59': {
+        id: 'db95bb2b-9b3e-444b-964f-547330010a59',
+        nome: 'CAIXA PREMIUM MASTER',
+        preco: 15.0,
+        ativo: true,
+        prizes: [
+          { id: '31', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.25 },
+          { id: '32', nome: 'R$ 15,00', valor: 15.0, probabilidade: 0.2 },
+          { id: '33', nome: 'R$ 35,00', valor: 35.0, probabilidade: 0.15 },
+          { id: '34', nome: 'R$ 75,00', valor: 75.0, probabilidade: 0.1 },
+          { id: '35', nome: 'R$ 150,00', valor: 150.0, probabilidade: 0.05 },
+          { id: '36', nome: 'Nada', valor: 0, probabilidade: 0.25 }
+        ]
       }
     };
     
@@ -62,6 +118,8 @@ class CasesController {
 
   // Prêmios controlados para contas normais (proteção do caixa)
   getControlledPrizes(caseId) {
+    console.log(`🔍 Buscando prêmios controlados para caseId: ${caseId}`);
+    
     const controlledPrizes = {
       '1abd77cf-472b-473d-9af0-6cd47f9f1452': [ // CAIXA WEEKEND (R$1,50)
         { id: 'weekend_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 1.0 }
@@ -88,7 +146,17 @@ class CasesController {
       ]
     };
 
-    return controlledPrizes[caseId] || this.getStaticCaseData(caseId)?.prizes || []; // Fallback para prêmios originais
+    const prizes = controlledPrizes[caseId];
+    console.log(`🎯 Prêmios encontrados para ${caseId}:`, prizes ? prizes.length : 0);
+    
+    if (!prizes) {
+      console.log(`⚠️ Nenhum prêmio controlado encontrado para ${caseId}, usando fallback`);
+      const fallbackPrizes = this.getStaticCaseData(caseId)?.prizes || [];
+      console.log(`🔄 Prêmios fallback:`, fallbackPrizes.length);
+      return fallbackPrizes;
+    }
+    
+    return prizes;
   }
 
   // Sistema de sorteio simples SEM creditar (apenas sorteia o prêmio)
