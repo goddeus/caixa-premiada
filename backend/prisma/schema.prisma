@@ -123,6 +123,7 @@ model Case {
   // Relacionamentos
   prizes      Prize[]
   purchase_audits PurchaseAudit[]
+  user_behaviors UserBehavior[]
 }
 
 model Prize {
