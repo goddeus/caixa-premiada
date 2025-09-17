@@ -1,5 +1,4 @@
 const { PrismaClient } = require('@prisma/client');
-const prizeCalculationService = require('../services/prizeCalculationService');
 // Removido globalDrawService - usando centralizedDrawService
 // CORREÇÃO: Sistema RTP desabilitado para não interferir nos preços
 // const userRTPService = require('../services/userRTPService');
@@ -344,8 +343,9 @@ class CasesController {
           console.log(`🎲 Processando caixa ${i + 1}/${quantity}...`);
           
           // CORREÇÃO: Usar sistema de sorteio centralizado que respeita preços originais
-          const centralizedDrawService = require('../services/centralizedDrawService');
-          const drawResult = await centralizedDrawService.sortearPremio(caseData.id, userId);
+          // const centralizedDrawService = require('../services/centralizedDrawService');
+          // const drawResult = await centralizedDrawService.sortearPremio(caseData.id, userId);
+          const drawResult = { success: false, message: 'Serviço de sorteio não disponível' };
           
           if (!drawResult.success) {
             console.error(`❌ Erro no sorteio da caixa ${i + 1}:`, drawResult.message);
@@ -620,8 +620,9 @@ class CasesController {
 
       // Usar sistema de sorteio centralizado (pular débito pois já foi feito)
       console.log('🎯 Fazendo sorteio...');
-      const centralizedDrawService = require('../services/centralizedDrawService');
-      const drawResult = await centralizedDrawService.sortearPremio(id, userId, null, true);
+      // const centralizedDrawService = require('../services/centralizedDrawService');
+      // const drawResult = await centralizedDrawService.sortearPremio(id, userId, null, true);
+      const drawResult = { success: false, message: 'Serviço de sorteio não disponível' };
       
       if (!drawResult.success) {
         console.error('❌ Erro no sorteio:', drawResult.message);

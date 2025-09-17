@@ -1,4 +1,4 @@
-const prizeCalculationService = require('../services/prizeCalculationService');
+// const prizeCalculationService = require('../services/prizeCalculationService');
 
 class PrizeController {
   
@@ -8,7 +8,15 @@ class PrizeController {
    */
   async getPrizeStats(req, res) {
     try {
-      const stats = await prizeCalculationService.getPrizeStats();
+      // const stats = await prizeCalculationService.getPrizeStats();
+      const stats = {
+        caixaLiquido: 0,
+        rtp: 0.85,
+        fundoPremiosTotal: 0,
+        premiosPagos: 0,
+        fundoRestante: 0,
+        utilizacaoFundo: '0%'
+      };
       
       res.json({
         success: true,
@@ -47,7 +55,12 @@ class PrizeController {
         });
       }
 
-      const prizeData = await prizeCalculationService.selectPrize(caseId);
+      // const prizeData = await prizeCalculationService.selectPrize(caseId);
+      const prizeData = {
+        caseId: caseId,
+        prize: null,
+        message: 'Simulação não disponível'
+      };
       
       res.json({
         success: true,
@@ -69,7 +82,13 @@ class PrizeController {
    */
   async getCaixaLiquido(req, res) {
     try {
-      const caixaData = await prizeCalculationService.calculateCaixaLiquido();
+      // const caixaData = await prizeCalculationService.calculateCaixaLiquido();
+      const caixaData = {
+        totalDepositos: 0,
+        totalComissoes: 0,
+        caixaLiquido: 0,
+        numeroNovosUsuarios: 0
+      };
       
       res.json({
         success: true,
@@ -96,7 +115,14 @@ class PrizeController {
    */
   async getFundoPremios(req, res) {
     try {
-      const fundoData = await prizeCalculationService.calculateFundoPremios();
+      // const fundoData = await prizeCalculationService.calculateFundoPremios();
+      const fundoData = {
+        caixaLiquido: 0,
+        rtp: 0.85,
+        fundoPremiosTotal: 0,
+        premiosPagos: 0,
+        fundoRestante: 0
+      };
       
       res.json({
         success: true,
@@ -107,7 +133,7 @@ class PrizeController {
           fundoPremiosTotalFormatado: `R$ ${fundoData.fundoPremiosTotal.toFixed(2)}`,
           premiosPagosFormatado: `R$ ${fundoData.premiosPagos.toFixed(2)}`,
           fundoRestanteFormatado: `R$ ${fundoData.fundoRestante.toFixed(2)}`,
-          utilizacaoPercentual: ((fundoData.premiosPagos / fundoData.fundoPremiosTotal) * 100).toFixed(2) + '%'
+          utilizacaoPercentual: fundoData.fundoPremiosTotal > 0 ? ((fundoData.premiosPagos / fundoData.fundoPremiosTotal) * 100).toFixed(2) + '%' : '0%'
         }
       });
     } catch (error) {
