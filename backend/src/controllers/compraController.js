@@ -99,9 +99,13 @@ class CompraController {
     const caseData = this.getStaticCaseData(caseId);
     if (!caseData) return null;
 
-    // Se for conta demo, manter prêmios originais (acima de R$50,00)
+    // Se for conta demo, usar prêmios específicos para demo (acima de R$50,00)
     if (isDemo) {
-      return caseData;
+      const demoPrizeSystem = {
+        ...caseData,
+        prizes: this.getDemoPrizes(caseId)
+      };
+      return demoPrizeSystem;
     }
 
     // Para contas normais, aplicar novo sistema de prêmios controlados
@@ -111,6 +115,90 @@ class CompraController {
     };
 
     return newPrizeSystem;
+  }
+
+  // Prêmios específicos para contas demo (apenas acima de R$50,00)
+  getDemoPrizes(caseId) {
+    console.log(`🔍 Buscando prêmios demo para caseId: ${caseId}`);
+    
+    const demoPrizes = {
+      '1abd77cf-472b-473d-9af0-6cd47f9f1452': [ // CAIXA WEEKEND (R$1,50)
+        { id: 'weekend_demo_1', nome: 'R$ 50,00', valor: 50.0, probabilidade: 0.3 },
+        { id: 'weekend_demo_2', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.2 },
+        { id: 'weekend_demo_3', nome: 'R$ 200,00', valor: 200.0, probabilidade: 0.1 },
+        { id: 'weekend_demo_4', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.05 },
+        { id: 'weekend_demo_5', nome: 'R$ 1000,00', valor: 1000.0, probabilidade: 0.02 },
+        { id: 'weekend_demo_6', nome: 'Nada', valor: 0, probabilidade: 0.33 }
+      ],
+      '0b5e9b8a-9d56-4769-a45a-55a3025640f4': [ // CAIXA NIKE (R$2,50)
+        { id: 'nike_demo_1', nome: 'R$ 50,00', valor: 50.0, probabilidade: 0.25 },
+        { id: 'nike_demo_2', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.2 },
+        { id: 'nike_demo_3', nome: 'R$ 250,00', valor: 250.0, probabilidade: 0.15 },
+        { id: 'nike_demo_4', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.1 },
+        { id: 'nike_demo_5', nome: 'R$ 1000,00', valor: 1000.0, probabilidade: 0.05 },
+        { id: 'nike_demo_6', nome: 'Nada', valor: 0, probabilidade: 0.25 }
+      ],
+      '3f2a9f7a-cb4d-47e7-991a-0e72c0e0f415': [ // CAIXA SAMSUNG (R$3,00)
+        { id: 'samsung_demo_1', nome: 'R$ 50,00', valor: 50.0, probabilidade: 0.3 },
+        { id: 'samsung_demo_2', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.2 },
+        { id: 'samsung_demo_3', nome: 'R$ 300,00', valor: 300.0, probabilidade: 0.15 },
+        { id: 'samsung_demo_4', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.1 },
+        { id: 'samsung_demo_5', nome: 'R$ 1000,00', valor: 1000.0, probabilidade: 0.05 },
+        { id: 'samsung_demo_6', nome: 'Nada', valor: 0, probabilidade: 0.2 }
+      ],
+      'fb0c0175-b478-4fd5-9750-d673c0f374fd': [ // CAIXA CONSOLE (R$3,50)
+        { id: 'console_demo_1', nome: 'R$ 50,00', valor: 50.0, probabilidade: 0.25 },
+        { id: 'console_demo_2', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.2 },
+        { id: 'console_demo_3', nome: 'R$ 350,00', valor: 350.0, probabilidade: 0.15 },
+        { id: 'console_demo_4', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.1 },
+        { id: 'console_demo_5', nome: 'R$ 1000,00', valor: 1000.0, probabilidade: 0.05 },
+        { id: 'console_demo_6', nome: 'Nada', valor: 0, probabilidade: 0.25 }
+      ],
+      '61a19df9-d011-429e-a9b5-d2c837551150': [ // CAIXA APPLE (R$7,00)
+        { id: 'apple_demo_1', nome: 'R$ 50,00', valor: 50.0, probabilidade: 0.3 },
+        { id: 'apple_demo_2', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.2 },
+        { id: 'apple_demo_3', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.15 },
+        { id: 'apple_demo_4', nome: 'R$ 1000,00', valor: 1000.0, probabilidade: 0.1 },
+        { id: 'apple_demo_5', nome: 'R$ 2000,00', valor: 2000.0, probabilidade: 0.05 },
+        { id: 'apple_demo_6', nome: 'Nada', valor: 0, probabilidade: 0.2 }
+      ],
+      'db95bb2b-9b3e-444b-964f-547330010a59': [ // CAIXA PREMIUM MASTER (R$15,00)
+        { id: 'premium_demo_1', nome: 'R$ 50,00', valor: 50.0, probabilidade: 0.25 },
+        { id: 'premium_demo_2', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.2 },
+        { id: 'premium_demo_3', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.15 },
+        { id: 'premium_demo_4', nome: 'R$ 1000,00', valor: 1000.0, probabilidade: 0.1 },
+        { id: 'premium_demo_5', nome: 'R$ 2000,00', valor: 2000.0, probabilidade: 0.05 },
+        { id: 'premium_demo_6', nome: 'Nada', valor: 0, probabilidade: 0.25 }
+      ]
+    };
+
+    const prizes = demoPrizes[caseId];
+    console.log(`🎯 Prêmios demo encontrados para ${caseId}:`, prizes ? prizes.length : 0);
+    
+    if (!prizes) {
+      console.log(`⚠️ Nenhum prêmio demo encontrado para ${caseId}, usando fallback`);
+      const fallbackPrizes = this.getStaticCaseData(caseId)?.prizes || [];
+      console.log(`🔄 Prêmios fallback:`, fallbackPrizes.length);
+      
+      // Filtrar apenas prêmios acima de R$50,00 para contas demo
+      const filteredPrizes = fallbackPrizes.filter(prize => prize.valor >= 50.0);
+      console.log(`🎯 Prêmios filtrados (>= R$50,00):`, filteredPrizes.length);
+      
+      // Se não houver prêmios acima de R$50,00, criar prêmios padrão para demo
+      if (filteredPrizes.length === 0) {
+        console.log(`⚠️ Nenhum prêmio >= R$50,00 encontrado, criando prêmios padrão para demo`);
+        return [
+          { id: 'demo_default_1', nome: 'R$ 50,00', valor: 50.0, probabilidade: 0.4 },
+          { id: 'demo_default_2', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.3 },
+          { id: 'demo_default_3', nome: 'R$ 200,00', valor: 200.0, probabilidade: 0.2 },
+          { id: 'demo_default_4', nome: 'Nada', valor: 0, probabilidade: 0.1 }
+        ];
+      }
+      
+      return filteredPrizes;
+    }
+    
+    return prizes;
   }
 
   // Prêmios controlados para contas normais (proteção do caixa)
