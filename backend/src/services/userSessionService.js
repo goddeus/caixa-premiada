@@ -1,5 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
-const rtpService = require('./rtpService');
+// const rtpService = require('./rtpService');
 
 const prisma = new PrismaClient();
 
@@ -13,8 +13,9 @@ class UserSessionService {
   async createSession(userId, depositoInicial) {
     try {
       // Obter RTP configurado
-      const rtpConfig = await rtpService.getRTPConfig();
-      const rtpDecimal = rtpConfig.rtp_target / 100;
+      // const rtpConfig = await rtpService.getRTPConfig();
+      const rtpConfig = { rtp: 0.85, maxRTP: 0.95 };
+      const rtpDecimal = rtpConfig.rtp;
       
       // Calcular limite de retorno
       const limiteRetorno = depositoInicial * rtpDecimal;

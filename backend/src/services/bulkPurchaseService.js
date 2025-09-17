@@ -1,5 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
-const globalDrawService = require('./globalDrawService');
+// const globalDrawService = require('./globalDrawService');
 const userSessionService = require('./userSessionService');
 const { v4: uuidv4 } = require('uuid');
 
@@ -149,7 +149,8 @@ class BulkPurchaseService {
               console.log(`🎲 Processando caixa ${i + 1}/${quantidade} do tipo ${nome}...`);
               
               // Usar sistema de sorteio global centralizado
-              const drawResult = await globalDrawService.sortearPremio(caixaId, userId);
+              // const drawResult = await globalDrawService.sortearPremio(caixaId, userId);
+              const drawResult = { success: false, message: 'Serviço de sorteio não disponível' };
               
               if (!drawResult.success) {
                 console.error(`❌ Erro no sorteio da caixa ${i + 1}:`, drawResult.message);

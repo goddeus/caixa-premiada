@@ -103,8 +103,9 @@ class CasesService {
     }
 
     // CORREÇÃO: Usar sistema de sorteio centralizado que respeita preços originais
-    const centralizedDrawService = require('./centralizedDrawService');
-    const drawResult = await centralizedDrawService.sortearPremio(caseId, userId);
+    // const centralizedDrawService = require('./centralizedDrawService');
+    // const drawResult = await centralizedDrawService.sortearPremio(caseId, userId);
+    const drawResult = { success: false, message: 'Serviço de sorteio não disponível' };
     
     if (!drawResult.success) {
       throw new Error(`Erro no sorteio: ${drawResult.message}`);

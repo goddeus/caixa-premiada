@@ -5,7 +5,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { authenticateToken, requireAdmin } = require('../middleware/authMiddleware');
+const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const { getMetrics, resetMetrics } = require('../middleware/monitoringMiddleware');
 const loggingService = require('../services/loggingService');
 
