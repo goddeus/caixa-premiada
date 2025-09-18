@@ -142,73 +142,9 @@ async function main() {
   await prisma.prize.create({
     data: {
       case_id: caixaBasica.id,
-      nome: 'AIR FORCE 1',
-      valor: 700.00,
-      probabilidade: 0.001, // 0.1%
-      imagem_url: '/imagens/airforce.webp',
-      tipo: 'produto',
-      label: 'AIR FORCE 1',
-      imagem_id: '/imagens/airforce.webp',
-      ativo: true,
-      sorteavel: true
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaBasica.id,
-      nome: 'NIKE DUNK LOW',
-      valor: 1000.00,
-      probabilidade: 0.001, // 0.1%
-      imagem_url: '/imagens/nike dunk.webp'
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaBasica.id,
-      nome: 'JORDAN 4',
-      valor: 1500.00,
-      probabilidade: 0.001, // 0.1%
-      imagem_url: '/imagens/jordan.png'
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaBasica.id,
-      nome: 'CAMISA NIKE DRYFIT',
-      valor: 100.00,
-      probabilidade: 0.02, // 2%
-      imagem_url: '/imagens/camiseta nike.webp'
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaBasica.id,
-      nome: 'BONÉ NIKE',
-      valor: 50.00,
-      probabilidade: 0.03, // 3%
-      imagem_url: '/imagens/boné nike.png'
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaBasica.id,
-      nome: 'R$10,00',
-      valor: 10.00,
-      probabilidade: 0.15 // 15%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaBasica.id,
-      nome: 'R$5,00',
-      valor: 5.00,
-      probabilidade: 0.25 // 25%
+      nome: 'R$1,00',
+      valor: 1.00,
+      probabilidade: 0.30 // 30%
     }
   });
 
@@ -217,86 +153,13 @@ async function main() {
       case_id: caixaBasica.id,
       nome: 'R$2,00',
       valor: 2.00,
-      probabilidade: 0.30 // 30%
+      probabilidade: 0.25 // 25%
     }
   });
 
   await prisma.prize.create({
     data: {
       case_id: caixaBasica.id,
-      nome: 'R$1,00',
-      valor: 1.00,
-      probabilidade: 0.25 // 25%
-    }
-  });
-
-  // Criar prêmios para Caixa Console - RTP 100%
-  await prisma.prize.create({
-    data: {
-      case_id: caixaMedia.id,
-      nome: 'PS5 1TB',
-      valor: 5000.00,
-      probabilidade: 0.001 // 0.1%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaMedia.id,
-      nome: 'XBOX ONE X 1TB',
-      valor: 3500.00,
-      probabilidade: 0.001 // 0.1%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaMedia.id,
-      nome: 'STEAMDECK',
-      valor: 2500.00,
-      probabilidade: 0.001 // 0.1%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaMedia.id,
-      nome: 'XIAMO NOTE 12',
-      valor: 1000.00,
-      probabilidade: 0.02 // 2%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaMedia.id,
-      nome: 'CONTROLE PS5',
-      valor: 500.00,
-      probabilidade: 0.03 // 3%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaMedia.id,
-      nome: 'R$100,00',
-      valor: 100.00,
-      probabilidade: 0.04 // 4%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaMedia.id,
-      nome: 'R$10,00',
-      valor: 10.00,
-      probabilidade: 0.10 // 10%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaMedia.id,
       nome: 'R$5,00',
       valor: 5.00,
       probabilidade: 0.20 // 20%
@@ -305,46 +168,201 @@ async function main() {
 
   await prisma.prize.create({
     data: {
-      case_id: caixaMedia.id,
-      nome: 'R$2,00',
-      valor: 2.00,
-      probabilidade: 0.30 // 30%
+      case_id: caixaBasica.id,
+      nome: 'R$10,00',
+      valor: 10.00,
+      probabilidade: 0.15 // 15%
     }
   });
 
+  await prisma.prize.create({
+    data: {
+      case_id: caixaBasica.id,
+      nome: 'Boné Nike',
+      valor: 50.00,
+      probabilidade: 0.05 // 5%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaBasica.id,
+      nome: 'Camisa Nike Dry Fit',
+      valor: 100.00,
+      probabilidade: 0.03 // 3%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaBasica.id,
+      nome: 'Air Force 1',
+      valor: 700.00,
+      probabilidade: 0.01 // 1%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaBasica.id,
+      nome: 'Nike Dunk Low',
+      valor: 1000.00,
+      probabilidade: 0.0 // 0%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaBasica.id,
+      nome: 'Air Jordan 4',
+      valor: 1500.00,
+      probabilidade: 0.0 // 0%
+    }
+  });
+
+  // Criar prêmios para Caixa Console - RTP 100%
   await prisma.prize.create({
     data: {
       case_id: caixaMedia.id,
       nome: 'R$1,00',
       valor: 1.00,
+      probabilidade: 0.25 // 25%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaMedia.id,
+      nome: 'R$2,00',
+      valor: 2.00,
+      probabilidade: 0.20 // 20%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaMedia.id,
+      nome: 'R$5,00',
+      valor: 5.00,
       probabilidade: 0.15 // 15%
     }
   });
 
-  // Criar prêmios para Caixa Premium - RTP 100%
   await prisma.prize.create({
     data: {
-      case_id: caixaPremium.id,
-      nome: 'HONDA CG FAN 160',
-      valor: 25000.00,
+      case_id: caixaMedia.id,
+      nome: 'R$10,00',
+      valor: 10.00,
+      probabilidade: 0.12 // 12%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaMedia.id,
+      nome: 'R$100,00',
+      valor: 100.00,
+      probabilidade: 0.08 // 8%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaMedia.id,
+      nome: 'Steam Deck',
+      valor: 300.00,
+      probabilidade: 0.05 // 5%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaMedia.id,
+      nome: 'Air Force 1',
+      valor: 700.00,
+      probabilidade: 0.03 // 3%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaMedia.id,
+      nome: 'Xbox One',
+      valor: 4000.00,
       probabilidade: 0.0 // 0%
     }
   });
 
   await prisma.prize.create({
     data: {
-      case_id: caixaPremium.id,
-      nome: 'MACBOOK',
-      valor: 15000.00,
+      case_id: caixaMedia.id,
+      nome: 'PS5',
+      valor: 5000.00,
       probabilidade: 0.0 // 0%
+    }
+  });
+
+
+  // Criar prêmios para Caixa Premium - 11 prêmios corretos
+  await prisma.prize.create({
+    data: {
+      case_id: caixaPremium.id,
+      nome: 'R$2,00',
+      valor: 2.00,
+      probabilidade: 0.25 // 25%
     }
   });
 
   await prisma.prize.create({
     data: {
       case_id: caixaPremium.id,
-      nome: 'IPHONE 16 PRO MAX',
-      valor: 10000.00,
+      nome: 'R$5,00',
+      valor: 5.00,
+      probabilidade: 0.20 // 20%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaPremium.id,
+      nome: 'R$10,00',
+      valor: 10.00,
+      probabilidade: 0.15 // 15%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaPremium.id,
+      nome: 'R$20,00',
+      valor: 20.00,
+      probabilidade: 0.10 // 10%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaPremium.id,
+      nome: 'R$500,00',
+      valor: 500.00,
+      probabilidade: 0.05 // 5%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaPremium.id,
+      nome: 'Air Pods',
+      valor: 2500.00,
+      probabilidade: 0.03 // 3%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaPremium.id,
+      nome: 'Ipad',
+      valor: 8000.00,
       probabilidade: 0.0 // 0%
     }
   });
@@ -353,7 +371,7 @@ async function main() {
     data: {
       case_id: caixaPremium.id,
       nome: 'S25 ULTRA',
-      valor: 5000.00,
+      valor: 6000.00,
       probabilidade: 0.0 // 0%
     }
   });
@@ -361,8 +379,8 @@ async function main() {
   await prisma.prize.create({
     data: {
       case_id: caixaPremium.id,
-      nome: 'PC GAMER',
-      valor: 5000.00,
+      nome: 'Iphone 16 Pro Max',
+      valor: 10000.00,
       probabilidade: 0.0 // 0%
     }
   });
@@ -370,8 +388,8 @@ async function main() {
   await prisma.prize.create({
     data: {
       case_id: caixaPremium.id,
-      nome: 'IPAD',
-      valor: 8000.00,
+      nome: 'Macbook',
+      valor: 15000.00,
       probabilidade: 0.0 // 0%
     }
   });
@@ -379,63 +397,9 @@ async function main() {
   await prisma.prize.create({
     data: {
       case_id: caixaPremium.id,
-      nome: 'AIRPODS',
-      valor: 2500.00,
+      nome: 'Honda CG Fan 160',
+      valor: 19500.00,
       probabilidade: 0.0 // 0%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaPremium.id,
-      nome: 'R$500,00',
-      valor: 500.00,
-      probabilidade: 0.04 // 4%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaPremium.id,
-      nome: 'R$100,00',
-      valor: 100.00,
-      probabilidade: 0.04 // 4%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaPremium.id,
-      nome: 'R$20,00',
-      valor: 20.00,
-      probabilidade: 0.10 // 10%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaPremium.id,
-      nome: 'R$10,00',
-      valor: 10.00,
-      probabilidade: 0.30 // 30%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaPremium.id,
-      nome: 'R$5,00',
-      valor: 5.00,
-      probabilidade: 0.30 // 30%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaPremium.id,
-      nome: 'R$2,00',
-      valor: 2.00,
-      probabilidade: 0.30 // 30%
     }
   });
 
@@ -444,100 +408,9 @@ async function main() {
   await prisma.prize.create({
     data: {
       case_id: caixaApple.id,
-      nome: 'IPHONE 16 PRO MAX',
-      valor: 10000.00,
-      probabilidade: 0.0 // 0%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaApple.id,
-      nome: 'MACBOOK PRO',
-      valor: 15000.00,
-      probabilidade: 0.0 // 0%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaApple.id,
-      nome: 'IPAD PRO',
-      valor: 8000.00,
-      probabilidade: 0.0 // 0%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaApple.id,
-      nome: 'AIRPODS PRO',
-      valor: 2500.00,
-      probabilidade: 0.0 // 0%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaApple.id,
-      nome: 'APPLE WATCH',
-      valor: 3500.00,
-      probabilidade: 0.0, // 0%
-      imagem_url: '/imagens/apple watch.jpg'
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaApple.id,
-      nome: 'R$500,00',
-      valor: 500.00,
-      probabilidade: 0.03 // 3%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaApple.id,
-      nome: 'R$100,00',
-      valor: 100.00,
-      probabilidade: 0.04 // 4%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaApple.id,
-      nome: 'R$50,00',
-      valor: 50.00,
-      probabilidade: 0.05 // 5%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaApple.id,
-      nome: 'R$20,00',
-      valor: 20.00,
-      probabilidade: 0.15 // 15%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaApple.id,
-      nome: 'R$10,00',
-      valor: 10.00,
-      probabilidade: 0.20 // 20%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaApple.id,
-      nome: 'R$5,00',
-      valor: 5.00,
-      probabilidade: 0.25 // 25%
+      nome: 'R$1,00',
+      valor: 1.00,
+      probabilidade: 0.30 // 30%
     }
   });
 
@@ -546,9 +419,67 @@ async function main() {
       case_id: caixaApple.id,
       nome: 'R$2,00',
       valor: 2.00,
-      probabilidade: 0.30 // 30%
+      probabilidade: 0.25 // 25%
     }
   });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaApple.id,
+      nome: 'R$5,00',
+      valor: 5.00,
+      probabilidade: 0.20 // 20%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaApple.id,
+      nome: 'R$10,00',
+      valor: 10.00,
+      probabilidade: 0.15 // 15%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaApple.id,
+      nome: 'R$500,00',
+      valor: 500.00,
+      probabilidade: 0.05 // 5%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaApple.id,
+      nome: 'Air Pods',
+      valor: 2500.00,
+      probabilidade: 0.03 // 3%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaApple.id,
+      nome: 'Iphone 16 Pro Max',
+      valor: 10000.00,
+      probabilidade: 0.0 // 0%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaApple.id,
+      nome: 'Macbook',
+      valor: 15000.00,
+      probabilidade: 0.0 // 0%
+    }
+  });
+
+
+
+
 
   // Criar prêmios para Caixa Samsung - 9 prêmios corretos
   await prisma.prize.create({

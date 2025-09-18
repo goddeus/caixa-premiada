@@ -26,16 +26,15 @@ class CasesController {
         preco: 2.5,
         ativo: true,
         prizes: [
-          { id: 'nike_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.25 },
-          { id: 'nike_2', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.2 },
-          { id: 'nike_3', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.15 },
-          { id: 'nike_4', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.1 },
-          { id: 'nike_5', nome: 'AIR FORCE 1', valor: 500.0, probabilidade: 0.001, tipo: 'ilustrativo' },
-          { id: 'nike_6', nome: 'BONÉ NIKE', valor: 50.0, probabilidade: 0.001, tipo: 'ilustrativo' },
-          { id: 'nike_7', nome: 'CAMISA NIKE', valor: 100.0, probabilidade: 0.001, tipo: 'ilustrativo' },
-          { id: 'nike_8', nome: 'JORDAN', valor: 1500.0, probabilidade: 0.001, tipo: 'ilustrativo' },
-          { id: 'nike_9', nome: 'NIKE DUNK', valor: 600.0, probabilidade: 0.001, tipo: 'ilustrativo' },
-          { id: 'nike_10', nome: 'Nada', valor: 0, probabilidade: 0.243 }
+          { id: 'nike_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.30 },
+          { id: 'nike_2', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.25 },
+          { id: 'nike_3', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.20 },
+          { id: 'nike_4', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.15 },
+          { id: 'nike_5', nome: 'Boné Nike', valor: 50.0, probabilidade: 0.05 },
+          { id: 'nike_6', nome: 'Camisa Nike Dry Fit', valor: 100.0, probabilidade: 0.03 },
+          { id: 'nike_7', nome: 'Air Force 1', valor: 700.0, probabilidade: 0.01 },
+          { id: 'nike_8', nome: 'Nike Dunk Low', valor: 1000.0, probabilidade: 0.0, tipo: 'ilustrativo' },
+          { id: 'nike_9', nome: 'Air Jordan 4', valor: 1500.0, probabilidade: 0.0, tipo: 'ilustrativo' }
         ]
       },
       '3f2a9f7a-cb4d-47e7-991a-0e72c0e0f415': {
@@ -61,15 +60,15 @@ class CasesController {
         preco: 3.5,
         ativo: true,
         prizes: [
-          { id: 'console_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.3 },
-          { id: 'console_2', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.25 },
-          { id: 'console_3', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.2 },
-          { id: 'console_4', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.15 },
-          { id: 'console_5', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.05 },
-          { id: 'console_6', nome: 'PLAYSTATION 5', valor: 5000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
-          { id: 'console_7', nome: 'STEAM DECK', valor: 3000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
-          { id: 'console_8', nome: 'XBOX ONE X', valor: 3500.0, probabilidade: 0.001, tipo: 'ilustrativo' },
-          { id: 'console_9', nome: 'Nada', valor: 0, probabilidade: 0.043 }
+          { id: 'console_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.25 },
+          { id: 'console_2', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.20 },
+          { id: 'console_3', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.15 },
+          { id: 'console_4', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.12 },
+          { id: 'console_5', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.08 },
+          { id: 'console_6', nome: 'Steam Deck', valor: 300.0, probabilidade: 0.05 },
+          { id: 'console_7', nome: 'Air Force 1', valor: 700.0, probabilidade: 0.03 },
+          { id: 'console_8', nome: 'Xbox One', valor: 4000.0, probabilidade: 0.0, tipo: 'ilustrativo' },
+          { id: 'console_9', nome: 'PS5', valor: 5000.0, probabilidade: 0.0, tipo: 'ilustrativo' }
         ]
       },
       '61a19df9-d011-429e-a9b5-d2c837551150': {
@@ -78,15 +77,14 @@ class CasesController {
         preco: 7.0,
         ativo: true,
         prizes: [
-          { id: 'apple_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.3 },
+          { id: 'apple_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.30 },
           { id: 'apple_2', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.25 },
-          { id: 'apple_3', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.2 },
+          { id: 'apple_3', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.20 },
           { id: 'apple_4', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.15 },
           { id: 'apple_5', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.05 },
-          { id: 'apple_6', nome: 'AIR PODS', valor: 2500.0, probabilidade: 0.001, tipo: 'ilustrativo' },
-          { id: 'apple_7', nome: 'IPHONE 16 PRO MAX', valor: 10000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
-          { id: 'apple_8', nome: 'MACBOOK', valor: 15000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
-          { id: 'apple_9', nome: 'Nada', valor: 0, probabilidade: 0.043 }
+          { id: 'apple_6', nome: 'Air Pods', valor: 2500.0, probabilidade: 0.03 },
+          { id: 'apple_7', nome: 'Iphone 16 Pro Max', valor: 10000.0, probabilidade: 0.0, tipo: 'ilustrativo' },
+          { id: 'apple_8', nome: 'Macbook', valor: 15000.0, probabilidade: 0.0, tipo: 'ilustrativo' }
         ]
       },
       'db95bb2b-9b3e-444b-964f-547330010a59': {
@@ -96,16 +94,16 @@ class CasesController {
         ativo: true,
         prizes: [
           { id: 'premium_1', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.25 },
-          { id: 'premium_2', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.2 },
+          { id: 'premium_2', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.20 },
           { id: 'premium_3', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.15 },
-          { id: 'premium_4', nome: 'R$ 20,00', valor: 20.0, probabilidade: 0.1 },
+          { id: 'premium_4', nome: 'R$ 20,00', valor: 20.0, probabilidade: 0.10 },
           { id: 'premium_5', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.05 },
-          { id: 'premium_6', nome: 'AIRPODS', valor: 2500.0, probabilidade: 0.001, tipo: 'ilustrativo' },
-          { id: 'premium_7', nome: 'HONDA CG FAN', valor: 8000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
-          { id: 'premium_8', nome: 'IPAD', valor: 5000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
-          { id: 'premium_9', nome: 'IPHONE 16 PRO MAX', valor: 10000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
-          { id: 'premium_10', nome: 'MACBOOK', valor: 15000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
-          { id: 'premium_11', nome: 'Nada', valor: 0, probabilidade: 0.231 }
+          { id: 'premium_6', nome: 'Air Pods', valor: 2500.0, probabilidade: 0.03 },
+          { id: 'premium_7', nome: 'Ipad', valor: 8000.0, probabilidade: 0.0, tipo: 'ilustrativo' },
+          { id: 'premium_8', nome: 'S25 ULTRA', valor: 6000.0, probabilidade: 0.0, tipo: 'ilustrativo' },
+          { id: 'premium_9', nome: 'Iphone 16 Pro Max', valor: 10000.0, probabilidade: 0.0, tipo: 'ilustrativo' },
+          { id: 'premium_10', nome: 'Macbook', valor: 15000.0, probabilidade: 0.0, tipo: 'ilustrativo' },
+          { id: 'premium_11', nome: 'Honda CG Fan 160', valor: 19500.0, probabilidade: 0.0, tipo: 'ilustrativo' }
         ]
       }
     };
@@ -147,12 +145,12 @@ class CasesController {
         { id: 'weekend_demo_3', nome: 'Nada', valor: 0, probabilidade: 0.5 }
       ],
       '0b5e9b8a-9d56-4769-a45a-55a3025640f4': [ // CAIXA NIKE (R$2,50)
-        { id: 'nike_demo_1', nome: 'R$ 50,00', valor: 50.0, probabilidade: 0.25 },
-        { id: 'nike_demo_2', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.2 },
-        { id: 'nike_demo_3', nome: 'R$ 250,00', valor: 250.0, probabilidade: 0.15 },
-        { id: 'nike_demo_4', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.1 },
-        { id: 'nike_demo_5', nome: 'R$ 1000,00', valor: 1000.0, probabilidade: 0.05 },
-        { id: 'nike_demo_6', nome: 'Nada', valor: 0, probabilidade: 0.25 }
+        { id: 'nike_demo_1', nome: 'Boné Nike', valor: 50.0, probabilidade: 0.3 },
+        { id: 'nike_demo_2', nome: 'Camisa Nike Dry Fit', valor: 100.0, probabilidade: 0.2 },
+        { id: 'nike_demo_3', nome: 'Air Force 1', valor: 700.0, probabilidade: 0.15 },
+        { id: 'nike_demo_4', nome: 'Nike Dunk Low', valor: 1000.0, probabilidade: 0.1 },
+        { id: 'nike_demo_5', nome: 'Air Jordan 4', valor: 1500.0, probabilidade: 0.05 },
+        { id: 'nike_demo_6', nome: 'Nada', valor: 0, probabilidade: 0.2 }
       ],
       '3f2a9f7a-cb4d-47e7-991a-0e72c0e0f415': [ // CAIXA SAMSUNG (R$3,00)
         { id: 'samsung_demo_1', nome: 'Fone Samsung', valor: 50.0, probabilidade: 0.3 },
@@ -163,27 +161,27 @@ class CasesController {
         { id: 'samsung_demo_6', nome: 'Nada', valor: 0, probabilidade: 0.2 }
       ],
       'fb0c0175-b478-4fd5-9750-d673c0f374fd': [ // CAIXA CONSOLE (R$3,50)
-        { id: 'console_demo_1', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.25 },
-        { id: 'console_demo_2', nome: 'Steam Deck', valor: 3000.0, probabilidade: 0.2 },
-        { id: 'console_demo_3', nome: 'Xbox One', valor: 4000.0, probabilidade: 0.15 },
-        { id: 'console_demo_4', nome: 'PS5', valor: 5000.0, probabilidade: 0.1 },
-        { id: 'console_demo_5', nome: 'Nada', valor: 0, probabilidade: 0.3 }
+        { id: 'console_demo_1', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.3 },
+        { id: 'console_demo_2', nome: 'Steam Deck', valor: 300.0, probabilidade: 0.25 },
+        { id: 'console_demo_3', nome: 'Air Force 1', valor: 700.0, probabilidade: 0.2 },
+        { id: 'console_demo_4', nome: 'Xbox One', valor: 4000.0, probabilidade: 0.15 },
+        { id: 'console_demo_5', nome: 'PS5', valor: 5000.0, probabilidade: 0.1 }
       ],
       '61a19df9-d011-429e-a9b5-d2c837551150': [ // CAIXA APPLE (R$7,00)
-        { id: 'apple_demo_1', nome: 'R$ 50,00', valor: 50.0, probabilidade: 0.3 },
-        { id: 'apple_demo_2', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.2 },
-        { id: 'apple_demo_3', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.15 },
-        { id: 'apple_demo_4', nome: 'R$ 1000,00', valor: 1000.0, probabilidade: 0.1 },
-        { id: 'apple_demo_5', nome: 'R$ 2000,00', valor: 2000.0, probabilidade: 0.05 },
-        { id: 'apple_demo_6', nome: 'Nada', valor: 0, probabilidade: 0.2 }
+        { id: 'apple_demo_1', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.3 },
+        { id: 'apple_demo_2', nome: 'Air Pods', valor: 2500.0, probabilidade: 0.25 },
+        { id: 'apple_demo_3', nome: 'Iphone 16 Pro Max', valor: 10000.0, probabilidade: 0.2 },
+        { id: 'apple_demo_4', nome: 'Macbook', valor: 15000.0, probabilidade: 0.15 },
+        { id: 'apple_demo_5', nome: 'Nada', valor: 0, probabilidade: 0.1 }
       ],
       'db95bb2b-9b3e-444b-964f-547330010a59': [ // CAIXA PREMIUM MASTER (R$15,00)
-        { id: 'premium_demo_1', nome: 'R$ 50,00', valor: 50.0, probabilidade: 0.25 },
-        { id: 'premium_demo_2', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.2 },
-        { id: 'premium_demo_3', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.15 },
-        { id: 'premium_demo_4', nome: 'R$ 1000,00', valor: 1000.0, probabilidade: 0.1 },
-        { id: 'premium_demo_5', nome: 'R$ 2000,00', valor: 2000.0, probabilidade: 0.05 },
-        { id: 'premium_demo_6', nome: 'Nada', valor: 0, probabilidade: 0.25 }
+        { id: 'premium_demo_1', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.25 },
+        { id: 'premium_demo_2', nome: 'Air Pods', valor: 2500.0, probabilidade: 0.2 },
+        { id: 'premium_demo_3', nome: 'S25 ULTRA', valor: 6000.0, probabilidade: 0.15 },
+        { id: 'premium_demo_4', nome: 'Ipad', valor: 8000.0, probabilidade: 0.1 },
+        { id: 'premium_demo_5', nome: 'Iphone 16 Pro Max', valor: 10000.0, probabilidade: 0.08 },
+        { id: 'premium_demo_6', nome: 'Macbook', valor: 15000.0, probabilidade: 0.05 },
+        { id: 'premium_demo_7', nome: 'Honda CG Fan 160', valor: 19500.0, probabilidade: 0.02 }
       ]
     };
 
