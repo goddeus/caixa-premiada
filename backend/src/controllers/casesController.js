@@ -28,12 +28,16 @@ class CasesController {
         preco: 2.5,
         ativo: true,
         prizes: [
-          { id: '7', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.25 },
-          { id: '8', nome: 'R$ 2,50', valor: 2.5, probabilidade: 0.2 },
-          { id: '9', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.15 },
-          { id: '10', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.1 },
-          { id: '11', nome: 'R$ 25,00', valor: 25.0, probabilidade: 0.05 },
-          { id: '12', nome: 'Nada', valor: 0, probabilidade: 0.25 }
+          { id: 'nike_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.25 },
+          { id: 'nike_2', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.2 },
+          { id: 'nike_3', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.15 },
+          { id: 'nike_4', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.1 },
+          { id: 'nike_5', nome: 'AIR FORCE 1', valor: 500.0, probabilidade: 0.001, tipo: 'ilustrativo' },
+          { id: 'nike_6', nome: 'BONÉ NIKE', valor: 50.0, probabilidade: 0.001, tipo: 'ilustrativo' },
+          { id: 'nike_7', nome: 'CAMISA NIKE', valor: 100.0, probabilidade: 0.001, tipo: 'ilustrativo' },
+          { id: 'nike_8', nome: 'JORDAN', valor: 1500.0, probabilidade: 0.001, tipo: 'ilustrativo' },
+          { id: 'nike_9', nome: 'NIKE DUNK', valor: 600.0, probabilidade: 0.001, tipo: 'ilustrativo' },
+          { id: 'nike_10', nome: 'Nada', valor: 0, probabilidade: 0.243 }
         ]
       },
       '3f2a9f7a-cb4d-47e7-991a-0e72c0e0f415': {
@@ -42,12 +46,16 @@ class CasesController {
         preco: 3.0,
         ativo: true,
         prizes: [
-          { id: '13', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.3 },
-          { id: '14', nome: 'R$ 3,00', valor: 3.0, probabilidade: 0.2 },
-          { id: '15', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.15 },
-          { id: '16', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.1 },
-          { id: '17', nome: 'R$ 25,00', valor: 25.0, probabilidade: 0.05 },
-          { id: '18', nome: 'Nada', valor: 0, probabilidade: 0.2 }
+          { id: 'samsung_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.3 },
+          { id: 'samsung_2', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.25 },
+          { id: 'samsung_3', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.2 },
+          { id: 'samsung_4', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.15 },
+          { id: 'samsung_5', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.05 },
+          { id: 'samsung_6', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.02 },
+          { id: 'samsung_7', nome: 'FONE SAMSUNG', valor: 200.0, probabilidade: 0.001, tipo: 'ilustrativo' },
+          { id: 'samsung_8', nome: 'NOTEBOOK SAMSUNG', valor: 3000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
+          { id: 'samsung_9', nome: 'S25', valor: 4000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
+          { id: 'samsung_10', nome: 'Nada', valor: 0, probabilidade: 0.013 }
         ]
       },
       'fb0c0175-b478-4fd5-9750-d673c0f374fd': {
@@ -56,12 +64,15 @@ class CasesController {
         preco: 3.5,
         ativo: true,
         prizes: [
-          { id: '19', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.25 },
-          { id: '20', nome: 'R$ 3,50', valor: 3.5, probabilidade: 0.2 },
-          { id: '21', nome: 'R$ 7,00', valor: 7.0, probabilidade: 0.15 },
-          { id: '22', nome: 'R$ 15,00', valor: 15.0, probabilidade: 0.1 },
-          { id: '23', nome: 'R$ 35,00', valor: 35.0, probabilidade: 0.05 },
-          { id: '24', nome: 'Nada', valor: 0, probabilidade: 0.25 }
+          { id: 'console_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.3 },
+          { id: 'console_2', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.25 },
+          { id: 'console_3', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.2 },
+          { id: 'console_4', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.15 },
+          { id: 'console_5', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.05 },
+          { id: 'console_6', nome: 'PLAYSTATION 5', valor: 5000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
+          { id: 'console_7', nome: 'STEAM DECK', valor: 3000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
+          { id: 'console_8', nome: 'XBOX ONE X', valor: 3500.0, probabilidade: 0.001, tipo: 'ilustrativo' },
+          { id: 'console_9', nome: 'Nada', valor: 0, probabilidade: 0.043 }
         ]
       },
       '61a19df9-d011-429e-a9b5-d2c837551150': {
@@ -70,12 +81,15 @@ class CasesController {
         preco: 7.0,
         ativo: true,
         prizes: [
-          { id: '25', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.3 },
-          { id: '26', nome: 'R$ 7,00', valor: 7.0, probabilidade: 0.2 },
-          { id: '27', nome: 'R$ 15,00', valor: 15.0, probabilidade: 0.15 },
-          { id: '28', nome: 'R$ 35,00', valor: 35.0, probabilidade: 0.1 },
-          { id: '29', nome: 'R$ 70,00', valor: 70.0, probabilidade: 0.05 },
-          { id: '30', nome: 'Nada', valor: 0, probabilidade: 0.2 }
+          { id: 'apple_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.3 },
+          { id: 'apple_2', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.25 },
+          { id: 'apple_3', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.2 },
+          { id: 'apple_4', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.15 },
+          { id: 'apple_5', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.05 },
+          { id: 'apple_6', nome: 'AIR PODS', valor: 2500.0, probabilidade: 0.001, tipo: 'ilustrativo' },
+          { id: 'apple_7', nome: 'IPHONE 16 PRO MAX', valor: 10000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
+          { id: 'apple_8', nome: 'MACBOOK', valor: 15000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
+          { id: 'apple_9', nome: 'Nada', valor: 0, probabilidade: 0.043 }
         ]
       },
       'db95bb2b-9b3e-444b-964f-547330010a59': {
@@ -84,12 +98,18 @@ class CasesController {
         preco: 15.0,
         ativo: true,
         prizes: [
-          { id: '31', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.25 },
-          { id: '32', nome: 'R$ 15,00', valor: 15.0, probabilidade: 0.2 },
-          { id: '33', nome: 'R$ 35,00', valor: 35.0, probabilidade: 0.15 },
-          { id: '34', nome: 'R$ 75,00', valor: 75.0, probabilidade: 0.1 },
-          { id: '35', nome: 'R$ 150,00', valor: 150.0, probabilidade: 0.05 },
-          { id: '36', nome: 'Nada', valor: 0, probabilidade: 0.25 }
+          { id: 'premium_1', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.25 },
+          { id: 'premium_2', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.2 },
+          { id: 'premium_3', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.15 },
+          { id: 'premium_4', nome: 'R$ 20,00', valor: 20.0, probabilidade: 0.1 },
+          { id: 'premium_5', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.05 },
+          { id: 'premium_6', nome: 'AIRPODS', valor: 2500.0, probabilidade: 0.001, tipo: 'ilustrativo' },
+          { id: 'premium_7', nome: 'HONDA CG FAN', valor: 8000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
+          { id: 'premium_8', nome: 'IPAD', valor: 5000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
+          { id: 'premium_9', nome: 'IPHONE 16 PRO MAX', valor: 10000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
+          { id: 'premium_10', nome: 'MACBOOK', valor: 15000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
+          { id: 'premium_11', nome: 'SAMSUNG S25', valor: 4000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
+          { id: 'premium_12', nome: 'Nada', valor: 0, probabilidade: 0.23 }
         ]
       }
     };
@@ -1066,7 +1086,60 @@ class CasesController {
         console.log('- Prêmio encontrado Nome:', wonPrize.nome);
         console.log('- Prêmio encontrado Valor:', wonPrize.valor);
       }
+      
+      // Se não encontrou no banco, verificar se é prêmio demo
       if (!wonPrize) {
+        console.log('🔍 Prêmio não encontrado no banco, verificando se é prêmio demo...');
+        
+        // Verificar se é prêmio demo baseado no ID
+        if (prizeId.includes('_demo_') || prizeId.includes('demo_default_')) {
+          console.log('🎯 Prêmio demo detectado, creditando valor diretamente');
+          
+          // Para prêmios demo, usar o valor passado no request
+          const prizeValue = parseFloat(prizeValue) || 0;
+          if (prizeValue > 0) {
+            console.log(`💰 Creditando prêmio demo: R$ ${prizeValue}`);
+            
+            // Verificar se é conta demo
+            const isDemoAccount = req.user.tipo_conta === 'afiliado_demo';
+            const saldoField = isDemoAccount ? 'saldo_demo' : 'saldo_reais';
+            
+            // Creditar prêmio ao saldo correto do usuário
+            const updatedUser = await prisma.user.update({
+              where: { id: userId },
+              data: {
+                [saldoField]: {
+                  increment: prizeValue
+                }
+              },
+              select: {
+                saldo_reais: true,
+                saldo_demo: true,
+                tipo_conta: true
+              }
+            });
+            
+            // Sincronizar com a tabela wallet
+            await prisma.wallet.update({
+              where: { user_id: userId },
+              data: {
+                saldo_reais: updatedUser.saldo_reais,
+                saldo_demo: updatedUser.saldo_demo
+              }
+            });
+            
+            console.log('✅ Prêmio demo creditado com sucesso');
+            
+            return res.json({
+              success: true,
+              credited: true,
+              message: `Prêmio de R$ ${prizeValue.toFixed(2)} creditado com sucesso`,
+              prizeValue: prizeValue,
+              isDemo: true
+            });
+          }
+        }
+        
         console.log('🎭 Prêmio ilustrativo detectado - não precisa creditar');
         return res.json({
           success: true,
