@@ -331,10 +331,7 @@ class CompraController {
       console.log(`🎲 Compra de caixa - Usuário: ${userId}, Caixa: ${caseId}`);
 
       // Verificar se a caixa existe
-      const caseData = await prisma.case.findUnique({
-        where: { id: caseId },
-        include: { prizes: { where: { ativo: true } } }
-      });
+      const caseData = this.getStaticCaseData(caseId);
 
       if (!caseData) {
         return res.status(404).json({
@@ -461,21 +458,7 @@ class CompraController {
       // Buscar a caixa
       let caseData;
       try {
-        caseData = await prisma.case.findUnique({
-          where: { id: id },
-          include: {
-            prizes: {
-              where: { ativo: true },
-              select: {
-                id: true,
-                nome: true,
-                valor: true,
-                probabilidade: true,
-                imagem: true
-              }
-            }
-          }
-        });
+        caseData = this.getStaticCaseData(id);
       } catch (dbError) {
         console.error('[BUY] Erro ao buscar caixa no banco:', dbError.message);
         caseData = this.getStaticCaseData(id);
@@ -717,10 +700,7 @@ class CompraController {
       }
 
       // Verificar se a caixa existe
-      const caseData = await prisma.case.findUnique({
-        where: { id: caseId },
-        include: { prizes: { where: { ativo: true } } }
-      });
+      const caseData = this.getStaticCaseData(caseId);
 
       if (!caseData) {
         return res.status(404).json({
@@ -868,19 +848,7 @@ class CompraController {
       // Buscar a caixa
       let caseData;
       try {
-        caseData = await prisma.case.findUnique({
-          where: { id: id },
-          include: {
-            prizes: {
-              select: {
-                id: true,
-                nome: true,
-                valor: true,
-                probabilidade: true
-              }
-            }
-          }
-        });
+        caseData = this.getStaticCaseData(id);
       } catch (dbError) {
         console.error('❌ Erro ao buscar caixa no banco:', dbError.message);
         caseData = this.getStaticCaseData(id);
@@ -1078,20 +1046,7 @@ class CompraController {
     try {
       const { id } = req.params;
 
-      const caseData = await prisma.case.findUnique({
-        where: { id: id },
-        include: {
-          prizes: {
-            select: {
-              id: true,
-              nome: true,
-              valor: true,
-              probabilidade: true
-            },
-            orderBy: { valor: 'desc' }
-          }
-        }
-      });
+      const caseData = this.getStaticCaseData(id);
 
       if (!caseData) {
         return res.status(404).json({ error: 'Caixa não encontrada' });

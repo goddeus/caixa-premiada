@@ -522,20 +522,8 @@ class CasesController {
         return res.status(400).json({ error: 'Quantidade deve ser entre 1 e 10' });
       }
 
-      // Buscar a caixa
-      const caseData = await prisma.case.findUnique({
-        where: { id: id },
-        include: {
-          prizes: {
-            select: {
-              id: true,
-              nome: true,
-              valor: true,
-              probabilidade: true
-            }
-          }
-        }
-      });
+      // Usar dados estáticos para o sistema de prêmios controlado
+      const caseData = this.getStaticCaseData(id);
 
       if (!caseData) {
         return res.status(404).json({ error: 'Caixa não encontrada' });
@@ -695,20 +683,8 @@ class CasesController {
       console.log('- Case ID:', id);
       console.log('- User ID:', userId);
 
-      // Buscar a caixa
-      const caseData = await prisma.case.findUnique({
-        where: { id: id },
-        include: {
-          prizes: {
-            select: {
-              id: true,
-              nome: true,
-              valor: true,
-              probabilidade: true
-            }
-          }
-        }
-      });
+      // Usar dados estáticos para o sistema de prêmios controlado
+      const caseData = this.getStaticCaseData(id);
 
       if (!caseData) {
         return res.status(404).json({ error: 'Caixa não encontrada' });
@@ -879,27 +855,8 @@ class CasesController {
       console.log('- User ID:', userId);
       console.log('- User object:', req.user);
 
-      // Buscar a caixa com fallback para dados estáticos
-      let caseData;
-      try {
-        caseData = await prisma.case.findUnique({
-        where: { id: id },
-        include: {
-          prizes: {
-            select: {
-              id: true,
-              nome: true,
-              valor: true,
-              probabilidade: true
-            }
-          }
-        }
-      });
-      } catch (dbError) {
-        console.error('❌ Erro ao buscar caixa no banco:', dbError.message);
-        // Fallback para dados estáticos
-        caseData = this.getStaticCaseData(id);
-      }
+      // Usar dados estáticos para o sistema de prêmios controlado
+      const caseData = this.getStaticCaseData(id);
 
       if (!caseData) {
         return res.status(404).json({ error: 'Caixa não encontrada' });
@@ -1016,43 +973,8 @@ class CasesController {
       console.log('- Prize Value:', prizeValue);
       console.log('- User ID:', userId);
 
-      // Tentar buscar dados da caixa do banco
-      let caseData;
-      try {
-        caseData = await prisma.case.findUnique({
-        where: { id: id },
-        include: {
-          prizes: true
-        }
-      });
-      } catch (dbError) {
-        console.log('⚠️ Erro ao acessar banco, creditando prêmio localmente');
-        console.log('⚠️ Erro detalhado:', dbError.message);
-        
-        // Em modo fallback, creditar prêmio localmente
-        const prizeValueToCredit = parseFloat(prizeValue) || 0;
-        if (prizeValueToCredit > 0) {
-          try {
-            // Tentar atualizar saldo no banco mesmo em modo fallback
-            await prisma.user.update({
-              where: { id: userId },
-              data: { 
-                saldo_reais: { increment: prizeValueToCredit }
-              }
-            });
-            console.log('✅ Prêmio creditado no banco de dados');
-          } catch (updateError) {
-            console.log('⚠️ Não foi possível atualizar banco, mas prêmio foi processado');
-          }
-        }
-        
-        return res.json({
-          success: true,
-          credited: true,
-          message: 'Prêmio creditado com sucesso',
-          fallback: true
-        });
-      }
+      // Usar dados estáticos para o sistema de prêmios controlado
+      const caseData = this.getStaticCaseData(id);
 
       if (!caseData) {
         console.log('❌ Caixa não encontrada');
