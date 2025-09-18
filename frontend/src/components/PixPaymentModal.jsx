@@ -96,7 +96,7 @@ const PixPaymentModal = ({ isOpen, onClose, paymentData, onPaymentComplete }) =>
           <div className="text-center">
             <p className="text-sm text-gray-300 mb-1">Valor a pagar</p>
             <p className="text-3xl font-bold text-white">
-              R$ {paymentData.valor?.toFixed(2)}
+              R$ {(paymentData.valor || paymentData.amount)?.toFixed(2)}
             </p>
           </div>
         </div>

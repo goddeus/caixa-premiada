@@ -17,28 +17,28 @@ class PrizeSyncService {
       preco: 7.00,
       slug: 'caixa_apple',
       prizes: [
-        { nome: 'cash', valor: 1.00, tipo: 'cash' },
-        { nome: 'cash', valor: 2.00, tipo: 'cash' },
-        { nome: 'cash', valor: 5.00, tipo: 'cash' },
-        { nome: 'cash', valor: 10.00, tipo: 'cash' },
-        { nome: 'cash', valor: 500.00, tipo: 'cash' },
-        { nome: 'IPHONE 16 PRO MAX', valor: 10000.00, tipo: 'ilustrativo' },
-        { nome: 'MACBOOK', valor: 15000.00, tipo: 'ilustrativo' },
-        { nome: 'AIRPODS', valor: 2500.00, tipo: 'ilustrativo' }
+        { nome: 'R$1,00', valor: 1.00, tipo: 'cash', imagem: '1.png' },
+        { nome: 'R$2,00', valor: 2.00, tipo: 'cash', imagem: '2.png' },
+        { nome: 'R$5,00', valor: 5.00, tipo: 'cash', imagem: '5.png' },
+        { nome: 'R$10,00', valor: 10.00, tipo: 'cash', imagem: '10.png' },
+        { nome: 'R$500,00', valor: 500.00, tipo: 'cash', imagem: '500.webp' },
+        { nome: 'Air Pods', valor: 2500.00, tipo: 'ilustrativo', imagem: 'air pods.png' },
+        { nome: 'Iphone 16 Pro Max', valor: 10000.00, tipo: 'ilustrativo', imagem: 'iphone 16 pro max.png' },
+        { nome: 'Macbook', valor: 15000.00, tipo: 'ilustrativo', imagem: 'macbook.png' }
       ]
     },
-    'CAIXA CONSOLE DO SONHOS!': {
+    'CAIXA CONSOLE DOS SONHOS': {
       preco: 3.50,
       slug: 'caixa_console_dos_sonhos',
       prizes: [
-        { nome: 'cash', valor: 1.00, tipo: 'cash' },
-        { nome: 'cash', valor: 2.00, tipo: 'cash' },
-        { nome: 'cash', valor: 5.00, tipo: 'cash' },
-        { nome: 'cash', valor: 10.00, tipo: 'cash' },
-        { nome: 'cash', valor: 100.00, tipo: 'cash' },
-        { nome: 'STEAM DECK', valor: 3000.00, tipo: 'ilustrativo' },
-        { nome: 'PLAYSTATION 5', valor: 4000.00, tipo: 'ilustrativo' },
-        { nome: 'XBOX SERIES X', valor: 4000.00, tipo: 'ilustrativo' }
+        { nome: 'R$1,00', valor: 1.00, tipo: 'cash', imagem: '1real.png' },
+        { nome: 'R$2,00', valor: 2.00, tipo: 'cash', imagem: '2reais.png' },
+        { nome: 'R$5,00', valor: 5.00, tipo: 'cash', imagem: '5reais.png' },
+        { nome: 'R$10,00', valor: 10.00, tipo: 'cash', imagem: '10reais.png' },
+        { nome: 'R$100,00', valor: 100.00, tipo: 'cash', imagem: '100reais.png' },
+        { nome: 'Steam Deck', valor: 300.00, tipo: 'ilustrativo', imagem: 'steamdeck.png' },
+        { nome: 'Xbox One', valor: 4000.00, tipo: 'ilustrativo', imagem: 'xboxone.webp' },
+        { nome: 'PS5', valor: 5000.00, tipo: 'ilustrativo', imagem: 'ps5.png' }
       ]
     },
     'CAIXA KIT NIKE': {
@@ -60,14 +60,17 @@ class PrizeSyncService {
       preco: 15.00,
       slug: 'caixa_premium_master',
       prizes: [
-        { nome: 'cash', valor: 2.00, tipo: 'cash' },
-        { nome: 'cash', valor: 5.00, tipo: 'cash' },
-        { nome: 'cash', valor: 10.00, tipo: 'cash' },
-        { nome: 'AIRPODS', valor: 2500.00, tipo: 'ilustrativo' },
-        { nome: 'SAMSUNG S25', valor: 5000.00, tipo: 'ilustrativo' },
-        { nome: 'IPAD', valor: 8000.00, tipo: 'ilustrativo' },
-        { nome: 'IPHONE 16 PRO MAX', valor: 10000.00, tipo: 'ilustrativo' },
-        { nome: 'MACBOOK', valor: 15000.00, tipo: 'ilustrativo' }
+        { nome: 'R$2,00', valor: 2.00, tipo: 'cash', imagem: '2.png' },
+        { nome: 'R$5,00', valor: 5.00, tipo: 'cash', imagem: '5.png' },
+        { nome: 'R$10,00', valor: 10.00, tipo: 'cash', imagem: '10.png' },
+        { nome: 'R$20,00', valor: 20.00, tipo: 'cash', imagem: '20.png' },
+        { nome: 'R$500,00', valor: 500.00, tipo: 'cash', imagem: '500.webp' },
+        { nome: 'Air Pods', valor: 2500.00, tipo: 'ilustrativo', imagem: 'airpods.png' },
+        { nome: 'Ipad', valor: 8000.00, tipo: 'ilustrativo', imagem: 'ipad.png' },
+        { nome: 'S25 ULTRA', valor: 6000.00, tipo: 'ilustrativo', imagem: 'samsung s25.png' },
+        { nome: 'Iphone 16 Pro Max', valor: 10000.00, tipo: 'ilustrativo', imagem: 'iphone 16 pro max.png' },
+        { nome: 'Macbook', valor: 15000.00, tipo: 'ilustrativo', imagem: 'macbook.png' },
+        { nome: 'Honda CG Fan 160', valor: 19500.00, tipo: 'ilustrativo', imagem: 'honda cg fan.webp' }
       ]
     },
     'CAIXA SAMSUNG': {

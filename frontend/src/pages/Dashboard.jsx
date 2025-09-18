@@ -281,7 +281,8 @@ const Dashboard = () => {
             qr_base64: response.qrCodeImage,
             qr_text: response.qrCode,
             transaction_id: response.identifier,
-            amount: parseFloat(depositAmount.replace(',', '.')),
+            valor: parseFloat(depositAmount.replace(',', '.')),
+            amount: parseFloat(depositAmount.replace(',', '.')), // Manter compatibilidade
             expires_at: new Date(Date.now() + 3600000) // 1 hora
           }
         };

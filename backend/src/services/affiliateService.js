@@ -84,6 +84,14 @@ class AffiliateService {
           }
         });
         
+        // 6.1. Sincronizar carteira (wallet)
+        await tx.wallet.update({
+          where: { user_id: affiliate.user_id },
+          data: {
+            saldo_reais: { increment: commissionValue }
+          }
+        });
+        
         // 7. Atualizar dados do afiliado
         await tx.affiliate.update({
           where: { id: affiliate.id },
@@ -128,13 +136,28 @@ class AffiliateService {
    * Verificar se é o primeiro depósito válido do usuário
    */
   static async isFirstValidDeposit(tx, userId, currentDepositValue) {
-    // Buscar depósitos anteriores válidos (>= R$ 20)
+    // Buscar comissões já processadas para este usuário
+    const existingCommissions = await tx.affiliateCommission.count({
+      where: {
+        user_id: userId,
+        status: 'creditado'
+      }
+    });
+    
+    // Se já existe comissão, não é o primeiro depósito
+    if (existingCommissions > 0) {
+      return false;
+    }
+    
+    // Buscar depósitos anteriores válidos (>= R$ 20) - excluindo o atual
     const previousValidDeposits = await tx.transaction.count({
       where: {
         user_id: userId,
         tipo: 'deposito',
         status: { in: ['concluido', 'paid'] },
-        valor: { gte: 20.00 }
+        valor: { gte: 20.00 },
+        // Excluir transações criadas nos últimos 5 segundos (para evitar incluir a atual)
+        criado_em: { lt: new Date(Date.now() - 5000) }
       }
     });
     

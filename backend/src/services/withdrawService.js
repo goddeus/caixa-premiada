@@ -121,7 +121,7 @@ class WithdrawService {
           user_id: userId,
           tipo: 'saque',
           status: { in: ['processando', 'concluido'] },
-          created_at: { gte: today }
+          criado_em: { gte: today }
         },
         _sum: { valor: true },
         _count: { id: true }
@@ -204,8 +204,8 @@ class WithdrawService {
         {
           headers: {
             'Content-Type': 'application/json',
-            'x-public-key': process.env.VIZZION_PUBLIC_KEY,
-            'x-secret-key': process.env.VIZZION_SECRET_KEY
+            'x-public-key': 'juniorcoxtaa_m5mbahi4jiqphich',
+            'x-secret-key': '6u7lv2h871fn9aepj4hugoxlnldoxhpfqhla2rbcrow7mvq50xzut9xdiimzt513'
           },
           timeout: 30000
         }
@@ -386,7 +386,7 @@ class WithdrawService {
             user_id: userId,
             tipo: 'saque'
           },
-          orderBy: { created_at: 'desc' },
+          orderBy: { criado_em: 'desc' },
           skip,
           take: limit
         }),
@@ -434,7 +434,7 @@ class WithdrawService {
         prisma.transaction.aggregate({
           where: {
             tipo: 'saque',
-            created_at: { gte: today }
+            criado_em: { gte: today }
           },
           _sum: { valor: true },
           _count: { id: true }

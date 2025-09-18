@@ -81,7 +81,7 @@ class VizzionPayService {
           document: user.cpf.replace(/\D/g, ''),
           document_type: 'CPF'
         },
-        notification_url: `${config.api.baseUrl}/api/deposit/callback`,
+        notification_url: `${config.api.baseUrl}/api/webhook/pix`,
         expiration_time: 3600, // 1 hora em segundos
         description: `Depósito Caixa Premiada - ${user.nome}`,
         pix_key: this.pixKey,
@@ -470,7 +470,7 @@ class VizzionPayService {
             document: user.cpf.replace(/\D/g, ''),
             document_type: 'CPF'
           },
-          notification_url: `${config.api.baseUrl}/api/withdraw/callback`,
+          notification_url: `${config.api.baseUrl}/api/webhook/withdraw`,
           description: `Saque Caixa Premiada - ${user.nome}`
         };
         

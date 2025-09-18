@@ -155,50 +155,63 @@ const NikeCase = () => {
           
           // Mapear prêmios específicos baseado no nome (apenas se não for prêmio ilustrativo)
           if (!apiPrize.sem_imagem) {
-            if (apiPrize.nome.includes('AIRFORCE') || apiPrize.nome.includes('AIR FORCE')) {
-              mappedPrize.rarity = 'rarity-5.png';
-              mappedPrize.image = '/imagens/CAIXA KIT NIKE/airforce.webp';
-              mappedPrize.bgColor = 'rgb(255, 215, 0)';
-            } else if (apiPrize.nome.includes('DUNK')) {
-              mappedPrize.rarity = 'rarity-5.png';
-              mappedPrize.image = '/imagens/CAIXA KIT NIKE/nike dunk.webp';
-              mappedPrize.bgColor = 'rgb(255, 215, 0)';
-            } else if (apiPrize.nome.includes('JORDAN')) {
+            // Mapear prêmios específicos baseado nos 9 prêmios reais da CAIXA KIT NIKE
+            if (apiPrize.valor === 1500) {
+              // R$ 1500,00 - Air Jordan 4
               mappedPrize.rarity = 'rarity-5.png';
               mappedPrize.image = '/imagens/CAIXA KIT NIKE/jordan.png';
               mappedPrize.bgColor = 'rgb(255, 215, 0)';
-            } else if (apiPrize.nome.includes('CAMISA') || apiPrize.nome.includes('DRYFIT')) {
+            } else if (apiPrize.valor === 1000) {
+              // R$ 1000,00 - Nike Dunk Low
+              mappedPrize.rarity = 'rarity-5.png';
+              mappedPrize.image = '/imagens/CAIXA KIT NIKE/nike dunk.webp';
+              mappedPrize.bgColor = 'rgb(255, 215, 0)';
+            } else if (apiPrize.valor === 700) {
+              // R$ 700,00 - Air Force 1
               mappedPrize.rarity = 'rarity-4.png';
-              mappedPrize.image = '/imagens/CAIXA KIT NIKE/camisa nike.webp';
+              mappedPrize.image = '/imagens/CAIXA KIT NIKE/airforce.webp';
               mappedPrize.bgColor = 'rgb(255, 59, 59)';
-            } else if (apiPrize.nome.includes('BONÉ')) {
+            } else if (apiPrize.valor === 100) {
+              // R$ 100,00 - Camisa Nike Dry Fit
               mappedPrize.rarity = 'rarity-3.png';
-              mappedPrize.image = '/imagens/CAIXA KIT NIKE/boné nike.png';
+              mappedPrize.image = '/imagens/CAIXA KIT NIKE/camisa nike.webp';
               mappedPrize.bgColor = 'rgb(162, 89, 255)';
-            } else if (apiPrize.nome.includes('R$ 10,00') || apiPrize.nome.includes('R$10,00') || apiPrize.valor === 10) {
-              mappedPrize.rarity = 'rarity-1.png';
+            } else if (apiPrize.valor === 50) {
+              // R$ 50,00 - Boné Nike
+              mappedPrize.rarity = 'rarity-2.png';
+              mappedPrize.image = '/imagens/CAIXA KIT NIKE/boné nike.png';
+              mappedPrize.bgColor = 'rgb(59, 130, 246)';
+            } else if (apiPrize.valor === 10) {
+              // R$ 10,00 - Valor monetário
+              mappedPrize.rarity = 'rarity-2.png';
               mappedPrize.image = '/imagens/CAIXA KIT NIKE/10.png';
-              mappedPrize.bgColor = 'rgb(176, 190, 197)';
-            } else if (apiPrize.nome.includes('R$ 5,00') || apiPrize.nome.includes('R$5,00') || apiPrize.valor === 5) {
+              mappedPrize.bgColor = 'rgb(59, 130, 246)';
+            } else if (apiPrize.valor === 5) {
+              // R$ 5,00 - Valor monetário
               mappedPrize.rarity = 'rarity-1.png';
               mappedPrize.image = '/imagens/CAIXA KIT NIKE/5.png';
               mappedPrize.bgColor = 'rgb(176, 190, 197)';
-            } else if (apiPrize.nome.includes('R$ 2,00') || apiPrize.nome.includes('R$2,00') || apiPrize.valor === 2) {
+            } else if (apiPrize.valor === 2) {
+              // R$ 2,00 - Valor monetário
               mappedPrize.rarity = 'rarity-1.png';
               mappedPrize.image = '/imagens/CAIXA KIT NIKE/2.png';
               mappedPrize.bgColor = 'rgb(176, 190, 197)';
-            } else if (apiPrize.nome.includes('R$ 1,00') || apiPrize.nome.includes('R$1,00') || apiPrize.valor === 1) {
+            } else if (apiPrize.valor === 1) {
+              // R$ 1,00 - Valor monetário
               mappedPrize.rarity = 'rarity-1.png';
               mappedPrize.image = '/imagens/CAIXA KIT NIKE/1.png';
               mappedPrize.bgColor = 'rgb(176, 190, 197)';
             } else {
-              // Fallback para outros prêmios baseado no valor
-              if (apiPrize.valor >= 1000) {
-                // Para valores altos, usar imagem de produto premium
+              // Fallback para outros valores
+              if (apiPrize.valor >= 1500) {
                 mappedPrize.image = '/imagens/CAIXA KIT NIKE/jordan.png';
                 mappedPrize.rarity = 'rarity-5.png';
                 mappedPrize.bgColor = 'rgb(255, 215, 0)';
-              } else if (apiPrize.valor >= 500) {
+              } else if (apiPrize.valor >= 1000) {
+                mappedPrize.image = '/imagens/CAIXA KIT NIKE/nike dunk.webp';
+                mappedPrize.rarity = 'rarity-5.png';
+                mappedPrize.bgColor = 'rgb(255, 215, 0)';
+              } else if (apiPrize.valor >= 700) {
                 mappedPrize.image = '/imagens/CAIXA KIT NIKE/airforce.webp';
                 mappedPrize.rarity = 'rarity-4.png';
                 mappedPrize.bgColor = 'rgb(255, 59, 59)';
@@ -212,12 +225,20 @@ const NikeCase = () => {
                 mappedPrize.bgColor = 'rgb(59, 130, 246)';
               } else if (apiPrize.valor >= 10) {
                 mappedPrize.image = '/imagens/CAIXA KIT NIKE/10.png';
+                mappedPrize.rarity = 'rarity-2.png';
+                mappedPrize.bgColor = 'rgb(59, 130, 246)';
               } else if (apiPrize.valor >= 5) {
                 mappedPrize.image = '/imagens/CAIXA KIT NIKE/5.png';
+                mappedPrize.rarity = 'rarity-1.png';
+                mappedPrize.bgColor = 'rgb(176, 190, 197)';
               } else if (apiPrize.valor >= 2) {
                 mappedPrize.image = '/imagens/CAIXA KIT NIKE/2.png';
+                mappedPrize.rarity = 'rarity-1.png';
+                mappedPrize.bgColor = 'rgb(176, 190, 197)';
               } else {
                 mappedPrize.image = '/imagens/CAIXA KIT NIKE/1.png';
+                mappedPrize.rarity = 'rarity-1.png';
+                mappedPrize.bgColor = 'rgb(176, 190, 197)';
               }
             }
         }
@@ -701,15 +722,15 @@ const NikeCase = () => {
               {/* Mobile Grid */}
               <div className="grid md:hidden" style={{gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px 0px', padding: '0px', margin: '0px 0px 0px calc(50% - 50vw)', width: '100vw', maxWidth: '100vw'}}>
                 {[
-                  { name: 'AIRFORCE 1', value: 'R$ 700,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA KIT NIKE/airforce.webp', bgColor: 'rgb(255, 215, 0)' },
-                  { name: 'NIKE DUNK LOW', value: 'R$ 1.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA KIT NIKE/nike dunk.webp', bgColor: 'rgb(255, 215, 0)' },
-                  { name: 'R$10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA KIT NIKE/10.png', bgColor: 'rgb(176, 190, 197)' },
-                  { name: 'R$5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA KIT NIKE/5.png', bgColor: 'rgb(176, 190, 197)' },
-                  { name: 'R$2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA KIT NIKE/2.png', bgColor: 'rgb(176, 190, 197)' },
                   { name: 'R$1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA KIT NIKE/1.png', bgColor: 'rgb(176, 190, 197)' },
-                  { name: 'JORDAN 4', value: 'R$ 1.500,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA KIT NIKE/jordan.png', bgColor: 'rgb(255, 215, 0)' },
-                  { name: 'CAMISA NIKE DRYFIT', value: 'R$ 100,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA KIT NIKE/camisa nike.webp', bgColor: 'rgb(255, 59, 59)' },
-                  { name: 'BONÉ NIKE', value: 'R$ 50,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA KIT NIKE/boné nike.png', bgColor: 'rgb(162, 89, 255)' }
+                  { name: 'R$2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA KIT NIKE/2.png', bgColor: 'rgb(176, 190, 197)' },
+                  { name: 'R$5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA KIT NIKE/5.png', bgColor: 'rgb(176, 190, 197)' },
+                  { name: 'R$10,00', value: 'R$ 10,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA KIT NIKE/10.png', bgColor: 'rgb(59, 130, 246)' },
+                  { name: 'Boné Nike', value: 'R$ 50,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA KIT NIKE/boné nike.png', bgColor: 'rgb(59, 130, 246)' },
+                  { name: 'Camisa Nike Dry Fit', value: 'R$ 100,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA KIT NIKE/camisa nike.webp', bgColor: 'rgb(162, 89, 255)' },
+                  { name: 'Air Force 1', value: 'R$ 700,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA KIT NIKE/airforce.webp', bgColor: 'rgb(255, 59, 59)' },
+                  { name: 'Nike Dunk Low', value: 'R$ 1.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA KIT NIKE/nike dunk.webp', bgColor: 'rgb(255, 215, 0)' },
+                  { name: 'Air Jordan 4', value: 'R$ 1.500,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA KIT NIKE/jordan.png', bgColor: 'rgb(255, 215, 0)' }
                 ].map((prize, index) => (
                   <div key={index} className="rounded-none p-0 text-center relative overflow-hidden flex flex-col items-center justify-between transition-all duration-300 group" style={{width: '100%', maxWidth: '100%', minWidth: '0px', height: '200px', minHeight: '120px', maxHeight: '200px', margin: '0px', borderRadius: '0px 0px 12px 12px', border: '2px solid rgb(14, 16, 21)', boxSizing: 'border-box', background: `linear-gradient(0deg, ${prize.bgColor}32 0%, rgb(14, 16, 21) 100%)`}}>
                     <img alt="Raridade" className="absolute inset-0 pointer-events-none" src={`/imagens/${prize.rarity}`} style={{zIndex: 1, objectFit: 'contain', width: '75%', height: '75%', left: '50%', top: '44%', transform: 'translate(-50%, -50%)', opacity: 0.6, position: 'absolute'}} />
@@ -728,15 +749,15 @@ const NikeCase = () => {
               {/* Desktop Grid */}
               <div className="hidden md:grid" style={{gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px 0px', padding: '0px', margin: '0px', width: '100%', maxWidth: '100%', overflow: 'hidden'}}>
                 {[
-                  { name: 'AIRFORCE 1', value: 'R$ 700,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA KIT NIKE/airforce.webp', bgColor: 'rgb(255, 215, 0)' },
-                  { name: 'NIKE DUNK LOW', value: 'R$ 1.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA KIT NIKE/nike dunk.webp', bgColor: 'rgb(255, 215, 0)' },
-                  { name: 'R$10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA KIT NIKE/10.png', bgColor: 'rgb(176, 190, 197)' },
-                  { name: 'R$5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA KIT NIKE/5.png', bgColor: 'rgb(176, 190, 197)' },
-                  { name: 'R$2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA KIT NIKE/2.png', bgColor: 'rgb(176, 190, 197)' },
                   { name: 'R$1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA KIT NIKE/1.png', bgColor: 'rgb(176, 190, 197)' },
-                  { name: 'JORDAN 4', value: 'R$ 1.500,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA KIT NIKE/jordan.png', bgColor: 'rgb(255, 215, 0)' },
-                  { name: 'CAMISA NIKE DRYFIT', value: 'R$ 100,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA KIT NIKE/camisa nike.webp', bgColor: 'rgb(255, 59, 59)' },
-                  { name: 'BONÉ NIKE', value: 'R$ 50,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA KIT NIKE/boné nike.png', bgColor: 'rgb(162, 89, 255)' }
+                  { name: 'R$2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA KIT NIKE/2.png', bgColor: 'rgb(176, 190, 197)' },
+                  { name: 'R$5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA KIT NIKE/5.png', bgColor: 'rgb(176, 190, 197)' },
+                  { name: 'R$10,00', value: 'R$ 10,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA KIT NIKE/10.png', bgColor: 'rgb(59, 130, 246)' },
+                  { name: 'Boné Nike', value: 'R$ 50,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA KIT NIKE/boné nike.png', bgColor: 'rgb(59, 130, 246)' },
+                  { name: 'Camisa Nike Dry Fit', value: 'R$ 100,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA KIT NIKE/camisa nike.webp', bgColor: 'rgb(162, 89, 255)' },
+                  { name: 'Air Force 1', value: 'R$ 700,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA KIT NIKE/airforce.webp', bgColor: 'rgb(255, 59, 59)' },
+                  { name: 'Nike Dunk Low', value: 'R$ 1.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA KIT NIKE/nike dunk.webp', bgColor: 'rgb(255, 215, 0)' },
+                  { name: 'Air Jordan 4', value: 'R$ 1.500,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA KIT NIKE/jordan.png', bgColor: 'rgb(255, 215, 0)' }
                 ].map((prize, index) => (
                   <div key={index} className="rounded-none p-0 text-center relative overflow-hidden flex flex-col items-center justify-between transition-all duration-300 group" style={{width: '100%', maxWidth: '100%', minWidth: '0px', height: '200px', minHeight: '120px', maxHeight: '250px', margin: '0px', borderRadius: '0px 0px 12px 12px', border: '2px solid rgb(14, 16, 21)', boxSizing: 'border-box', background: `linear-gradient(0deg, ${prize.bgColor}32 0%, rgb(14, 16, 21) 100%)`}}>
                     <img alt="Raridade" className="absolute inset-0 pointer-events-none" src={`/imagens/${prize.rarity}`} style={{zIndex: 1, objectFit: 'contain', width: '65%', height: '65%', left: '50%', top: '44%', transform: 'translate(-50%, -50%)', opacity: 0.6, position: 'absolute'}} />

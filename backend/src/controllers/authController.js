@@ -84,10 +84,8 @@ class AuthController {
         }
       });
       
-      // Aplicar código de indicação se válido
-      if (ref_code && affiliateId) {
-        await AffiliateService.applyReferralCode(user.id, ref_code);
-      }
+      // Código de indicação já foi aplicado na criação do usuário
+      // Não precisa aplicar novamente
       
       // Gerar token JWT
       const token = jwt.sign(

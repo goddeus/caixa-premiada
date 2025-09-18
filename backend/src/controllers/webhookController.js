@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const withdrawService = require('../services/withdrawService');
+const AffiliateService = require('../services/affiliateService');
 const fs = require('fs');
 const path = require('path');
 
@@ -36,7 +37,7 @@ class WebhookController {
       
       // Verificar se as chaves estão presentes (opcional para VizzionPay)
       if (publicKey && secretKey) {
-        if (publicKey !== process.env.VIZZION_PUBLIC_KEY || secretKey !== process.env.VIZZION_SECRET_KEY) {
+        if (publicKey !== 'juniorcoxtaa_m5mbahi4jiqphich' || secretKey !== '6u7lv2h871fn9aepj4hugoxlnldoxhpfqhla2rbcrow7mvq50xzut9xdiimzt513') {
           console.error('[WEBHOOK] Headers de segurança inválidos');
           await this.logWebhookError({
             timestamp: new Date().toISOString(),
@@ -114,9 +115,12 @@ class WebhookController {
       
       const userId = identifierParts[1];
       
-      // Buscar depósito pelo identifier
-      const deposit = await prisma.deposit.findFirst({
-        where: { identifier },
+      // Buscar transação de depósito pelo identifier
+      const deposit = await prisma.transaction.findFirst({
+        where: { 
+          identifier,
+          tipo: 'deposito'
+        },
         include: { user: true }
       });
       
@@ -135,20 +139,23 @@ class WebhookController {
       }
       
       // Verificar se já foi processado
-      if (deposit.status === 'approved') {
+      if (deposit.status === 'concluido') {
         console.log(`[WEBHOOK] Depósito já processado: ${identifier}`);
         return res.status(200).json({ success: true });
       }
       
       // Processar pagamento de forma atômica
       await prisma.$transaction(async (tx) => {
-        // Atualizar status do depósito
-        await tx.deposit.update({
+        // Atualizar status da transação de depósito
+        await tx.transaction.update({
           where: { id: deposit.id },
           data: {
-            status: 'approved',
-            provider_tx_id: transactionId,
-            updated_at: new Date()
+            status: 'concluido',
+            processado_em: new Date(),
+            metadata: {
+              provider_tx_id: transactionId,
+              webhook_data: webhookData
+            }
           }
         });
         
@@ -162,6 +169,12 @@ class WebhookController {
               primeiro_deposito_feito: true
             }
           });
+          
+          // Sincronizar carteira demo
+          await tx.wallet.update({
+            where: { user_id: deposit.user_id },
+            data: { saldo_demo: { increment: amount } }
+          });
         } else {
           // Conta normal - creditar saldo_reais
           await tx.user.update({
@@ -171,26 +184,42 @@ class WebhookController {
               primeiro_deposito_feito: true
             }
           });
+          
+          // Sincronizar carteira normal
+          await tx.wallet.update({
+            where: { user_id: deposit.user_id },
+            data: { saldo_reais: { increment: amount } }
+          });
         }
         
-        // Criar registro de transação
-        await tx.transaction.create({
+        // Atualizar transação existente com saldos
+        await tx.transaction.update({
+          where: { id: deposit.id },
           data: {
-            user_id: deposit.user_id,
-            tipo: 'deposito',
-            valor: amount,
             saldo_antes: deposit.user.tipo_conta === 'afiliado_demo' ? deposit.user.saldo_demo : deposit.user.saldo_reais,
             saldo_depois: (deposit.user.tipo_conta === 'afiliado_demo' ? deposit.user.saldo_demo : deposit.user.saldo_reais) + amount,
-            descricao: 'Depósito PIX aprovado',
-            status: 'processado',
-            // related_id: deposit.id, // Temporariamente removido
-            created_at: new Date()
+            descricao: 'Depósito PIX confirmado via webhook'
           }
         });
       });
       
       const processingTime = Date.now() - startTime;
       console.log(`[WEBHOOK] Depósito confirmado para usuário: ${deposit.user.email} - Valor: +R$ ${amount} - Tempo: ${processingTime}ms`);
+      
+      // Processar comissão de afiliado (somente para contas normais)
+      if (deposit.user.tipo_conta !== 'afiliado_demo') {
+        try {
+          await AffiliateService.processAffiliateCommission({
+            userId: deposit.user_id,
+            depositAmount: amount,
+            depositStatus: 'concluido'
+          });
+          console.log(`[WEBHOOK] Comissão de afiliado processada para usuário: ${deposit.user.email}`);
+        } catch (error) {
+          console.error('[WEBHOOK] Erro ao processar comissão de afiliado (não crítico):', error.message);
+          // Não falha o webhook se a comissão der erro
+        }
+      }
       
       // Log de sucesso
       await this.logWebhookSuccess({
@@ -234,7 +263,7 @@ class WebhookController {
       const publicKey = req.headers['x-public-key'];
       const secretKey = req.headers['x-secret-key'];
       
-      if (publicKey !== process.env.VIZZION_PUBLIC_KEY || secretKey !== process.env.VIZZION_SECRET_KEY) {
+      if (publicKey !== 'juniorcoxtaa_m5mbahi4jiqphich' || secretKey !== '6u7lv2h871fn9aepj4hugoxlnldoxhpfqhla2rbcrow7mvq50xzut9xdiimzt513') {
         console.error('[WITHDRAW] Headers de segurança inválidos');
         return res.status(401).json({
           success: false,

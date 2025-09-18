@@ -92,7 +92,7 @@ async function main() {
 
   const caixaMedia = await prisma.case.create({
     data: {
-      nome: 'CAIXA CONSOLE DO SONHOS!',
+      nome: 'CAIXA CONSOLE DOS SONHOS',
       preco: 3.50,
       imagem_url: '/imagens/console.png',
       ativo: true

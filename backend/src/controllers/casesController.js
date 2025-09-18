@@ -54,56 +54,55 @@ class CasesController {
           { id: 'samsung_9', nome: 'Notebook Samsung', valor: 5000.0, probabilidade: 0.0, tipo: 'ilustrativo' }
         ]
       },
-      'fb0c0175-b478-4fd5-9750-d673c0f374fd': {
-        id: 'fb0c0175-b478-4fd5-9750-d673c0f374fd',
+      '97ce71b6-5d8c-43f0-98b9-f5044d647dc6': {
+        id: '97ce71b6-5d8c-43f0-98b9-f5044d647dc6',
         nome: 'CAIXA CONSOLE DOS SONHOS',
         preco: 3.5,
         ativo: true,
         prizes: [
-          { id: 'console_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.25 },
-          { id: 'console_2', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.20 },
-          { id: 'console_3', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.15 },
-          { id: 'console_4', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.12 },
-          { id: 'console_5', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.08 },
-          { id: 'console_6', nome: 'Steam Deck', valor: 300.0, probabilidade: 0.05 },
-          { id: 'console_7', nome: 'Air Force 1', valor: 700.0, probabilidade: 0.03 },
-          { id: 'console_8', nome: 'Xbox One', valor: 4000.0, probabilidade: 0.0, tipo: 'ilustrativo' },
-          { id: 'console_9', nome: 'PS5', valor: 5000.0, probabilidade: 0.0, tipo: 'ilustrativo' }
+          { id: 'console_1', nome: 'R$1,00', valor: 1.0, probabilidade: 0.25, imagem: '1real.png' },
+          { id: 'console_2', nome: 'R$2,00', valor: 2.0, probabilidade: 0.20, imagem: '2reais.png' },
+          { id: 'console_3', nome: 'R$5,00', valor: 5.0, probabilidade: 0.15, imagem: '5reais.png' },
+          { id: 'console_4', nome: 'R$10,00', valor: 10.0, probabilidade: 0.12, imagem: '10reais.png' },
+          { id: 'console_5', nome: 'R$100,00', valor: 100.0, probabilidade: 0.08, imagem: '100reais.png' },
+          { id: 'console_6', nome: 'Steam Deck', valor: 300.0, probabilidade: 0.05, imagem: 'steamdeck.png' },
+          { id: 'console_7', nome: 'Xbox One', valor: 4000.0, probabilidade: 0.03, imagem: 'xboxone.webp' },
+          { id: 'console_8', nome: 'PS5', valor: 5000.0, probabilidade: 0.0, tipo: 'ilustrativo', imagem: 'ps5.png' }
         ]
       },
-      '61a19df9-d011-429e-a9b5-d2c837551150': {
-        id: '61a19df9-d011-429e-a9b5-d2c837551150',
+      '97c286db-7c43-4582-9884-40eda0dd8ab7': {
+        id: '97c286db-7c43-4582-9884-40eda0dd8ab7',
         nome: 'CAIXA APPLE',
         preco: 7.0,
         ativo: true,
         prizes: [
-          { id: 'apple_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.30 },
-          { id: 'apple_2', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.25 },
-          { id: 'apple_3', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.20 },
-          { id: 'apple_4', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.15 },
-          { id: 'apple_5', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.05 },
-          { id: 'apple_6', nome: 'Air Pods', valor: 2500.0, probabilidade: 0.03 },
-          { id: 'apple_7', nome: 'Iphone 16 Pro Max', valor: 10000.0, probabilidade: 0.0, tipo: 'ilustrativo' },
-          { id: 'apple_8', nome: 'Macbook', valor: 15000.0, probabilidade: 0.0, tipo: 'ilustrativo' }
+          { id: 'apple_1', nome: 'R$1,00', valor: 1.0, probabilidade: 0.30, imagem: '1.png' },
+          { id: 'apple_2', nome: 'R$2,00', valor: 2.0, probabilidade: 0.25, imagem: '2.png' },
+          { id: 'apple_3', nome: 'R$5,00', valor: 5.0, probabilidade: 0.20, imagem: '5.png' },
+          { id: 'apple_4', nome: 'R$10,00', valor: 10.0, probabilidade: 0.15, imagem: '10.png' },
+          { id: 'apple_5', nome: 'R$500,00', valor: 500.0, probabilidade: 0.05, imagem: '500.webp' },
+          { id: 'apple_6', nome: 'Air Pods', valor: 2500.0, probabilidade: 0.03, imagem: 'air pods.png' },
+          { id: 'apple_7', nome: 'Iphone 16 Pro Max', valor: 10000.0, probabilidade: 0.0, tipo: 'ilustrativo', imagem: 'iphone 16 pro max.png' },
+          { id: 'apple_8', nome: 'Macbook', valor: 15000.0, probabilidade: 0.0, tipo: 'ilustrativo', imagem: 'macbook.png' }
         ]
       },
-      'db95bb2b-9b3e-444b-964f-547330010a59': {
-        id: 'db95bb2b-9b3e-444b-964f-547330010a59',
-        nome: 'CAIXA PREMIUM MASTER',
+      '2b520ca1-769c-4234-bbff-7a298c736774': {
+        id: '2b520ca1-769c-4234-bbff-7a298c736774',
+        nome: 'CAIXA PREMIUM MASTER!',
         preco: 15.0,
         ativo: true,
         prizes: [
-          { id: 'premium_1', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.25 },
-          { id: 'premium_2', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.20 },
-          { id: 'premium_3', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.15 },
-          { id: 'premium_4', nome: 'R$ 20,00', valor: 20.0, probabilidade: 0.10 },
-          { id: 'premium_5', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.05 },
-          { id: 'premium_6', nome: 'Air Pods', valor: 2500.0, probabilidade: 0.03 },
-          { id: 'premium_7', nome: 'Ipad', valor: 8000.0, probabilidade: 0.0, tipo: 'ilustrativo' },
-          { id: 'premium_8', nome: 'S25 ULTRA', valor: 6000.0, probabilidade: 0.0, tipo: 'ilustrativo' },
-          { id: 'premium_9', nome: 'Iphone 16 Pro Max', valor: 10000.0, probabilidade: 0.0, tipo: 'ilustrativo' },
-          { id: 'premium_10', nome: 'Macbook', valor: 15000.0, probabilidade: 0.0, tipo: 'ilustrativo' },
-          { id: 'premium_11', nome: 'Honda CG Fan 160', valor: 19500.0, probabilidade: 0.0, tipo: 'ilustrativo' }
+          { id: 'premium_1', nome: 'R$2,00', valor: 2.0, probabilidade: 0.25, imagem: '2.png' },
+          { id: 'premium_2', nome: 'R$5,00', valor: 5.0, probabilidade: 0.20, imagem: '5.png' },
+          { id: 'premium_3', nome: 'R$10,00', valor: 10.0, probabilidade: 0.15, imagem: '10.png' },
+          { id: 'premium_4', nome: 'R$20,00', valor: 20.0, probabilidade: 0.10, imagem: '20.png' },
+          { id: 'premium_5', nome: 'R$500,00', valor: 500.0, probabilidade: 0.05, imagem: '500.webp' },
+          { id: 'premium_6', nome: 'Air Pods', valor: 2500.0, probabilidade: 0.03, imagem: 'airpods.png' },
+          { id: 'premium_7', nome: 'Ipad', valor: 8000.0, probabilidade: 0.0, tipo: 'ilustrativo', imagem: 'ipad.png' },
+          { id: 'premium_8', nome: 'S25 ULTRA', valor: 6000.0, probabilidade: 0.0, tipo: 'ilustrativo', imagem: 'samsung s25.png' },
+          { id: 'premium_9', nome: 'Iphone 16 Pro Max', valor: 10000.0, probabilidade: 0.0, tipo: 'ilustrativo', imagem: 'iphone 16 pro max.png' },
+          { id: 'premium_10', nome: 'Macbook', valor: 15000.0, probabilidade: 0.0, tipo: 'ilustrativo', imagem: 'macbook.png' },
+          { id: 'premium_11', nome: 'Honda CG Fan 160', valor: 19500.0, probabilidade: 0.0, tipo: 'ilustrativo', imagem: 'honda cg fan.webp' }
         ]
       }
     };

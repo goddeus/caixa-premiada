@@ -766,12 +766,14 @@ const AppleCase = () => {
               {/* Mobile Grid */}
               <div className="grid md:hidden" style={{gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px 0px', padding: '0px', margin: '0px 0px 0px calc(50% - 50vw)', width: '100vw', maxWidth: '100vw'}}>
                 {[
-                  { name: 'MACBOOK', value: 'R$ 15.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA APPLE/macbook.png', bgColor: 'rgb(255, 215, 0)', illustrative: false },
-                  { name: 'IPHONE 16 PRO MAX', value: 'R$ 10.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA APPLE/iphone 16 pro max.png', bgColor: 'rgb(255, 215, 0)', illustrative: false },
-                  { name: 'AIR PODS', value: 'R$ 2.500,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA APPLE/air pods.png', bgColor: 'rgb(255, 59, 59)', illustrative: false },
-                  { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA APPLE/500.webp', bgColor: 'rgb(162, 89, 255)', illustrative: false },
-                  { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA APPLE/10.png', bgColor: 'rgb(176, 190, 197)', illustrative: false },
-                  { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA APPLE/5.png', bgColor: 'rgb(176, 190, 197)', illustrative: false }
+                  { name: 'R$1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA APPLE/1.png', bgColor: 'rgb(176, 190, 197)', illustrative: false },
+                  { name: 'R$2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA APPLE/2.png', bgColor: 'rgb(176, 190, 197)', illustrative: false },
+                  { name: 'R$5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA APPLE/5.png', bgColor: 'rgb(176, 190, 197)', illustrative: false },
+                  { name: 'R$10,00', value: 'R$ 10,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA APPLE/10.png', bgColor: 'rgb(59, 130, 246)', illustrative: false },
+                  { name: 'R$500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA APPLE/500.webp', bgColor: 'rgb(162, 89, 255)', illustrative: false },
+                  { name: 'Air Pods', value: 'R$ 2.500,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA APPLE/air pods.png', bgColor: 'rgb(255, 59, 59)', illustrative: false },
+                  { name: 'Iphone 16 Pro Max', value: 'R$ 10.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA APPLE/iphone 16 pro max.png', bgColor: 'rgb(255, 215, 0)', illustrative: false },
+                  { name: 'Macbook', value: 'R$ 15.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA APPLE/macbook.png', bgColor: 'rgb(255, 215, 0)', illustrative: false }
                 ].map((prize, index) => (
                   <div key={index} className="rounded-none p-0 text-center relative overflow-hidden flex flex-col items-center justify-between transition-all duration-300 group" style={{width: '100%', maxWidth: '100%', minWidth: '0px', height: '200px', minHeight: '120px', maxHeight: '200px', margin: '0px', borderRadius: '0px 0px 12px 12px', border: '2px solid rgb(14, 16, 21)', boxSizing: 'border-box', background: `linear-gradient(0deg, ${prize.bgColor}32 0%, rgb(14, 16, 21) 100%)`}}>
                     <img alt="Raridade" className="absolute inset-0 pointer-events-none" src={`/imagens/${prize.rarity}`} style={{zIndex: 1, objectFit: 'contain', width: '75%', height: '75%', left: '50%', top: '44%', transform: 'translate(-50%, -50%)', opacity: 0.6, position: 'absolute'}} />
@@ -788,14 +790,16 @@ const AppleCase = () => {
               </div>
 
               {/* Desktop Grid */}
-              <div className="hidden md:grid" style={{gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px 0px', padding: '0px', margin: '0px', width: '100%', maxWidth: '100%', overflow: 'hidden'}}>
+              <div className="hidden md:grid" style={{gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px 0px', padding: '0px', margin: '0px', width: '100%', maxWidth: '100%', overflow: 'hidden'}}>
                 {[
-                  { name: 'MACBOOK', value: 'R$ 15.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA APPLE/macbook.png', bgColor: 'rgb(255, 215, 0)' },
-                  { name: 'IPHONE 16 PRO MAX', value: 'R$ 10.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA APPLE/iphone 16 pro max.png', bgColor: 'rgb(255, 215, 0)' },
-                  { name: 'AIR PODS', value: 'R$ 2.500,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA APPLE/air pods.png', bgColor: 'rgb(255, 59, 59)' },
-                  { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA APPLE/500.webp', bgColor: 'rgb(162, 89, 255)' },
-                  { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA APPLE/10.png', bgColor: 'rgb(176, 190, 197)' },
-                  { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA APPLE/5.png', bgColor: 'rgb(176, 190, 197)' }
+                  { name: 'R$1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA APPLE/1.png', bgColor: 'rgb(176, 190, 197)' },
+                  { name: 'R$2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA APPLE/2.png', bgColor: 'rgb(176, 190, 197)' },
+                  { name: 'R$5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA APPLE/5.png', bgColor: 'rgb(176, 190, 197)' },
+                  { name: 'R$10,00', value: 'R$ 10,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA APPLE/10.png', bgColor: 'rgb(59, 130, 246)' },
+                  { name: 'R$500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA APPLE/500.webp', bgColor: 'rgb(162, 89, 255)' },
+                  { name: 'Air Pods', value: 'R$ 2.500,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA APPLE/air pods.png', bgColor: 'rgb(255, 59, 59)' },
+                  { name: 'Iphone 16 Pro Max', value: 'R$ 10.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA APPLE/iphone 16 pro max.png', bgColor: 'rgb(255, 215, 0)' },
+                  { name: 'Macbook', value: 'R$ 15.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA APPLE/macbook.png', bgColor: 'rgb(255, 215, 0)' }
                 ].map((prize, index) => (
                   <div key={index} className="rounded-none p-0 text-center relative overflow-hidden flex flex-col items-center justify-between transition-all duration-300 group" style={{width: '100%', maxWidth: '100%', minWidth: '0px', height: '200px', minHeight: '120px', maxHeight: '200px', margin: '0px', borderRadius: '0px 0px 12px 12px', border: '2px solid rgb(14, 16, 21)', boxSizing: 'border-box', background: `linear-gradient(0deg, ${prize.bgColor}32 0%, rgb(14, 16, 21) 100%)`}}>
                     <img alt="Raridade" className="absolute inset-0 pointer-events-none" src={`/imagens/${prize.rarity}`} style={{zIndex: 1, objectFit: 'contain', width: '75%', height: '75%', left: '50%', top: '44%', transform: 'translate(-50%, -50%)', opacity: 0.6, position: 'absolute'}} />

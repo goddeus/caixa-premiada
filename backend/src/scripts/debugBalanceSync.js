@@ -12,7 +12,7 @@ class BalanceSyncDebugger {
     console.log('===================================\n');
 
     try {
-      // Buscar usuários com diferenças entre user.saldo e wallet.saldo
+      // Buscar usuários com diferenças entre user.saldo_reais e wallet.saldo_reais
       const users = await prisma.user.findMany({
         include: {
           wallet: true
@@ -25,8 +25,8 @@ class BalanceSyncDebugger {
       let totalDifference = 0;
 
       for (const user of users) {
-        const userBalance = user.saldo;
-        const walletBalance = user.wallet?.saldo || 0;
+        const userBalance = user.saldo_reais;
+        const walletBalance = user.wallet?.saldo_reais || 0;
         const difference = Math.abs(userBalance - walletBalance);
 
         if (difference > 0.01) {
@@ -34,8 +34,8 @@ class BalanceSyncDebugger {
           totalDifference += difference;
           
           console.log(`❌ Usuário: ${user.nome} (${user.email})`);
-          console.log(`   💰 User.saldo: R$ ${userBalance.toFixed(2)}`);
-          console.log(`   💰 Wallet.saldo: R$ ${walletBalance.toFixed(2)}`);
+          console.log(`   💰 User.saldo_reais: R$ ${userBalance.toFixed(2)}`);
+          console.log(`   💰 Wallet.saldo_reais: R$ ${walletBalance.toFixed(2)}`);
           console.log(`   ⚠️ Diferença: R$ ${difference.toFixed(2)}`);
           console.log('');
 
@@ -66,7 +66,7 @@ class BalanceSyncDebugger {
       // Atualizar wallet com o saldo correto do user
       await prisma.wallet.update({
         where: { user_id: userId },
-        data: { saldo: correctBalance }
+        data: { saldo_reais: correctBalance }
       });
       console.log(`   ✅ Sincronização corrigida para usuário ${userId}`);
     } catch (error) {

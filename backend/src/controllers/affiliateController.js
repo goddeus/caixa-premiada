@@ -111,9 +111,12 @@ class AffiliateController {
         comissoesUltimos30Dias,
         indicadosUltimos30Dias
       ] = await Promise.all([
-        // Total de indicados
-        prisma.affiliateHistory.count({
-          where: { affiliate_id: affiliate.id }
+        // Total de indicados (usuários que usaram o código)
+        prisma.user.count({
+          where: { 
+            affiliate_id: affiliate.user_id,
+            codigo_indicacao_usado: affiliate.codigo_indicacao
+          }
         }),
         
         // Indicados que fizeram depósito
