@@ -212,8 +212,8 @@ async function autoFixDeposit() {
     
     console.log(`✅ Saldo final: R$ ${finalBalance}`);
     
-    // 7. Verificar e processar comissão de afiliado
-    console.log('\n🎯 Verificando comissão de afiliado...');
+    // 7. Verificar e corrigir vinculação de afiliado
+    console.log('\n🎯 Verificando vinculação de afiliado...');
     
     if (updatedUser.tipo_conta !== 'afiliado_demo') {
       if (updatedUser.affiliate_id) {
@@ -233,7 +233,50 @@ async function autoFixDeposit() {
           console.log('⚠️  Erro ao processar comissão (não crítico):', error.message);
         }
       } else {
-        console.log('ℹ️  Usuário não tem afiliado vinculado - nenhuma comissão a processar');
+        console.log('❌ Usuário não tem afiliado vinculado!');
+        
+        // Verificar se tem código de indicação usado
+        if (updatedUser.codigo_indicacao_usado) {
+          console.log(`🔍 Código usado: ${updatedUser.codigo_indicacao_usado}`);
+          
+          // Buscar afiliado pelo código
+          const affiliateByCode = await prisma.affiliate.findUnique({
+            where: { codigo_indicacao: updatedUser.codigo_indicacao_usado },
+            include: { user: true }
+          });
+          
+          if (affiliateByCode) {
+            console.log('✅ Código existe! Corrigindo vinculação...');
+            
+            // Corrigir vinculação
+            await prisma.user.update({
+              where: { id: userId },
+              data: { affiliate_id: affiliateByCode.user_id }
+            });
+            
+            console.log('✅ Vinculação corrigida!');
+            console.log(`   Afiliado: ${affiliateByCode.user.nome} (${affiliateByCode.user.email})`);
+            
+            // Processar comissão
+            try {
+              const AffiliateService = require('../services/affiliateService');
+              
+              await AffiliateService.processAffiliateCommission({
+                userId: userId,
+                depositAmount: amount,
+                depositStatus: 'concluido'
+              });
+              
+              console.log('✅ Comissão processada após correção!');
+            } catch (error) {
+              console.log('⚠️  Erro ao processar comissão:', error.message);
+            }
+          } else {
+            console.log('❌ Código de indicação não existe no banco!');
+          }
+        } else {
+          console.log('ℹ️  Usuário não tem código de indicação usado');
+        }
       }
     } else {
       console.log('ℹ️  Conta demo - comissão não aplicável');
