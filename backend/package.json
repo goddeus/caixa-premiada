@@ -19,6 +19,7 @@
     "check:affiliate": "node src/scripts/checkAffiliateSystem.js",
     "fix:affiliate": "node src/scripts/fixAffiliateLink.js",
     "check:balance": "node src/scripts/checkUserBalance.js",
+    "force:fix": "node src/scripts/forceFixAll.js",
     "fix:all": "npx prisma db push && node src/scripts/autoFixDeposit.js && node src/scripts/checkAffiliateSystem.js && node src/scripts/fixAffiliateLink.js && node src/scripts/checkUserBalance.js"
   },
   "keywords": [
