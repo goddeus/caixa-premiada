@@ -1,7 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
-// Removido globalDrawService - usando centralizedDrawService
-// CORREÇÃO: Sistema RTP desabilitado para não interferir nos preços
-// const userRTPService = require('../services/userRTPService');
+// Sistema de sorteio simplificado implementado diretamente no controller
 const prisma = new PrismaClient();
 
 class CasesController {
@@ -572,10 +570,8 @@ class CasesController {
         try {
           console.log(`🎲 Processando caixa ${i + 1}/${quantity}...`);
           
-          // CORREÇÃO: Usar sistema de sorteio centralizado que respeita preços originais
-          // const centralizedDrawService = require('../services/centralizedDrawService');
-          // const drawResult = await centralizedDrawService.sortearPremio(caseData.id, userId);
-          const drawResult = { success: false, message: 'Serviço de sorteio não disponível' };
+          // Sistema de sorteio implementado diretamente
+          const drawResult = await this.simpleDraw(caseData, userId, saldoAposDebito, isDemoAccount);
           
           if (!drawResult.success) {
             console.error(`❌ Erro no sorteio da caixa ${i + 1}:`, drawResult.message);
@@ -848,11 +844,9 @@ class CasesController {
       console.log('- Case ID:', id);
       console.log('- User ID:', userId);
 
-      // Usar sistema de sorteio centralizado (pular débito pois já foi feito)
+      // Sistema de sorteio implementado diretamente
       console.log('🎯 Fazendo sorteio...');
-      // const centralizedDrawService = require('../services/centralizedDrawService');
-      // const drawResult = await centralizedDrawService.sortearPremio(id, userId, null, true);
-      const drawResult = { success: false, message: 'Serviço de sorteio não disponível' };
+      const drawResult = await this.simpleDrawWithoutCredit(caseData, userId, saldoAposDebito, isDemoAccount);
       
       if (!drawResult.success) {
         console.error('❌ Erro no sorteio:', drawResult.message);
@@ -1096,7 +1090,7 @@ class CasesController {
           console.log('🎯 Prêmio demo detectado, creditando valor diretamente');
           
           // Para prêmios demo, usar o valor passado no request
-          const prizeValue = parseFloat(prizeValue) || 0;
+          const prizeValue = parseFloat(req.body.prizeValue) || 0;
           if (prizeValue > 0) {
             console.log(`💰 Creditando prêmio demo: R$ ${prizeValue}`);
             

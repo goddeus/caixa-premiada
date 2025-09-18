@@ -1,4 +1,4 @@
-// const prizeCalculationService = require('../services/prizeCalculationService');
+// Serviço de cálculo de prêmios removido - usando cálculos simplificados
 
 class PrizeController {
   

@@ -1,5 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
-// const globalDrawService = require('./globalDrawService');
+// Serviço de sorteio global removido - usando sorteio simplificado
 const userSessionService = require('./userSessionService');
 const { v4: uuidv4 } = require('uuid');
 

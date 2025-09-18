@@ -1,4 +1,4 @@
-// const prizeValidationService = require('../services/prizeValidationService');
+// Serviço de validação de prêmios removido - usando validação simplificada
 
 class PrizeValidationController {
   

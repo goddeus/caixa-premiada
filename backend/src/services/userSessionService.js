@@ -1,5 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
-// const rtpService = require('./rtpService');
+// Serviço RTP removido - usando configuração simplificada
 
 const prisma = new PrismaClient();
 

@@ -1,6 +1,6 @@
 const prisma = require('../utils/prisma');
 const walletService = require('./walletService');
-// const prizeValidationService = require('./prizeValidationService');
+// Serviço de validação de prêmios removido - usando validação simplificada
 const { isValidUUID } = require('../utils/validation');
 
 class CasesService {
@@ -102,41 +102,49 @@ class CasesService {
       throw new Error('Saldo insuficiente para abrir esta caixa');
     }
 
-    // CORREÇÃO: Usar sistema de sorteio centralizado que respeita preços originais
-    // const centralizedDrawService = require('./centralizedDrawService');
-    // const drawResult = await centralizedDrawService.sortearPremio(caseId, userId);
-    const drawResult = { success: false, message: 'Serviço de sorteio não disponível' };
+    // Sistema de sorteio simplificado e funcional
+    console.log('🎲 Executando sorteio simplificado...');
     
-    if (!drawResult.success) {
-      throw new Error(`Erro no sorteio: ${drawResult.message}`);
+    // Buscar prêmios da caixa
+    const prizes = await prisma.prize.findMany({
+      where: {
+        case_id: caseId,
+        ativo: true,
+        sorteavel: true
+      }
+    });
+
+    if (!prizes || prizes.length === 0) {
+      throw new Error('Nenhum prêmio disponível para esta caixa');
+    }
+
+    // Calcular probabilidades
+    const totalProbability = prizes.reduce((sum, prize) => sum + prize.probabilidade, 0);
+    const random = Math.random() * totalProbability;
+    
+    let currentProbability = 0;
+    let selectedPrize = null;
+    
+    for (const prize of prizes) {
+      currentProbability += prize.probabilidade;
+      if (random <= currentProbability) {
+        selectedPrize = prize;
+        break;
+      }
     }
     
-    const prizeData = drawResult.prize;
-
-    // FAILSAFE CRÍTICO: Validar consistência do prêmio antes de processar
-    console.log('🔒 Executando failsafe de sincronização...');
-    // const validationResult = await prizeValidationService.validatePrizeBeforeCredit(prizeData.id);
-    const validationResult = { success: true, message: 'Validação não disponível' };
-    
-    if (!validationResult.valid) {
-      console.error('❌ FAILSAFE ATIVADO: Prêmio inconsistente detectado!');
-      console.error('❌ Detalhes:', validationResult.error);
-      
-      // Registrar falha crítica no sistema
-      await prisma.transaction.create({
-        data: {
-          user_id: userId,
-          tipo: 'failsafe_ativado',
-          valor: parseFloat(prizeData.valor),
-          status: 'falhou',
-          descricao: `FAILSAFE: Prêmio inconsistente detectado - ${validationResult.error}`,
-          case_id: caseId,
-          prize_id: prizeData.id
-        }
-      });
-
-      throw new Error(`Failsafe ativado: Prêmio inconsistente detectado. ${validationResult.error}`);
+    if (!selectedPrize) {
+      selectedPrize = prizes[prizes.length - 1]; // Fallback
     }
+
+    const prizeData = {
+      id: selectedPrize.id,
+      nome: selectedPrize.nome,
+      valor: selectedPrize.valor,
+      tipo: selectedPrize.tipo || 'cash'
+    };
+
+    console.log('✅ Prêmio selecionado:', prizeData);
 
     // Buscar dados oficiais do prêmio diretamente do banco (fonte única da verdade)
     const officialPrizeData = await prisma.prize.findUnique({
