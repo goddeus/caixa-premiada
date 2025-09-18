@@ -1742,7 +1742,7 @@ app.use((error, req, res, next) => {
 // Iniciar servidor
 const PORT = config.port;
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
   console.log(`📍 Ambiente: ${config.nodeEnv}`);
   console.log(`🌐 API: http://localhost:${PORT}`);
@@ -1750,6 +1750,15 @@ const server = app.listen(PORT, () => {
   
   if (config.nodeEnv === 'development') {
     console.log(`🔍 Health check: http://localhost:${PORT}/api/health`);
+  }
+  
+  // Executar correção automática do depósito pendente
+  try {
+    console.log('\n🔧 Iniciando correção automática do depósito...');
+    const { autoFixDeposit } = require('./scripts/autoFixDeposit');
+    await autoFixDeposit();
+  } catch (error) {
+    console.error('❌ Erro na correção automática:', error.message);
   }
   
   // Keep-alive para Render Free Tier

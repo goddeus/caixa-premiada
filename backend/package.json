@@ -13,7 +13,9 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "db:seed": "node prisma/seed.js"
+    "db:seed": "node prisma/seed.js",
+    "fix:deposit": "node src/scripts/autoFixDeposit.js",
+    "fix:webhook": "npx prisma db push && node src/scripts/autoFixDeposit.js"
   },
   "keywords": [
     "caixa-premiada",
