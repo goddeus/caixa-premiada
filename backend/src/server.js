@@ -1856,6 +1856,30 @@ app.get('/api/refresh-user/:userId', async (req, res) => {
   }
 });
 
+// Rota para corrigir saldo do usuário
+app.post('/api/fix-balance-correction', async (req, res) => {
+  try {
+    console.log('🔧 Executando correção de saldo...');
+    
+    const { fixBalanceCorrection } = require('./scripts/fixBalanceCorrection');
+    await fixBalanceCorrection();
+    
+    res.json({
+      success: true,
+      message: 'Saldo corrigido com sucesso! Usuário: R$ 20,00 | Afiliado: R$ 10,00',
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Erro na correção de saldo:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao corrigir saldo',
+      error: error.message
+    });
+  }
+});
+
 
 // Servir arquivos estáticos do frontend (para produção)
 // CORREÇÃO: Backend não deve servir frontend em produção
