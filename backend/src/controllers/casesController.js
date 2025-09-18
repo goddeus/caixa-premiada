@@ -44,16 +44,15 @@ class CasesController {
         preco: 3.0,
         ativo: true,
         prizes: [
-          { id: 'samsung_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.3 },
-          { id: 'samsung_2', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.25 },
-          { id: 'samsung_3', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.2 },
-          { id: 'samsung_4', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.15 },
-          { id: 'samsung_5', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.05 },
-          { id: 'samsung_6', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.02 },
-          { id: 'samsung_7', nome: 'FONE SAMSUNG', valor: 200.0, probabilidade: 0.001, tipo: 'ilustrativo' },
-          { id: 'samsung_8', nome: 'NOTEBOOK SAMSUNG', valor: 3000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
-          { id: 'samsung_9', nome: 'S25', valor: 4000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
-          { id: 'samsung_10', nome: 'Nada', valor: 0, probabilidade: 0.013 }
+          { id: 'samsung_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.32 },
+          { id: 'samsung_2', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.30 },
+          { id: 'samsung_3', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.25 },
+          { id: 'samsung_4', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.20 },
+          { id: 'samsung_5', nome: 'Fone Samsung', valor: 50.0, probabilidade: 0.05 },
+          { id: 'samsung_6', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.04 },
+          { id: 'samsung_7', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.01 },
+          { id: 'samsung_8', nome: 'S25', valor: 1000.0, probabilidade: 0.0, tipo: 'ilustrativo' },
+          { id: 'samsung_9', nome: 'Notebook Samsung', valor: 5000.0, probabilidade: 0.0, tipo: 'ilustrativo' }
         ]
       },
       'fb0c0175-b478-4fd5-9750-d673c0f374fd': {
@@ -106,8 +105,7 @@ class CasesController {
           { id: 'premium_8', nome: 'IPAD', valor: 5000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
           { id: 'premium_9', nome: 'IPHONE 16 PRO MAX', valor: 10000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
           { id: 'premium_10', nome: 'MACBOOK', valor: 15000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
-          { id: 'premium_11', nome: 'SAMSUNG S25', valor: 4000.0, probabilidade: 0.001, tipo: 'ilustrativo' },
-          { id: 'premium_12', nome: 'Nada', valor: 0, probabilidade: 0.23 }
+          { id: 'premium_11', nome: 'Nada', valor: 0, probabilidade: 0.231 }
         ]
       }
     };
@@ -160,20 +158,19 @@ class CasesController {
         { id: 'nike_demo_6', nome: 'Nada', valor: 0, probabilidade: 0.25 }
       ],
       '3f2a9f7a-cb4d-47e7-991a-0e72c0e0f415': [ // CAIXA SAMSUNG (R$3,00)
-        { id: 'samsung_demo_1', nome: 'R$ 50,00', valor: 50.0, probabilidade: 0.3 },
+        { id: 'samsung_demo_1', nome: 'Fone Samsung', valor: 50.0, probabilidade: 0.3 },
         { id: 'samsung_demo_2', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.2 },
-        { id: 'samsung_demo_3', nome: 'R$ 300,00', valor: 300.0, probabilidade: 0.15 },
-        { id: 'samsung_demo_4', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.1 },
-        { id: 'samsung_demo_5', nome: 'R$ 1000,00', valor: 1000.0, probabilidade: 0.05 },
+        { id: 'samsung_demo_3', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.15 },
+        { id: 'samsung_demo_4', nome: 'S25', valor: 1000.0, probabilidade: 0.1 },
+        { id: 'samsung_demo_5', nome: 'Notebook Samsung', valor: 5000.0, probabilidade: 0.05 },
         { id: 'samsung_demo_6', nome: 'Nada', valor: 0, probabilidade: 0.2 }
       ],
       'fb0c0175-b478-4fd5-9750-d673c0f374fd': [ // CAIXA CONSOLE (R$3,50)
-        { id: 'console_demo_1', nome: 'R$ 50,00', valor: 50.0, probabilidade: 0.25 },
-        { id: 'console_demo_2', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.2 },
-        { id: 'console_demo_3', nome: 'R$ 350,00', valor: 350.0, probabilidade: 0.15 },
-        { id: 'console_demo_4', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.1 },
-        { id: 'console_demo_5', nome: 'R$ 1000,00', valor: 1000.0, probabilidade: 0.05 },
-        { id: 'console_demo_6', nome: 'Nada', valor: 0, probabilidade: 0.25 }
+        { id: 'console_demo_1', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.25 },
+        { id: 'console_demo_2', nome: 'Steam Deck', valor: 3000.0, probabilidade: 0.2 },
+        { id: 'console_demo_3', nome: 'Xbox One', valor: 4000.0, probabilidade: 0.15 },
+        { id: 'console_demo_4', nome: 'PS5', valor: 5000.0, probabilidade: 0.1 },
+        { id: 'console_demo_5', nome: 'Nada', valor: 0, probabilidade: 0.3 }
       ],
       '61a19df9-d011-429e-a9b5-d2c837551150': [ // CAIXA APPLE (R$7,00)
         { id: 'apple_demo_1', nome: 'R$ 50,00', valor: 50.0, probabilidade: 0.3 },

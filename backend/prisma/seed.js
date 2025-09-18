@@ -550,69 +550,13 @@ async function main() {
     }
   });
 
-  // Criar prêmios para Caixa Samsung - RTP 100%
+  // Criar prêmios para Caixa Samsung - 9 prêmios corretos
   await prisma.prize.create({
     data: {
       case_id: caixaSamsung.id,
-      nome: 'S25 ULTRA',
-      valor: 5000.00,
-      probabilidade: 0.0 // 0%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaSamsung.id,
-      nome: 'FONE SAMSUNG',
-      valor: 1000.00,
-      probabilidade: 0.0, // 0%
-      imagem_url: '/imagens/fone samsung.webp'
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaSamsung.id,
-      nome: 'NOTEBOOK',
-      valor: 3000.00,
-      probabilidade: 0.0, // 0%
-      imagem_url: '/imagens/notebook samsung.png'
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaSamsung.id,
-      nome: 'R$500,00',
-      valor: 500.00,
-      probabilidade: 0.01 // 1%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaSamsung.id,
-      nome: 'R$100,00',
-      valor: 100.00,
-      probabilidade: 0.04 // 4%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaSamsung.id,
-      nome: 'R$10,00',
-      valor: 10.00,
-      probabilidade: 0.20 // 20%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaSamsung.id,
-      nome: 'R$5,00',
-      valor: 5.00,
-      probabilidade: 0.25 // 25%
+      nome: 'R$1,00',
+      valor: 1.00,
+      probabilidade: 0.32 // 32%
     }
   });
 
@@ -628,9 +572,63 @@ async function main() {
   await prisma.prize.create({
     data: {
       case_id: caixaSamsung.id,
-      nome: 'R$1,00',
-      valor: 1.00,
-      probabilidade: 0.32 // 32%
+      nome: 'R$5,00',
+      valor: 5.00,
+      probabilidade: 0.25 // 25%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaSamsung.id,
+      nome: 'R$10,00',
+      valor: 10.00,
+      probabilidade: 0.20 // 20%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaSamsung.id,
+      nome: 'Fone Samsung',
+      valor: 50.00,
+      probabilidade: 0.05 // 5%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaSamsung.id,
+      nome: 'R$100,00',
+      valor: 100.00,
+      probabilidade: 0.04 // 4%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaSamsung.id,
+      nome: 'R$500,00',
+      valor: 500.00,
+      probabilidade: 0.01 // 1%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaSamsung.id,
+      nome: 'S25',
+      valor: 1000.00,
+      probabilidade: 0.0 // 0%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaSamsung.id,
+      nome: 'Notebook Samsung',
+      valor: 5000.00,
+      probabilidade: 0.0 // 0%
     }
   });
 
