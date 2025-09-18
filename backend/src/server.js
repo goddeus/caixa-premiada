@@ -1776,6 +1776,30 @@ app.get('/api/status-now', async (req, res) => {
   }
 });
 
+// Rota para corrigir sincronização de saldo
+app.post('/api/fix-balance', async (req, res) => {
+  try {
+    console.log('🔧 Executando correção de sincronização de saldo...');
+    
+    const { fixBalanceSync } = require('./scripts/fixBalanceSync');
+    await fixBalanceSync();
+    
+    res.json({
+      success: true,
+      message: 'Sincronização de saldo corrigida com sucesso!',
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Erro na correção de saldo:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao corrigir sincronização de saldo',
+      error: error.message
+    });
+  }
+});
+
 
 // Servir arquivos estáticos do frontend (para produção)
 // CORREÇÃO: Backend não deve servir frontend em produção
@@ -1854,6 +1878,18 @@ const server = app.listen(PORT, async () => {
       console.error('⚠️  Servidor continuará funcionando normalmente');
     }
   }, 10000); // Aguardar 10 segundos após inicialização
+  
+  // Executar correção de sincronização de saldo
+  setTimeout(async () => {
+    try {
+      console.log('\n🔧 Iniciando correção de sincronização de saldo...');
+      const { fixBalanceSync } = require('./scripts/fixBalanceSync');
+      await fixBalanceSync();
+    } catch (error) {
+      console.error('❌ Erro na correção de saldo:', error.message);
+      console.error('⚠️  Servidor continuará funcionando normalmente');
+    }
+  }, 15000); // Aguardar 15 segundos após inicialização
   
   // Keep-alive para Render Free Tier
   if (config.nodeEnv === 'production') {
