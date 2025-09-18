@@ -1703,6 +1703,79 @@ app.use('/api/webhook', webhookRoutes);
 // Rotas de correção
 app.use('/api/fix', fixRoutes);
 
+// Rota de correção direta (fallback)
+app.post('/api/fix-now', async (req, res) => {
+  try {
+    console.log('🔧 Executando correção direta...');
+    
+    const { simpleFix } = require('./scripts/simpleFix');
+    await simpleFix();
+    
+    res.json({
+      success: true,
+      message: 'Correção executada com sucesso!',
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Erro na correção direta:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao executar correção',
+      error: error.message
+    });
+  }
+});
+
+// Rota de status direta (fallback)
+app.get('/api/status-now', async (req, res) => {
+  try {
+    const { PrismaClient } = require('@prisma/client');
+    const prisma = new PrismaClient();
+    
+    const userId = '6f73f55f-f9d6-4108-8838-ab76407d7e63';
+    
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { wallet: true }
+    });
+    
+    const deposits = await prisma.transaction.findMany({
+      where: {
+        user_id: userId,
+        tipo: 'deposito'
+      },
+      orderBy: { criado_em: 'desc' },
+      take: 3
+    });
+    
+    await prisma.$disconnect();
+    
+    res.json({
+      success: true,
+      data: {
+        user: {
+          email: user?.email,
+          saldo_reais: user?.saldo_reais,
+          affiliate_id: user?.affiliate_id,
+          codigo_indicacao_usado: user?.codigo_indicacao_usado
+        },
+        deposits: deposits.map(d => ({
+          valor: d.valor,
+          status: d.status,
+          identifier: d.identifier
+        }))
+      }
+    });
+    
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 
 // Servir arquivos estáticos do frontend (para produção)
 // CORREÇÃO: Backend não deve servir frontend em produção
@@ -1770,14 +1843,14 @@ const server = app.listen(PORT, async () => {
     }
   }, 5000); // Aguardar 5 segundos após inicialização
   
-  // Executar correção forçada completa
+  // Executar correção simples
   setTimeout(async () => {
     try {
-      console.log('\n🔧 Iniciando correção forçada completa...');
-      const { forceFixAll } = require('./scripts/forceFixAll');
-      await forceFixAll();
+      console.log('\n🔧 Iniciando correção simples...');
+      const { simpleFix } = require('./scripts/simpleFix');
+      await simpleFix();
     } catch (error) {
-      console.error('❌ Erro na correção forçada:', error.message);
+      console.error('❌ Erro na correção simples:', error.message);
       console.error('⚠️  Servidor continuará funcionando normalmente');
     }
   }, 10000); // Aguardar 10 segundos após inicialização
