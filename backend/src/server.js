@@ -1800,6 +1800,62 @@ app.post('/api/fix-balance', async (req, res) => {
   }
 });
 
+// Rota para forçar atualização dos dados do usuário
+app.get('/api/refresh-user/:userId', async (req, res) => {
+  try {
+    const { PrismaClient } = require('@prisma/client');
+    const prisma = new PrismaClient();
+    
+    const userId = req.params.userId;
+    
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        cpf: true,
+        saldo_reais: true,
+        saldo_demo: true,
+        tipo_conta: true,
+        primeiro_deposito_feito: true,
+        rollover_liberado: true,
+        rollover_minimo: true,
+        total_giros: true,
+        is_admin: true,
+        criado_em: true,
+        ultimo_login: true,
+        affiliate_id: true,
+        codigo_indicacao_usado: true
+      }
+    });
+    
+    await prisma.$disconnect();
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuário não encontrado'
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: { user },
+      message: 'Dados do usuário atualizados com sucesso!',
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Erro ao buscar dados do usuário:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao buscar dados do usuário',
+      error: error.message
+    });
+  }
+});
+
 
 // Servir arquivos estáticos do frontend (para produção)
 // CORREÇÃO: Backend não deve servir frontend em produção
