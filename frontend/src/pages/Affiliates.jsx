@@ -7,6 +7,7 @@ const Affiliates = () => {
   const { user, isAuthenticated } = useAuth();
   const [affiliateData, setAffiliateData] = useState(null);
   const [stats, setStats] = useState(null);
+  const [referrals, setReferrals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [withdrawLoading, setWithdrawLoading] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
@@ -26,13 +27,15 @@ const Affiliates = () => {
 
   const fetchAffiliateData = async () => {
     try {
-      const [affiliateResponse, statsResponse] = await Promise.all([
+      const [affiliateResponse, statsResponse, referralsResponse] = await Promise.all([
         api.get('/affiliate/me'),
-        api.get('/affiliate/stats')
+        api.get('/affiliate/stats'),
+        api.get('/affiliate/referrals')
       ]);
       
       setAffiliateData(affiliateResponse.data);
       setStats(statsResponse.data);
+      setReferrals(referralsResponse.data?.referrals || []);
     } catch (error) {
       console.error('Erro ao buscar dados do afiliado:', error);
       toast.error('Erro ao carregar dados do afiliado');
@@ -229,29 +232,70 @@ const Affiliates = () => {
               </div>
             </div>
 
-            {/* Histórico */}
-            {stats?.historico && stats.historico.length > 0 && (
+            {/* Usuários Indicados */}
+            {referrals && referrals.length > 0 && (
               <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
-                <h3 className="text-lg font-semibold text-white mb-4">Histórico de Indicações</h3>
+                <h3 className="text-lg font-semibold text-white mb-4">Usuários Indicados</h3>
                 <div className="space-y-3">
-                  {stats.historico.slice(0, 5).map((item, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-slate-700/50 rounded-lg">
-                      <div>
-                        <p className="text-white font-medium">{item.indicado?.nome || 'Usuário'}</p>
-                        <p className="text-gray-400 text-sm">{new Date(item.data).toLocaleDateString('pt-BR')}</p>
-                      </div>
-                      <div className="text-right">
+                  {referrals.slice(0, 10).map((referral, index) => (
+                    <div key={index} className="p-4 bg-slate-700/50 rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <p className="text-white font-medium">{referral.usuario?.nome || 'Usuário'}</p>
+                          <p className="text-gray-400 text-sm">ID: {referral.id}</p>
+                        </div>
                         <span className={`px-2 py-1 rounded text-xs font-medium ${
-                          item.deposito_valido 
+                          referral.deposito_valido 
                             ? 'bg-green-500/20 text-green-400' 
                             : 'bg-yellow-500/20 text-yellow-400'
                         }`}>
-                          {item.deposito_valido ? 'Pago' : 'Pendente'}
+                          {referral.deposito_valido ? 'Pago' : 'Pendente'}
                         </span>
                       </div>
+                      
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <p className="text-gray-400">Valor Depositado:</p>
+                          <p className="text-white font-medium">
+                            {referral.valor_deposito ? `R$ ${referral.valor_deposito.toFixed(2)}` : 'N/A'}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400">Data e Hora:</p>
+                          <p className="text-white font-medium">
+                            {new Date(referral.data_indicacao).toLocaleString('pt-BR')}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {referral.comissao_gerada && (
+                        <div className="mt-2 pt-2 border-t border-slate-600">
+                          <p className="text-gray-400 text-sm">Comissão Gerada:</p>
+                          <p className="text-green-400 font-medium">R$ {referral.comissao_gerada.toFixed(2)}</p>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
+                
+                {referrals.length > 10 && (
+                  <div className="mt-4 text-center">
+                    <p className="text-gray-400 text-sm">
+                      Mostrando 10 de {referrals.length} indicações
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Mensagem quando não há indicações */}
+            {referrals && referrals.length === 0 && (
+              <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700 text-center">
+                <h3 className="text-lg font-semibold text-white mb-2">Usuários Indicados</h3>
+                <p className="text-gray-400">Nenhum usuário indicado ainda.</p>
+                <p className="text-gray-500 text-sm mt-2">
+                  Compartilhe seu link de afiliado para começar a ganhar comissões!
+                </p>
               </div>
             )}
           </div>

@@ -753,10 +753,18 @@ const Dashboard = () => {
                       toast.error('Saque temporariamente indisponível. Tente novamente mais tarde.');
                       return;
                     }
+                    
+                    // ✅ CORREÇÃO: Verificar rollover antes de permitir saque
+                    if (!rolloverData.rollover_liberado) {
+                      const girosFaltantes = rolloverData.rollover_minimo - rolloverData.total_giros;
+                      toast.error(`Você precisa apostar mais R$ ${girosFaltantes.toFixed(2)} para liberar saques. Total apostado: R$ ${rolloverData.total_giros.toFixed(2)}/${rolloverData.rollover_minimo.toFixed(2)}`);
+                      return;
+                    }
+                    
                     setShowWithdrawModal(true);
                   }}
                   className={`px-3 py-1 rounded-lg text-white font-bold transition flex items-center text-sm ${
-                    isDemoAccount() 
+                    isDemoAccount() || !rolloverData.rollover_liberado
                       ? 'bg-gray-600 cursor-not-allowed opacity-50' 
                       : 'bg-gradient-to-r from-purple-500 to-purple-600 hover:opacity-90'
                   }`}

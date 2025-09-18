@@ -210,40 +210,44 @@ class AffiliateController {
       const skip = (Number(page) - 1) * Number(limit);
       
       const [referrals, total] = await Promise.all([
-        prisma.affiliateHistory.findMany({
-          where: { affiliate_id: affiliate.id },
-          include: {
-            indicado: {
-              select: {
-                nome: true,
-                email: true,
-                criado_em: true,
-                primeiro_deposito_feito: true
-              }
-            }
+        prisma.user.findMany({
+          where: { 
+            affiliate_id: affiliate.user_id,
+            codigo_indicacao_usado: affiliate.codigo_indicacao
+          },
+          select: {
+            id: true,
+            nome: true,
+            email: true,
+            criado_em: true,
+            primeiro_deposito_feito: true,
+            saldo_reais: true
           },
           orderBy: { criado_em: 'desc' },
           skip,
           take: Number(limit)
         }),
         
-        prisma.affiliateHistory.count({
-          where: { affiliate_id: affiliate.id }
+        prisma.user.count({
+          where: { 
+            affiliate_id: affiliate.user_id,
+            codigo_indicacao_usado: affiliate.codigo_indicacao
+          }
         })
       ]);
       
       const referralsFormatados = referrals.map(ref => ({
         id: ref.id,
         usuario: {
-          nome: ref.indicado.nome,
-          email: ref.indicado.email.replace(/(.{2}).*(@.*)/, '$1***$2'), // Mascarar email
-          cadastrado_em: ref.indicado.criado_em
+          nome: ref.nome,
+          email: ref.email.replace(/(.{2}).*(@.*)/, '$1***$2'), // Mascarar email
+          cadastrado_em: ref.criado_em
         },
-        deposito_valido: ref.deposito_valido,
-        valor_deposito: ref.valor_deposito ? Number(ref.valor_deposito) : null,
-        comissao_gerada: ref.comissao_gerada ? Number(ref.comissao_gerada) : null,
-        status: ref.status,
-        data_indicacao: ref.data
+        deposito_valido: ref.primeiro_deposito_feito,
+        valor_deposito: ref.primeiro_deposito_feito ? ref.saldo_reais : null,
+        comissao_gerada: ref.primeiro_deposito_feito ? 10.00 : null,
+        status: ref.primeiro_deposito_feito ? 'pago' : 'pendente',
+        data_indicacao: ref.criado_em
       }));
       
       res.json({

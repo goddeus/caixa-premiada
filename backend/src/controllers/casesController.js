@@ -318,6 +318,47 @@ class CasesController {
     }
   }
 
+  // Função centralizada para atualizar rollover
+  async updateRollover(userId, amount) {
+    try {
+      // Buscar dados atuais do usuário para verificar rollover
+      const currentUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { 
+          total_giros: true, 
+          rollover_minimo: true, 
+          rollover_liberado: true,
+          tipo_conta: true
+        }
+      });
+      
+      // Atualizar total_giros
+      const updateData = { 
+        total_giros: { increment: amount }
+      };
+      
+      // Verificar se atingiu o rollover mínimo
+      const newTotalGiros = (currentUser.total_giros || 0) + amount;
+      if (!currentUser.rollover_liberado && newTotalGiros >= currentUser.rollover_minimo) {
+        updateData.rollover_liberado = true;
+        console.log('🎉 Rollover liberado! Usuário pode sacar agora.');
+      }
+      
+      await prisma.user.update({
+        where: { id: userId },
+        data: updateData
+      });
+      
+      console.log(`✅ Total giros atualizado: R$ ${newTotalGiros.toFixed(2)}/${currentUser.rollover_minimo.toFixed(2)}`);
+      console.log(`   Rollover liberado: ${updateData.rollover_liberado ? 'SIM' : 'NÃO'}`);
+      
+      return { success: true, rolloverLiberado: updateData.rollover_liberado };
+    } catch (error) {
+      console.error('❌ Erro ao atualizar rollover:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
   // Sistema de sorteio simples com transações (fallback quando banco não está disponível)
   async simpleDraw(caseData, userId, userBalance, isDemo = false) {
     try {
@@ -369,13 +410,19 @@ class CasesController {
       
       // Tentar atualizar no banco (se disponível)
       try {
+        // Atualizar saldo
         await prisma.user.update({
           where: { id: userId },
           data: { 
-            saldo_reais: finalBalance 
+            saldo_reais: finalBalance
           }
         });
-        console.log('✅ Saldo atualizado no banco de dados');
+        
+        // Atualizar rollover usando função centralizada
+        await this.updateRollover(userId, casePrice);
+        
+        console.log(`✅ Saldo atualizado: R$ ${finalBalance.toFixed(2)}`);
+        
       } catch (dbError) {
         console.log('⚠️ Banco não disponível - usando saldo local');
       }
@@ -708,6 +755,7 @@ class CasesController {
 
       // Debitar valor da caixa imediatamente
       await prisma.$transaction(async (tx) => {
+        // Atualizar saldo do usuário
         if (isDemoAccount) {
           await tx.user.update({
             where: { id: userId },
@@ -740,6 +788,9 @@ class CasesController {
           }
         });
       });
+      
+      // Atualizar rollover usando função centralizada (fora da transação)
+      await this.updateRollover(userId, totalPreco);
 
       // SISTEMA DE AUDITORIA: Registrar compra
       const updatedUser = await prisma.user.findUnique({
@@ -879,18 +930,23 @@ class CasesController {
       
       // Tentar atualizar saldo no banco
       try {
+        // Atualizar saldo
         if (isDemoAccount) {
           await prisma.user.update({
-          where: { id: userId },
+            where: { id: userId },
             data: { saldo_demo: saldoAposDebito }
           });
         } else {
-        await prisma.user.update({
-          where: { id: userId },
+          await prisma.user.update({
+            where: { id: userId },
             data: { saldo_reais: saldoAposDebito }
           });
         }
-        console.log('✅ Saldo debitado no banco de dados');
+        
+        // Atualizar rollover usando função centralizada
+        await this.updateRollover(userId, totalPreco);
+        
+        console.log('✅ Saldo debitado e rollover atualizados no banco de dados');
       } catch (dbError) {
         console.log('⚠️ Banco não disponível - debitando localmente');
       }
