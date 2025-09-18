@@ -286,7 +286,8 @@ class CasesService {
         probabilidade: result.prize.probabilidade,
         imagem_url: result.prize.imagem_url,
         case_nome: result.prize.case_nome,
-        case_preco: result.prize.case_preco
+        case_preco: result.prize.case_preco,
+        sem_imagem: false
       },
       transactions: {
         case: result.caseTransaction,

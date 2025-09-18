@@ -231,23 +231,23 @@ const ConsoleCase = () => {
             mappedPrize.rarity = 'rarity-4.png';
             mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/steamdeck.png';
             mappedPrize.bgColor = 'rgb(255, 59, 59)';
-          } else if (wonPrize.nome.includes('R$100,00') || wonPrize.valor === 100) {
+          } else if (wonPrize.nome.includes('R$ 100,00') || wonPrize.nome.includes('R$100,00') || wonPrize.valor === 100) {
             mappedPrize.rarity = 'rarity-3.png';
             mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/100reais.png';
             mappedPrize.bgColor = 'rgb(162, 89, 255)';
-          } else if (wonPrize.nome.includes('R$10,00') || wonPrize.valor === 10) {
+          } else if (wonPrize.nome.includes('R$ 10,00') || wonPrize.nome.includes('R$10,00') || wonPrize.valor === 10) {
             mappedPrize.rarity = 'rarity-1.png';
             mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/10reais.png';
             mappedPrize.bgColor = 'rgb(176, 190, 197)';
-          } else if (wonPrize.nome.includes('R$5,00') || wonPrize.valor === 5) {
+          } else if (wonPrize.nome.includes('R$ 5,00') || wonPrize.nome.includes('R$5,00') || wonPrize.valor === 5) {
             mappedPrize.rarity = 'rarity-1.png';
             mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/5reais.png';
             mappedPrize.bgColor = 'rgb(176, 190, 197)';
-          } else if (wonPrize.nome.includes('R$2,00') || wonPrize.valor === 2) {
+          } else if (wonPrize.nome.includes('R$ 2,00') || wonPrize.nome.includes('R$2,00') || wonPrize.valor === 2) {
             mappedPrize.rarity = 'rarity-1.png';
             mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/2reais.png';
             mappedPrize.bgColor = 'rgb(176, 190, 197)';
-          } else if (wonPrize.nome.includes('R$1,00') || wonPrize.valor === 1) {
+          } else if (wonPrize.nome.includes('R$ 1,00') || wonPrize.nome.includes('R$1,00') || wonPrize.valor === 1) {
             mappedPrize.rarity = 'rarity-1.png';
             mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/1real.png';
             mappedPrize.bgColor = 'rgb(176, 190, 197)';

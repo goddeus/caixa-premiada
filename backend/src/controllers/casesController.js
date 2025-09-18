@@ -307,7 +307,8 @@ class CasesController {
           nome: selectedPrize.nome,
           valor: selectedPrize.valor,
           tipo: 'cash',
-          imagem: null
+          imagem: null,
+          sem_imagem: false
         },
         message: selectedPrize.valor > 0 ? 
           `Parabéns! Você ganhou R$ ${selectedPrize.valor.toFixed(2)}!` : 
@@ -394,7 +395,8 @@ class CasesController {
           nome: selectedPrize.nome,
           valor: selectedPrize.valor,
           tipo: 'cash',
-          imagem: null
+          imagem: null,
+          sem_imagem: false
         },
         message: selectedPrize.valor > 0 ? 
           `Parabéns! Você ganhou R$ ${selectedPrize.valor.toFixed(2)}!` : 
@@ -970,7 +972,8 @@ class CasesController {
             id: wonPrize.id,
             nome: wonPrize.nome,
             valor: wonPrize.valor,
-            imagem: wonPrize.imagem
+            imagem: wonPrize.imagem,
+            sem_imagem: wonPrize.sem_imagem || false
           } : null,
           saldo_restante: saldoAposDebito, // Saldo após débito (sem crédito ainda)
           transacao: {

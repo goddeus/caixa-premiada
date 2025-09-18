@@ -201,7 +201,7 @@ const SamsungCase = () => {
               mappedPrize.rarity = 'rarity-4.png';
               mappedPrize.image = '/imagens/CAIXA SAMSUNG/s25.png';
               mappedPrize.bgColor = 'rgb(255, 215, 0)';
-            } else if (apiPrize.nome.includes('R$ 500,00') || apiPrize.valor === 500) {
+            } else if (apiPrize.nome.includes('R$ 500,00') || apiPrize.nome.includes('R$500,00') || apiPrize.valor === 500) {
               mappedPrize.rarity = 'rarity-3.png';
               mappedPrize.image = '/imagens/CAIXA SAMSUNG/500.webp';
               mappedPrize.bgColor = 'rgb(162, 89, 255)';
@@ -209,7 +209,7 @@ const SamsungCase = () => {
               mappedPrize.rarity = 'rarity-3.png';
               mappedPrize.image = '/imagens/CAIXA SAMSUNG/notebook samsung.png';
               mappedPrize.bgColor = 'rgb(59, 130, 246)';
-            } else if (apiPrize.nome.includes('R$ 100,00') || apiPrize.valor === 100) {
+            } else if (apiPrize.nome.includes('R$ 100,00') || apiPrize.nome.includes('R$100,00') || apiPrize.valor === 100) {
               mappedPrize.rarity = 'rarity-2.png';
               mappedPrize.image = '/imagens/CAIXA SAMSUNG/100.png';
               mappedPrize.bgColor = 'rgb(59, 130, 246)';
@@ -217,19 +217,19 @@ const SamsungCase = () => {
               mappedPrize.rarity = 'rarity-2.png';
               mappedPrize.image = '/imagens/CAIXA SAMSUNG/fone samsung.png';
               mappedPrize.bgColor = 'rgb(59, 130, 246)';
-            } else if (apiPrize.nome.includes('R$ 10,00') || apiPrize.valor === 10) {
+            } else if (apiPrize.nome.includes('R$ 10,00') || apiPrize.nome.includes('R$10,00') || apiPrize.valor === 10) {
               mappedPrize.rarity = 'rarity-1.png';
               mappedPrize.image = '/imagens/CAIXA SAMSUNG/10.png';
               mappedPrize.bgColor = 'rgb(176, 190, 197)';
-            } else if (apiPrize.nome.includes('R$ 5,00') || apiPrize.valor === 5) {
+            } else if (apiPrize.nome.includes('R$ 5,00') || apiPrize.nome.includes('R$5,00') || apiPrize.valor === 5) {
               mappedPrize.rarity = 'rarity-1.png';
               mappedPrize.image = '/imagens/CAIXA SAMSUNG/5.png';
               mappedPrize.bgColor = 'rgb(176, 190, 197)';
-            } else if (apiPrize.nome.includes('R$ 2,00') || apiPrize.valor === 2) {
+            } else if (apiPrize.nome.includes('R$ 2,00') || apiPrize.nome.includes('R$2,00') || apiPrize.valor === 2) {
               mappedPrize.rarity = 'rarity-1.png';
               mappedPrize.image = '/imagens/CAIXA SAMSUNG/2.png';
               mappedPrize.bgColor = 'rgb(176, 190, 197)';
-            } else if (apiPrize.nome.includes('R$ 1,00') || apiPrize.valor === 1) {
+            } else if (apiPrize.nome.includes('R$ 1,00') || apiPrize.nome.includes('R$1,00') || apiPrize.valor === 1) {
               mappedPrize.rarity = 'rarity-1.png';
               mappedPrize.image = '/imagens/CAIXA SAMSUNG/1.png';
               mappedPrize.bgColor = 'rgb(176, 190, 197)';
@@ -767,12 +767,15 @@ const SamsungCase = () => {
               {/* Mobile Grid */}
               <div className="grid md:hidden" style={{gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px 0px', padding: '0px', margin: '0px 0px 0px calc(50% - 50vw)', width: '100vw', maxWidth: '100vw'}}>
                 {[
-                  { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA FINAL DE SEMANA/500.webp', bgColor: 'rgb(162, 89, 255)', illustrative: false },
-                  { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA FINAL DE SEMANA/100.png', bgColor: 'rgb(59, 130, 246)', illustrative: false },
-                  { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/10.png', bgColor: 'rgb(176, 190, 197)', illustrative: false },
-                  { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/5.png', bgColor: 'rgb(176, 190, 197)', illustrative: false },
-                  { name: 'R$ 2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/2.png', bgColor: 'rgb(176, 190, 197)', illustrative: false },
-                  { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/1.png', bgColor: 'rgb(176, 190, 197)', illustrative: false }
+                  { name: 'Samsung S25', value: 'Samsung S25', rarity: 'rarity-4.png', image: '/imagens/CAIXA SAMSUNG/s25.png', bgColor: 'rgb(255, 215, 0)', illustrative: false },
+                  { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA SAMSUNG/500.webp', bgColor: 'rgb(162, 89, 255)', illustrative: false },
+                  { name: 'Notebook Samsung', value: 'Notebook Samsung', rarity: 'rarity-3.png', image: '/imagens/CAIXA SAMSUNG/notebook samsung.png', bgColor: 'rgb(59, 130, 246)', illustrative: false },
+                  { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA SAMSUNG/100.png', bgColor: 'rgb(59, 130, 246)', illustrative: false },
+                  { name: 'Fone Samsung', value: 'Fone Samsung', rarity: 'rarity-2.png', image: '/imagens/CAIXA SAMSUNG/fone samsung.png', bgColor: 'rgb(59, 130, 246)', illustrative: false },
+                  { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/10.png', bgColor: 'rgb(176, 190, 197)', illustrative: false },
+                  { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/5.png', bgColor: 'rgb(176, 190, 197)', illustrative: false },
+                  { name: 'R$ 2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/2.png', bgColor: 'rgb(176, 190, 197)', illustrative: false },
+                  { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/1.png', bgColor: 'rgb(176, 190, 197)', illustrative: false }
                 ].map((prize, index) => (
                   <div key={index} className="rounded-none p-0 text-center relative overflow-hidden flex flex-col items-center justify-between transition-all duration-300 group" style={{width: '100%', maxWidth: '100%', minWidth: '0px', height: '200px', minHeight: '120px', maxHeight: '200px', margin: '0px', borderRadius: '0px 0px 12px 12px', border: '2px solid rgb(14, 16, 21)', boxSizing: 'border-box', background: `linear-gradient(0deg, ${prize.bgColor}32 0%, rgb(14, 16, 21) 100%)`}}>
                     <img alt="Raridade" className="absolute inset-0 pointer-events-none" src={`/imagens/${prize.rarity}`} style={{zIndex: 1, objectFit: 'contain', width: '75%', height: '75%', left: '50%', top: '44%', transform: 'translate(-50%, -50%)', opacity: 0.6, position: 'absolute'}} />
@@ -791,12 +794,15 @@ const SamsungCase = () => {
               {/* Desktop Grid */}
               <div className="hidden md:grid" style={{gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px 0px', padding: '0px', margin: '0px', width: '100%', maxWidth: '100%', overflow: 'hidden'}}>
                 {[
-                  { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA FINAL DE SEMANA/500.webp', bgColor: 'rgb(162, 89, 255)' },
-                  { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA FINAL DE SEMANA/100.png', bgColor: 'rgb(59, 130, 246)' },
-                  { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/10.png', bgColor: 'rgb(176, 190, 197)' },
-                  { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/5.png', bgColor: 'rgb(176, 190, 197)' },
-                  { name: 'R$ 2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/2.png', bgColor: 'rgb(176, 190, 197)' },
-                  { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/1.png', bgColor: 'rgb(176, 190, 197)' }
+                  { name: 'Samsung S25', value: 'Samsung S25', rarity: 'rarity-4.png', image: '/imagens/CAIXA SAMSUNG/s25.png', bgColor: 'rgb(255, 215, 0)' },
+                  { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA SAMSUNG/500.webp', bgColor: 'rgb(162, 89, 255)' },
+                  { name: 'Notebook Samsung', value: 'Notebook Samsung', rarity: 'rarity-3.png', image: '/imagens/CAIXA SAMSUNG/notebook samsung.png', bgColor: 'rgb(59, 130, 246)' },
+                  { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA SAMSUNG/100.png', bgColor: 'rgb(59, 130, 246)' },
+                  { name: 'Fone Samsung', value: 'Fone Samsung', rarity: 'rarity-2.png', image: '/imagens/CAIXA SAMSUNG/fone samsung.png', bgColor: 'rgb(59, 130, 246)' },
+                  { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/10.png', bgColor: 'rgb(176, 190, 197)' },
+                  { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/5.png', bgColor: 'rgb(176, 190, 197)' },
+                  { name: 'R$ 2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/2.png', bgColor: 'rgb(176, 190, 197)' },
+                  { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/1.png', bgColor: 'rgb(176, 190, 197)' }
                 ].map((prize, index) => (
                   <div key={index} className="rounded-none p-0 text-center relative overflow-hidden flex flex-col items-center justify-between transition-all duration-300 group" style={{width: '100%', maxWidth: '100%', minWidth: '0px', height: '200px', minHeight: '120px', maxHeight: '200px', margin: '0px', borderRadius: '0px 0px 12px 12px', border: '2px solid rgb(14, 16, 21)', boxSizing: 'border-box', background: `linear-gradient(0deg, ${prize.bgColor}32 0%, rgb(14, 16, 21) 100%)`}}>
                     <img alt="Raridade" className="absolute inset-0 pointer-events-none" src={`/imagens/${prize.rarity}`} style={{zIndex: 1, objectFit: 'contain', width: '75%', height: '75%', left: '50%', top: '44%', transform: 'translate(-50%, -50%)', opacity: 0.6, position: 'absolute'}} />

@@ -208,23 +208,23 @@ const AppleCase = () => {
               mappedPrize.rarity = 'rarity-4.png';
               mappedPrize.image = '/imagens/CAIXA APPLE/air pods.png';
               mappedPrize.bgColor = 'rgb(255, 59, 59)';
-            } else if (apiPrize.nome.includes('R$ 500,00') || apiPrize.valor === 500) {
+            } else if (apiPrize.nome.includes('R$ 500,00') || apiPrize.nome.includes('R$500,00') || apiPrize.valor === 500) {
               mappedPrize.rarity = 'rarity-3.png';
               mappedPrize.image = '/imagens/CAIXA APPLE/500.webp';
               mappedPrize.bgColor = 'rgb(162, 89, 255)';
-            } else if (apiPrize.nome.includes('R$ 10,00') || apiPrize.valor === 10) {
+            } else if (apiPrize.nome.includes('R$ 10,00') || apiPrize.nome.includes('R$10,00') || apiPrize.valor === 10) {
               mappedPrize.rarity = 'rarity-1.png';
               mappedPrize.image = '/imagens/CAIXA APPLE/10.png';
               mappedPrize.bgColor = 'rgb(176, 190, 197)';
-            } else if (apiPrize.nome.includes('R$ 5,00') || apiPrize.valor === 5) {
+            } else if (apiPrize.nome.includes('R$ 5,00') || apiPrize.nome.includes('R$5,00') || apiPrize.valor === 5) {
               mappedPrize.rarity = 'rarity-1.png';
               mappedPrize.image = '/imagens/CAIXA APPLE/5.png';
               mappedPrize.bgColor = 'rgb(176, 190, 197)';
-            } else if (apiPrize.nome.includes('R$ 2,00') || apiPrize.valor === 2) {
+            } else if (apiPrize.nome.includes('R$ 2,00') || apiPrize.nome.includes('R$2,00') || apiPrize.valor === 2) {
               mappedPrize.rarity = 'rarity-1.png';
               mappedPrize.image = '/imagens/CAIXA APPLE/2.png';
               mappedPrize.bgColor = 'rgb(176, 190, 197)';
-            } else if (apiPrize.nome.includes('R$ 1,00') || apiPrize.valor === 1) {
+            } else if (apiPrize.nome.includes('R$ 1,00') || apiPrize.nome.includes('R$1,00') || apiPrize.valor === 1) {
               mappedPrize.rarity = 'rarity-1.png';
               mappedPrize.image = '/imagens/CAIXA APPLE/1.png';
               mappedPrize.bgColor = 'rgb(176, 190, 197)';

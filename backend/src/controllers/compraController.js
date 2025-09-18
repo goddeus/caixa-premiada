@@ -296,7 +296,8 @@ class CompraController {
         nome: selectedPrize.nome,
         valor: parseFloat(selectedPrize.valor), // Garantir que é número
         tipo: 'cash',
-        imagem: null
+        imagem: null,
+        sem_imagem: false
       };
       
       console.log('📤 Retornando prêmio:', prizeReturn);
@@ -952,7 +953,7 @@ class CompraController {
               nome: wonPrize.nome,
               valor: wonPrize.valor,
               imagem: wonPrize.imagem,
-              sem_imagem: wonPrize.valor === 0,
+              sem_imagem: wonPrize.sem_imagem || false,
               is_illustrative: wonPrize.valor === 0,
               message: wonPrize.valor === 0 ? 'Quem sabe na próxima!' : `Parabéns! Você ganhou R$ ${parseFloat(wonPrize.valor).toFixed(2)}!`
             }
