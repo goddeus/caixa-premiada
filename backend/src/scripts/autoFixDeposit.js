@@ -34,23 +34,30 @@ async function autoFixDeposit() {
     console.log(`   Valor: R$ ${amount}`);
     console.log(`   User ID: ${userId}\n`);
     
-    // 1. Verificar se a coluna related_id existe e adicionar se necessário
+    // 1. Verificar e adicionar colunas necessárias
     console.log('🔍 Verificando estrutura da tabela Transaction...');
     
-    try {
-      await prisma.$queryRaw`SELECT related_id FROM "Transaction" LIMIT 1`;
-      console.log('✅ Coluna related_id existe no banco');
-    } catch (error) {
-      if (error.message.includes('related_id')) {
-        console.log('❌ Coluna related_id NÃO existe no banco');
-        console.log('🛠️  Adicionando coluna related_id...');
-        
-        try {
-          await prisma.$executeRaw`ALTER TABLE "Transaction" ADD COLUMN "related_id" TEXT`;
-          console.log('✅ Coluna related_id adicionada com sucesso!');
-        } catch (alterError) {
-          console.log('⚠️  Erro ao adicionar coluna:', alterError.message);
-          console.log('💡 Continuando sem a coluna...');
+    const requiredColumns = [
+      { name: 'related_id', type: 'TEXT' },
+      { name: 'metadata', type: 'JSONB' }
+    ];
+    
+    for (const column of requiredColumns) {
+      try {
+        await prisma.$queryRawUnsafe(`SELECT "${column.name}" FROM "Transaction" LIMIT 1`);
+        console.log(`✅ Coluna ${column.name} existe no banco`);
+      } catch (error) {
+        if (error.message.includes(column.name)) {
+          console.log(`❌ Coluna ${column.name} NÃO existe no banco`);
+          console.log(`🛠️  Adicionando coluna ${column.name}...`);
+          
+          try {
+            await prisma.$executeRawUnsafe(`ALTER TABLE "Transaction" ADD COLUMN "${column.name}" ${column.type}`);
+            console.log(`✅ Coluna ${column.name} adicionada com sucesso!`);
+          } catch (alterError) {
+            console.log(`⚠️  Erro ao adicionar coluna ${column.name}:`, alterError.message);
+            console.log('💡 Continuando sem a coluna...');
+          }
         }
       }
     }
@@ -205,26 +212,69 @@ async function autoFixDeposit() {
     
     console.log(`✅ Saldo final: R$ ${finalBalance}`);
     
-    // 7. Processar comissão de afiliado
-    if (updatedUser.tipo_conta !== 'afiliado_demo' && updatedUser.affiliate_id) {
-      console.log('\n🎯 Processando comissão de afiliado...');
-      
-      try {
-        const AffiliateService = require('../services/affiliateService');
+    // 7. Verificar e processar comissão de afiliado
+    console.log('\n🎯 Verificando comissão de afiliado...');
+    
+    if (updatedUser.tipo_conta !== 'afiliado_demo') {
+      if (updatedUser.affiliate_id) {
+        console.log(`✅ Usuário tem afiliado vinculado: ${updatedUser.affiliate_id}`);
         
-        await AffiliateService.processAffiliateCommission({
-          userId: userId,
-          depositAmount: amount,
-          depositStatus: 'concluido'
-        });
-        
-        console.log('✅ Comissão de afiliado processada (R$ 10,00)');
-      } catch (error) {
-        console.log('⚠️  Erro ao processar comissão (não crítico):', error.message);
+        try {
+          const AffiliateService = require('../services/affiliateService');
+          
+          await AffiliateService.processAffiliateCommission({
+            userId: userId,
+            depositAmount: amount,
+            depositStatus: 'concluido'
+          });
+          
+          console.log('✅ Comissão de afiliado processada (R$ 10,00)');
+        } catch (error) {
+          console.log('⚠️  Erro ao processar comissão (não crítico):', error.message);
+        }
+      } else {
+        console.log('ℹ️  Usuário não tem afiliado vinculado - nenhuma comissão a processar');
       }
+    } else {
+      console.log('ℹ️  Conta demo - comissão não aplicável');
     }
     
-    // 8. Resultado final
+    // 8. Verificar sistema de afiliados
+    console.log('\n🔍 Verificando sistema de afiliados...');
+    
+    if (updatedUser.affiliate_id) {
+      console.log(`✅ Usuário tem afiliado vinculado: ${updatedUser.affiliate_id}`);
+      
+      // Buscar dados do afiliado
+      const affiliate = await prisma.affiliate.findUnique({
+        where: { user_id: updatedUser.affiliate_id },
+        include: { user: true }
+      });
+      
+      if (affiliate) {
+        console.log(`📈 Afiliado: ${affiliate.user.nome} (${affiliate.user.email})`);
+        console.log(`💵 Ganhos: R$ ${affiliate.ganhos}`);
+        console.log(`💳 Saldo do afiliado: R$ ${affiliate.user.saldo_reais}`);
+        
+        // Verificar se comissão foi processada
+        const commission = await prisma.affiliateCommission.findFirst({
+          where: {
+            affiliate_id: affiliate.id,
+            user_id: userId
+          }
+        });
+        
+        if (commission) {
+          console.log(`✅ Comissão processada: R$ ${commission.valor} (${commission.status})`);
+        } else {
+          console.log('❌ Comissão não foi processada!');
+        }
+      }
+    } else {
+      console.log('ℹ️  Usuário não tem afiliado vinculado');
+    }
+    
+    // 9. Resultado final
     console.log('\n🎉 CORREÇÃO AUTOMÁTICA CONCLUÍDA!');
     console.log('=====================================');
     console.log(`👤 Usuário: ${user.email}`);
@@ -232,6 +282,7 @@ async function autoFixDeposit() {
     console.log(`✅ Status: Concluído`);
     console.log(`💳 Saldo final: R$ ${finalBalance}`);
     console.log(`🆔 Transaction ID: ${deposit.id}`);
+    console.log(`🎯 Afiliado: ${updatedUser.affiliate_id ? 'Vinculado' : 'Não vinculado'}`);
     console.log('=====================================');
     
   } catch (error) {
