@@ -63,14 +63,14 @@ const WeekendCase = () => {
     setShowSimulation(true);
     setShowResult(false);
     
-    // Lista reduzida apenas com prêmios bons para incentivar depósito
+    // Lista com os 6 prêmios reais da CAIXA FINAL DE SEMANA
     const incentivePrizes = [
-      { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA FINAL DE SEMANA/500.webp', bgColor: 'rgb(162, 89, 255)', sorteavel: true },
-      { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA FINAL DE SEMANA/100.png', bgColor: 'rgb(59, 130, 246)', sorteavel: true },
-      { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/10.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
-      { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/5.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
+      { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/1.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
       { name: 'R$ 2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/2.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
-      { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/1.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true }
+      { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA FINAL DE SEMANA/5.png', bgColor: 'rgb(59, 130, 246)', sorteavel: true },
+      { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA FINAL DE SEMANA/10.png', bgColor: 'rgb(59, 130, 246)', sorteavel: true },
+      { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA FINAL DE SEMANA/100.png', bgColor: 'rgb(162, 89, 255)', sorteavel: true },
+      { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA FINAL DE SEMANA/500.webp', bgColor: 'rgb(255, 59, 59)', sorteavel: true }
     ];
     
     // Simular seleção aleatória de prêmio
@@ -218,8 +218,23 @@ const WeekendCase = () => {
               mappedPrize.bgColor = 'rgb(176, 190, 197)';
             } else {
               // Fallback para outros prêmios baseado no valor
-              if (apiPrize.valor >= 100) {
+              if (apiPrize.valor >= 1000) {
+                // Para valores altos, usar imagem de produto premium
+                mappedPrize.image = '/imagens/CAIXA FINAL DE SEMANA/500.webp';
+                mappedPrize.rarity = 'rarity-5.png';
+                mappedPrize.bgColor = 'rgb(255, 215, 0)';
+              } else if (apiPrize.valor >= 500) {
+                mappedPrize.image = '/imagens/CAIXA FINAL DE SEMANA/500.webp';
+                mappedPrize.rarity = 'rarity-4.png';
+                mappedPrize.bgColor = 'rgb(255, 59, 59)';
+              } else if (apiPrize.valor >= 200) {
                 mappedPrize.image = '/imagens/CAIXA FINAL DE SEMANA/100.png';
+                mappedPrize.rarity = 'rarity-3.png';
+                mappedPrize.bgColor = 'rgb(162, 89, 255)';
+              } else if (apiPrize.valor >= 100) {
+                mappedPrize.image = '/imagens/CAIXA FINAL DE SEMANA/100.png';
+                mappedPrize.rarity = 'rarity-3.png';
+                mappedPrize.bgColor = 'rgb(162, 89, 255)';
               } else if (apiPrize.valor >= 10) {
                 mappedPrize.image = '/imagens/CAIXA FINAL DE SEMANA/10.png';
               } else if (apiPrize.valor >= 5) {
@@ -311,14 +326,14 @@ const WeekendCase = () => {
 
   // Função para gerar sequência aleatória de prêmios
   const generateRandomPrizeSequence = () => {
-    // Prêmios sorteáveis da caixa de fim de semana
+    // Prêmios sorteáveis da caixa de fim de semana - 6 prêmios corretos
     const sorteablePrizes = [
       { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/1.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
       { name: 'R$ 2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/2.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
-      { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/5.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
-      { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/10.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
-      { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA FINAL DE SEMANA/100.png', bgColor: 'rgb(59, 130, 246)', sorteavel: true },
-      { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA FINAL DE SEMANA/500.webp', bgColor: 'rgb(162, 89, 255)', sorteavel: true }
+      { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA FINAL DE SEMANA/5.png', bgColor: 'rgb(59, 130, 246)', sorteavel: true },
+      { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA FINAL DE SEMANA/10.png', bgColor: 'rgb(59, 130, 246)', sorteavel: true },
+      { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA FINAL DE SEMANA/100.png', bgColor: 'rgb(162, 89, 255)', sorteavel: true },
+      { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA FINAL DE SEMANA/500.webp', bgColor: 'rgb(255, 59, 59)', sorteavel: true }
     ];
 
     // Combinar todos os prêmios (apenas os sorteáveis da caixa de fim de semana)
@@ -747,12 +762,12 @@ const WeekendCase = () => {
               {/* Mobile Grid */}
               <div className="grid md:hidden" style={{gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px 0px', padding: '0px', margin: '0px 0px 0px calc(50% - 50vw)', width: '100vw', maxWidth: '100vw'}}>
                 {[
-                  { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA FINAL DE SEMANA/500.webp', bgColor: 'rgb(162, 89, 255)', illustrative: false },
-                  { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA FINAL DE SEMANA/100.png', bgColor: 'rgb(59, 130, 246)', illustrative: false },
-                  { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/10.png', bgColor: 'rgb(176, 190, 197)', illustrative: false },
-                  { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/5.png', bgColor: 'rgb(176, 190, 197)', illustrative: false },
+                  { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/1.png', bgColor: 'rgb(176, 190, 197)', illustrative: false },
                   { name: 'R$ 2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/2.png', bgColor: 'rgb(176, 190, 197)', illustrative: false },
-                  { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/1.png', bgColor: 'rgb(176, 190, 197)', illustrative: false }
+                  { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA FINAL DE SEMANA/5.png', bgColor: 'rgb(59, 130, 246)', illustrative: false },
+                  { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA FINAL DE SEMANA/10.png', bgColor: 'rgb(59, 130, 246)', illustrative: false },
+                  { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA FINAL DE SEMANA/100.png', bgColor: 'rgb(162, 89, 255)', illustrative: false },
+                  { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA FINAL DE SEMANA/500.webp', bgColor: 'rgb(255, 59, 59)', illustrative: false }
                 ].map((prize, index) => (
                   <div key={index} className="rounded-none p-0 text-center relative overflow-hidden flex flex-col items-center justify-between transition-all duration-300 group" style={{width: '100%', maxWidth: '100%', minWidth: '0px', height: '200px', minHeight: '120px', maxHeight: '200px', margin: '0px', borderRadius: '0px 0px 12px 12px', border: '2px solid rgb(14, 16, 21)', boxSizing: 'border-box', background: `linear-gradient(0deg, ${prize.bgColor}32 0%, rgb(14, 16, 21) 100%)`}}>
                     <img alt="Raridade" className="absolute inset-0 pointer-events-none" src={`/imagens/${prize.rarity}`} style={{zIndex: 1, objectFit: 'contain', width: '75%', height: '75%', left: '50%', top: '44%', transform: 'translate(-50%, -50%)', opacity: 0.6, position: 'absolute'}} />
@@ -771,12 +786,12 @@ const WeekendCase = () => {
               {/* Desktop Grid */}
               <div className="hidden md:grid" style={{gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px 0px', padding: '0px', margin: '0px', width: '100%', maxWidth: '100%', overflow: 'hidden'}}>
                 {[
-                  { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA FINAL DE SEMANA/500.webp', bgColor: 'rgb(162, 89, 255)' },
-                  { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA FINAL DE SEMANA/100.png', bgColor: 'rgb(59, 130, 246)' },
-                  { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/10.png', bgColor: 'rgb(176, 190, 197)' },
-                  { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/5.png', bgColor: 'rgb(176, 190, 197)' },
+                  { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/1.png', bgColor: 'rgb(176, 190, 197)' },
                   { name: 'R$ 2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/2.png', bgColor: 'rgb(176, 190, 197)' },
-                  { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA FINAL DE SEMANA/1.png', bgColor: 'rgb(176, 190, 197)' }
+                  { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA FINAL DE SEMANA/5.png', bgColor: 'rgb(59, 130, 246)' },
+                  { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA FINAL DE SEMANA/10.png', bgColor: 'rgb(59, 130, 246)' },
+                  { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA FINAL DE SEMANA/100.png', bgColor: 'rgb(162, 89, 255)' },
+                  { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA FINAL DE SEMANA/500.webp', bgColor: 'rgb(255, 59, 59)' }
                 ].map((prize, index) => (
                   <div key={index} className="rounded-none p-0 text-center relative overflow-hidden flex flex-col items-center justify-between transition-all duration-300 group" style={{width: '100%', maxWidth: '100%', minWidth: '0px', height: '200px', minHeight: '120px', maxHeight: '200px', margin: '0px', borderRadius: '0px 0px 12px 12px', border: '2px solid rgb(14, 16, 21)', boxSizing: 'border-box', background: `linear-gradient(0deg, ${prize.bgColor}32 0%, rgb(14, 16, 21) 100%)`}}>
                     <img alt="Raridade" className="absolute inset-0 pointer-events-none" src={`/imagens/${prize.rarity}`} style={{zIndex: 1, objectFit: 'contain', width: '75%', height: '75%', left: '50%', top: '44%', transform: 'translate(-50%, -50%)', opacity: 0.6, position: 'absolute'}} />

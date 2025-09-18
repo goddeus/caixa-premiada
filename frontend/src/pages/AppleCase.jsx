@@ -234,6 +234,10 @@ const AppleCase = () => {
                 mappedPrize.image = '/imagens/CAIXA APPLE/iphone 16 pro max.png';
                 mappedPrize.rarity = 'rarity-5.png';
                 mappedPrize.bgColor = 'rgb(255, 215, 0)';
+              } else if (apiPrize.valor >= 2000) {
+                mappedPrize.image = '/imagens/CAIXA APPLE/macbook.png';
+                mappedPrize.rarity = 'rarity-5.png';
+                mappedPrize.bgColor = 'rgb(255, 215, 0)';
               } else if (apiPrize.valor >= 1000) {
                 mappedPrize.image = '/imagens/CAIXA APPLE/air pods.png';
                 mappedPrize.rarity = 'rarity-4.png';

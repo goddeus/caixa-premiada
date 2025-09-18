@@ -63,14 +63,14 @@ const SamsungCase = () => {
     setShowSimulation(true);
     setShowResult(false);
     
-    // Lista reduzida apenas com prêmios bons para incentivar depósito
+    // Lista com todos os 9 prêmios reais da CAIXA SAMSUNG
     const incentivePrizes = [
-      { name: 'Samsung S25', value: 'Samsung S25', rarity: 'rarity-4.png', image: '/imagens/CAIXA SAMSUNG/s25.png', bgColor: 'rgb(255, 215, 0)', sorteavel: true },
-      { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA SAMSUNG/500.webp', bgColor: 'rgb(162, 89, 255)', sorteavel: true },
-      { name: 'Notebook Samsung', value: 'Notebook Samsung', rarity: 'rarity-3.png', image: '/imagens/CAIXA SAMSUNG/notebook samsung.png', bgColor: 'rgb(59, 130, 246)', sorteavel: true },
-      { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA SAMSUNG/100.png', bgColor: 'rgb(59, 130, 246)', sorteavel: true },
-      { name: 'Fone Samsung', value: 'Fone Samsung', rarity: 'rarity-2.png', image: '/imagens/CAIXA SAMSUNG/fone samsung.png', bgColor: 'rgb(59, 130, 246)', sorteavel: true },
-      { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/10.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
+      { name: 'Notebook Samsung', value: 'R$ 5000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA SAMSUNG/notebook samsung.png', bgColor: 'rgb(255, 215, 0)', sorteavel: true },
+      { name: 'S25', value: 'R$ 1000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA SAMSUNG/s25.png', bgColor: 'rgb(255, 215, 0)', sorteavel: true },
+      { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA SAMSUNG/500.webp', bgColor: 'rgb(255, 59, 59)', sorteavel: true },
+      { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA SAMSUNG/100.png', bgColor: 'rgb(162, 89, 255)', sorteavel: true },
+      { name: 'Fone Samsung', value: 'R$ 50,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA SAMSUNG/fone samsung.png', bgColor: 'rgb(59, 130, 246)', sorteavel: true },
+      { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA SAMSUNG/10.png', bgColor: 'rgb(59, 130, 246)', sorteavel: true },
       { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/5.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
       { name: 'R$ 2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/2.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
       { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/1.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true }
@@ -195,56 +195,102 @@ const SamsungCase = () => {
             sem_imagem: apiPrize.sem_imagem || false
           };
           
-          // Mapear prêmios específicos baseado no nome e valor (apenas se não for prêmio ilustrativo)
+          // Mapear prêmios específicos baseado nos 9 prêmios reais da CAIXA SAMSUNG
           if (!apiPrize.sem_imagem) {
-            if (apiPrize.nome.includes('Samsung S25') || apiPrize.nome.includes('S25')) {
-              mappedPrize.rarity = 'rarity-4.png';
+            // Prêmios reais da CAIXA SAMSUNG (9 prêmios):
+            // R$1,00 / R$1,00 / 1.png
+            // R$2,00 / R$2,00 / 2.png
+            // R$5,00 / R$5,00 / 5.png
+            // R$10,00 / R$10,00 / 10.png
+            // R$100,00 / R$100,00 / 100.png
+            // R$500,00 / R$500,00 / 500.webp
+            // Fone Samsung / R$50,00 / fone samsung.png
+            // Notebook Samsung / R$5000,00 / notebook samsung.png
+            // S25 / R$1000,00 / s25.png
+            
+            if (apiPrize.valor === 5000) {
+              // R$ 5000,00 - Notebook Samsung
+              mappedPrize.rarity = 'rarity-5.png';
+              mappedPrize.image = '/imagens/CAIXA SAMSUNG/notebook samsung.png';
+              mappedPrize.bgColor = 'rgb(255, 215, 0)';
+            } else if (apiPrize.valor === 1000) {
+              // R$ 1000,00 - S25
+              mappedPrize.rarity = 'rarity-5.png';
               mappedPrize.image = '/imagens/CAIXA SAMSUNG/s25.png';
               mappedPrize.bgColor = 'rgb(255, 215, 0)';
-            } else if (apiPrize.nome.includes('R$ 500,00') || apiPrize.nome.includes('R$500,00') || apiPrize.valor === 500) {
-              mappedPrize.rarity = 'rarity-3.png';
+            } else if (apiPrize.valor === 500) {
+              // R$ 500,00 - Valor monetário
+              mappedPrize.rarity = 'rarity-4.png';
               mappedPrize.image = '/imagens/CAIXA SAMSUNG/500.webp';
-              mappedPrize.bgColor = 'rgb(162, 89, 255)';
-            } else if (apiPrize.nome.includes('Notebook Samsung') || apiPrize.nome.includes('Notebook')) {
+              mappedPrize.bgColor = 'rgb(255, 59, 59)';
+            } else if (apiPrize.valor === 100) {
+              // R$ 100,00 - Valor monetário
               mappedPrize.rarity = 'rarity-3.png';
-              mappedPrize.image = '/imagens/CAIXA SAMSUNG/notebook samsung.png';
-              mappedPrize.bgColor = 'rgb(59, 130, 246)';
-            } else if (apiPrize.nome.includes('R$ 100,00') || apiPrize.nome.includes('R$100,00') || apiPrize.valor === 100) {
-              mappedPrize.rarity = 'rarity-2.png';
               mappedPrize.image = '/imagens/CAIXA SAMSUNG/100.png';
-              mappedPrize.bgColor = 'rgb(59, 130, 246)';
-            } else if (apiPrize.nome.includes('Fone Samsung') || apiPrize.nome.includes('Fone')) {
+              mappedPrize.bgColor = 'rgb(162, 89, 255)';
+            } else if (apiPrize.valor === 50) {
+              // R$ 50,00 - Fone Samsung
               mappedPrize.rarity = 'rarity-2.png';
               mappedPrize.image = '/imagens/CAIXA SAMSUNG/fone samsung.png';
               mappedPrize.bgColor = 'rgb(59, 130, 246)';
-            } else if (apiPrize.nome.includes('R$ 10,00') || apiPrize.nome.includes('R$10,00') || apiPrize.valor === 10) {
-              mappedPrize.rarity = 'rarity-1.png';
+            } else if (apiPrize.valor === 10) {
+              // R$ 10,00 - Valor monetário
+              mappedPrize.rarity = 'rarity-2.png';
               mappedPrize.image = '/imagens/CAIXA SAMSUNG/10.png';
-              mappedPrize.bgColor = 'rgb(176, 190, 197)';
-            } else if (apiPrize.nome.includes('R$ 5,00') || apiPrize.nome.includes('R$5,00') || apiPrize.valor === 5) {
+              mappedPrize.bgColor = 'rgb(59, 130, 246)';
+            } else if (apiPrize.valor === 5) {
+              // R$ 5,00 - Valor monetário
               mappedPrize.rarity = 'rarity-1.png';
               mappedPrize.image = '/imagens/CAIXA SAMSUNG/5.png';
               mappedPrize.bgColor = 'rgb(176, 190, 197)';
-            } else if (apiPrize.nome.includes('R$ 2,00') || apiPrize.nome.includes('R$2,00') || apiPrize.valor === 2) {
+            } else if (apiPrize.valor === 2) {
+              // R$ 2,00 - Valor monetário
               mappedPrize.rarity = 'rarity-1.png';
               mappedPrize.image = '/imagens/CAIXA SAMSUNG/2.png';
               mappedPrize.bgColor = 'rgb(176, 190, 197)';
-            } else if (apiPrize.nome.includes('R$ 1,00') || apiPrize.nome.includes('R$1,00') || apiPrize.valor === 1) {
+            } else if (apiPrize.valor === 1) {
+              // R$ 1,00 - Valor monetário
               mappedPrize.rarity = 'rarity-1.png';
               mappedPrize.image = '/imagens/CAIXA SAMSUNG/1.png';
               mappedPrize.bgColor = 'rgb(176, 190, 197)';
             } else {
-              // Fallback para outros prêmios baseado no valor
-              if (apiPrize.valor >= 100) {
+              // Fallback para outros valores
+              if (apiPrize.valor >= 5000) {
+                mappedPrize.image = '/imagens/CAIXA SAMSUNG/notebook samsung.png';
+                mappedPrize.rarity = 'rarity-5.png';
+                mappedPrize.bgColor = 'rgb(255, 215, 0)';
+              } else if (apiPrize.valor >= 1000) {
+                mappedPrize.image = '/imagens/CAIXA SAMSUNG/s25.png';
+                mappedPrize.rarity = 'rarity-5.png';
+                mappedPrize.bgColor = 'rgb(255, 215, 0)';
+              } else if (apiPrize.valor >= 500) {
+                mappedPrize.image = '/imagens/CAIXA SAMSUNG/500.webp';
+                mappedPrize.rarity = 'rarity-4.png';
+                mappedPrize.bgColor = 'rgb(255, 59, 59)';
+              } else if (apiPrize.valor >= 100) {
                 mappedPrize.image = '/imagens/CAIXA SAMSUNG/100.png';
+                mappedPrize.rarity = 'rarity-3.png';
+                mappedPrize.bgColor = 'rgb(162, 89, 255)';
+              } else if (apiPrize.valor >= 50) {
+                mappedPrize.image = '/imagens/CAIXA SAMSUNG/fone samsung.png';
+                mappedPrize.rarity = 'rarity-2.png';
+                mappedPrize.bgColor = 'rgb(59, 130, 246)';
               } else if (apiPrize.valor >= 10) {
                 mappedPrize.image = '/imagens/CAIXA SAMSUNG/10.png';
+                mappedPrize.rarity = 'rarity-2.png';
+                mappedPrize.bgColor = 'rgb(59, 130, 246)';
               } else if (apiPrize.valor >= 5) {
                 mappedPrize.image = '/imagens/CAIXA SAMSUNG/5.png';
+                mappedPrize.rarity = 'rarity-1.png';
+                mappedPrize.bgColor = 'rgb(176, 190, 197)';
               } else if (apiPrize.valor >= 2) {
                 mappedPrize.image = '/imagens/CAIXA SAMSUNG/2.png';
+                mappedPrize.rarity = 'rarity-1.png';
+                mappedPrize.bgColor = 'rgb(176, 190, 197)';
               } else {
                 mappedPrize.image = '/imagens/CAIXA SAMSUNG/1.png';
+                mappedPrize.rarity = 'rarity-1.png';
+                mappedPrize.bgColor = 'rgb(176, 190, 197)';
               }
             }
           }
@@ -328,17 +374,17 @@ const SamsungCase = () => {
 
   // Função para gerar sequência aleatória de prêmios
   const generateRandomPrizeSequence = () => {
-    // Prêmios sorteáveis da caixa Samsung
+    // Todos os 9 prêmios reais da caixa Samsung
     const sorteablePrizes = [
       { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/1.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
       { name: 'R$ 2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/2.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
       { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/5.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
-      { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/10.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
-      { name: 'Fone Samsung', value: 'Fone Samsung', rarity: 'rarity-2.png', image: '/imagens/CAIXA SAMSUNG/fone samsung.png', bgColor: 'rgb(59, 130, 246)', sorteavel: true },
-      { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA SAMSUNG/100.png', bgColor: 'rgb(59, 130, 246)', sorteavel: true },
-      { name: 'Notebook Samsung', value: 'Notebook Samsung', rarity: 'rarity-3.png', image: '/imagens/CAIXA SAMSUNG/notebook samsung.png', bgColor: 'rgb(59, 130, 246)', sorteavel: true },
-      { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA SAMSUNG/500.webp', bgColor: 'rgb(162, 89, 255)', sorteavel: true },
-      { name: 'Samsung S25', value: 'Samsung S25', rarity: 'rarity-4.png', image: '/imagens/CAIXA SAMSUNG/s25.png', bgColor: 'rgb(255, 215, 0)', sorteavel: true }
+      { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA SAMSUNG/10.png', bgColor: 'rgb(59, 130, 246)', sorteavel: true },
+      { name: 'Fone Samsung', value: 'R$ 50,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA SAMSUNG/fone samsung.png', bgColor: 'rgb(59, 130, 246)', sorteavel: true },
+      { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA SAMSUNG/100.png', bgColor: 'rgb(162, 89, 255)', sorteavel: true },
+      { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA SAMSUNG/500.webp', bgColor: 'rgb(255, 59, 59)', sorteavel: true },
+      { name: 'S25', value: 'R$ 1000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA SAMSUNG/s25.png', bgColor: 'rgb(255, 215, 0)', sorteavel: true },
+      { name: 'Notebook Samsung', value: 'R$ 5000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA SAMSUNG/notebook samsung.png', bgColor: 'rgb(255, 215, 0)', sorteavel: true }
     ];
 
     // Combinar todos os prêmios (apenas os sorteáveis da caixa Samsung)
@@ -767,15 +813,15 @@ const SamsungCase = () => {
               {/* Mobile Grid */}
               <div className="grid md:hidden" style={{gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px 0px', padding: '0px', margin: '0px 0px 0px calc(50% - 50vw)', width: '100vw', maxWidth: '100vw'}}>
                 {[
-                  { name: 'Samsung S25', value: 'Samsung S25', rarity: 'rarity-4.png', image: '/imagens/CAIXA SAMSUNG/s25.png', bgColor: 'rgb(255, 215, 0)', illustrative: false },
-                  { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA SAMSUNG/500.webp', bgColor: 'rgb(162, 89, 255)', illustrative: false },
-                  { name: 'Notebook Samsung', value: 'Notebook Samsung', rarity: 'rarity-3.png', image: '/imagens/CAIXA SAMSUNG/notebook samsung.png', bgColor: 'rgb(59, 130, 246)', illustrative: false },
-                  { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA SAMSUNG/100.png', bgColor: 'rgb(59, 130, 246)', illustrative: false },
-                  { name: 'Fone Samsung', value: 'Fone Samsung', rarity: 'rarity-2.png', image: '/imagens/CAIXA SAMSUNG/fone samsung.png', bgColor: 'rgb(59, 130, 246)', illustrative: false },
-                  { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/10.png', bgColor: 'rgb(176, 190, 197)', illustrative: false },
-                  { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/5.png', bgColor: 'rgb(176, 190, 197)', illustrative: false },
+                  { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/1.png', bgColor: 'rgb(176, 190, 197)', illustrative: false },
                   { name: 'R$ 2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/2.png', bgColor: 'rgb(176, 190, 197)', illustrative: false },
-                  { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/1.png', bgColor: 'rgb(176, 190, 197)', illustrative: false }
+                  { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/5.png', bgColor: 'rgb(176, 190, 197)', illustrative: false },
+                  { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA SAMSUNG/10.png', bgColor: 'rgb(59, 130, 246)', illustrative: false },
+                  { name: 'Fone Samsung', value: 'R$ 50,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA SAMSUNG/fone samsung.png', bgColor: 'rgb(59, 130, 246)', illustrative: false },
+                  { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA SAMSUNG/100.png', bgColor: 'rgb(162, 89, 255)', illustrative: false },
+                  { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA SAMSUNG/500.webp', bgColor: 'rgb(255, 59, 59)', illustrative: false },
+                  { name: 'S25', value: 'R$ 1000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA SAMSUNG/s25.png', bgColor: 'rgb(255, 215, 0)', illustrative: false },
+                  { name: 'Notebook Samsung', value: 'R$ 5000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA SAMSUNG/notebook samsung.png', bgColor: 'rgb(255, 215, 0)', illustrative: false }
                 ].map((prize, index) => (
                   <div key={index} className="rounded-none p-0 text-center relative overflow-hidden flex flex-col items-center justify-between transition-all duration-300 group" style={{width: '100%', maxWidth: '100%', minWidth: '0px', height: '200px', minHeight: '120px', maxHeight: '200px', margin: '0px', borderRadius: '0px 0px 12px 12px', border: '2px solid rgb(14, 16, 21)', boxSizing: 'border-box', background: `linear-gradient(0deg, ${prize.bgColor}32 0%, rgb(14, 16, 21) 100%)`}}>
                     <img alt="Raridade" className="absolute inset-0 pointer-events-none" src={`/imagens/${prize.rarity}`} style={{zIndex: 1, objectFit: 'contain', width: '75%', height: '75%', left: '50%', top: '44%', transform: 'translate(-50%, -50%)', opacity: 0.6, position: 'absolute'}} />
@@ -792,17 +838,17 @@ const SamsungCase = () => {
               </div>
 
               {/* Desktop Grid */}
-              <div className="hidden md:grid" style={{gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px 0px', padding: '0px', margin: '0px', width: '100%', maxWidth: '100%', overflow: 'hidden'}}>
+              <div className="hidden md:grid" style={{gridTemplateColumns: 'repeat(9, 1fr)', gap: '8px 0px', padding: '0px', margin: '0px', width: '100%', maxWidth: '100%', overflow: 'hidden'}}>
                 {[
-                  { name: 'Samsung S25', value: 'Samsung S25', rarity: 'rarity-4.png', image: '/imagens/CAIXA SAMSUNG/s25.png', bgColor: 'rgb(255, 215, 0)' },
-                  { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA SAMSUNG/500.webp', bgColor: 'rgb(162, 89, 255)' },
-                  { name: 'Notebook Samsung', value: 'Notebook Samsung', rarity: 'rarity-3.png', image: '/imagens/CAIXA SAMSUNG/notebook samsung.png', bgColor: 'rgb(59, 130, 246)' },
-                  { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA SAMSUNG/100.png', bgColor: 'rgb(59, 130, 246)' },
-                  { name: 'Fone Samsung', value: 'Fone Samsung', rarity: 'rarity-2.png', image: '/imagens/CAIXA SAMSUNG/fone samsung.png', bgColor: 'rgb(59, 130, 246)' },
-                  { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/10.png', bgColor: 'rgb(176, 190, 197)' },
-                  { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/5.png', bgColor: 'rgb(176, 190, 197)' },
+                  { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/1.png', bgColor: 'rgb(176, 190, 197)' },
                   { name: 'R$ 2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/2.png', bgColor: 'rgb(176, 190, 197)' },
-                  { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/1.png', bgColor: 'rgb(176, 190, 197)' }
+                  { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA SAMSUNG/5.png', bgColor: 'rgb(176, 190, 197)' },
+                  { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA SAMSUNG/10.png', bgColor: 'rgb(59, 130, 246)' },
+                  { name: 'Fone Samsung', value: 'R$ 50,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA SAMSUNG/fone samsung.png', bgColor: 'rgb(59, 130, 246)' },
+                  { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-3.png', image: '/imagens/CAIXA SAMSUNG/100.png', bgColor: 'rgb(162, 89, 255)' },
+                  { name: 'R$ 500,00', value: 'R$ 500,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA SAMSUNG/500.webp', bgColor: 'rgb(255, 59, 59)' },
+                  { name: 'S25', value: 'R$ 1000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA SAMSUNG/s25.png', bgColor: 'rgb(255, 215, 0)' },
+                  { name: 'Notebook Samsung', value: 'R$ 5000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA SAMSUNG/notebook samsung.png', bgColor: 'rgb(255, 215, 0)' }
                 ].map((prize, index) => (
                   <div key={index} className="rounded-none p-0 text-center relative overflow-hidden flex flex-col items-center justify-between transition-all duration-300 group" style={{width: '100%', maxWidth: '100%', minWidth: '0px', height: '200px', minHeight: '120px', maxHeight: '200px', margin: '0px', borderRadius: '0px 0px 12px 12px', border: '2px solid rgb(14, 16, 21)', boxSizing: 'border-box', background: `linear-gradient(0deg, ${prize.bgColor}32 0%, rgb(14, 16, 21) 100%)`}}>
                     <img alt="Raridade" className="absolute inset-0 pointer-events-none" src={`/imagens/${prize.rarity}`} style={{zIndex: 1, objectFit: 'contain', width: '75%', height: '75%', left: '50%', top: '44%', transform: 'translate(-50%, -50%)', opacity: 0.6, position: 'absolute'}} />

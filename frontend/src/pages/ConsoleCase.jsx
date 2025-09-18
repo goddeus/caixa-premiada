@@ -67,12 +67,10 @@ const ConsoleCase = () => {
     
     // Lista de prêmios altos para incentivar depósito (sempre ganha prêmios bons)
     const incentivePrizes = [
-      { name: 'PS5 1TB', value: 'R$ 5.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/ps5.png', bgColor: 'rgb(255, 215, 0)' },
-      { name: 'XBOX ONE X 1TB', value: 'R$ 3.500,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/xboxone.webp', bgColor: 'rgb(255, 215, 0)' },
-      { name: 'STEAMDECK', value: 'R$ 2.500,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/steamdeck.png', bgColor: 'rgb(255, 215, 0)' },
-      { name: 'XIAMO NOTE 12', value: 'R$ 1.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/ps5.png', bgColor: 'rgb(255, 215, 0)' },
-      { name: 'CONTROLE PS5', value: 'R$ 500,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/ps5.png', bgColor: 'rgb(255, 59, 59)' },
-      { name: 'R$100,00', value: 'R$ 100,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/100reais.png', bgColor: 'rgb(255, 59, 59)' }
+      { name: 'PS5', value: 'R$ 5000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/ps5.png', bgColor: 'rgb(255, 215, 0)' },
+      { name: 'Xbox One', value: 'R$ 4000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/xboxone.webp', bgColor: 'rgb(255, 215, 0)' },
+      { name: 'Steam Deck', value: 'R$ 3000,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/steamdeck.png', bgColor: 'rgb(255, 59, 59)' },
+      { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/100reais.png', bgColor: 'rgb(59, 130, 246)' }
     ];
     
     // Simular seleção aleatória de prêmio alto (incentivo)
@@ -217,54 +215,58 @@ const ConsoleCase = () => {
             sem_imagem: wonPrize.sem_imagem || false
           };
           
-          // Mapear prêmios específicos baseado no nome (apenas se não for prêmio ilustrativo)
+          // Mapear prêmios específicos baseado nos prêmios reais encontrados
           if (!wonPrize.sem_imagem) {
-            if (wonPrize.nome.includes('PLAYSTATION') || wonPrize.nome.includes('PS5')) {
-            mappedPrize.rarity = 'rarity-5.png';
-            mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/ps5.png';
-            mappedPrize.bgColor = 'rgb(255, 215, 0)';
-          } else if (wonPrize.nome.includes('XBOX')) {
-            mappedPrize.rarity = 'rarity-5.png';
-            mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/xboxone.webp';
-            mappedPrize.bgColor = 'rgb(255, 215, 0)';
-          } else if (wonPrize.nome.includes('NINTENDO') || wonPrize.nome.includes('STEAM')) {
-            mappedPrize.rarity = 'rarity-4.png';
-            mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/steamdeck.png';
-            mappedPrize.bgColor = 'rgb(255, 59, 59)';
-          } else if (wonPrize.nome.includes('R$ 100,00') || wonPrize.nome.includes('R$100,00') || wonPrize.valor === 100) {
-            mappedPrize.rarity = 'rarity-3.png';
-            mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/100reais.png';
-            mappedPrize.bgColor = 'rgb(162, 89, 255)';
-          } else if (wonPrize.nome.includes('R$ 10,00') || wonPrize.nome.includes('R$10,00') || wonPrize.valor === 10) {
-            mappedPrize.rarity = 'rarity-1.png';
-            mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/10reais.png';
-            mappedPrize.bgColor = 'rgb(176, 190, 197)';
-          } else if (wonPrize.nome.includes('R$ 5,00') || wonPrize.nome.includes('R$5,00') || wonPrize.valor === 5) {
-            mappedPrize.rarity = 'rarity-1.png';
-            mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/5reais.png';
-            mappedPrize.bgColor = 'rgb(176, 190, 197)';
-          } else if (wonPrize.nome.includes('R$ 2,00') || wonPrize.nome.includes('R$2,00') || wonPrize.valor === 2) {
-            mappedPrize.rarity = 'rarity-1.png';
-            mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/2reais.png';
-            mappedPrize.bgColor = 'rgb(176, 190, 197)';
-          } else if (wonPrize.nome.includes('R$ 1,00') || wonPrize.nome.includes('R$1,00') || wonPrize.valor === 1) {
-            mappedPrize.rarity = 'rarity-1.png';
-            mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/1real.png';
-            mappedPrize.bgColor = 'rgb(176, 190, 197)';
-          } else {
-            // Fallback para outros prêmios baseado no valor
-            if (wonPrize.valor >= 100) {
+            // Prêmios reais da CAIXA CONSOLE:
+            // R$ 100,00 → /imagens/CAIXA CONSOLE DOS SONHOS/100reais.png
+            // R$ 3000,00 → /imagens/CAIXA CONSOLE DOS SONHOS/steamdeck.png
+            // R$ 4000,00 → /imagens/CAIXA CONSOLE DOS SONHOS/xboxone.webp
+            // R$ 5000,00 → /imagens/CAIXA CONSOLE DOS SONHOS/ps5.png
+            
+            if (wonPrize.valor === 5000) {
+              // R$ 5000,00 - PS5
+              mappedPrize.rarity = 'rarity-5.png';
+              mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/ps5.png';
+              mappedPrize.bgColor = 'rgb(255, 215, 0)';
+            } else if (wonPrize.valor === 4000) {
+              // R$ 4000,00 - Xbox One
+              mappedPrize.rarity = 'rarity-5.png';
+              mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/xboxone.webp';
+              mappedPrize.bgColor = 'rgb(255, 215, 0)';
+            } else if (wonPrize.valor === 3000) {
+              // R$ 3000,00 - Steam Deck
+              mappedPrize.rarity = 'rarity-4.png';
+              mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/steamdeck.png';
+              mappedPrize.bgColor = 'rgb(255, 59, 59)';
+            } else if (wonPrize.valor === 100) {
+              // R$ 100,00 - Valor monetário
+              mappedPrize.rarity = 'rarity-2.png';
               mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/100reais.png';
-            } else if (wonPrize.valor >= 10) {
-              mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/10reais.png';
-            } else if (wonPrize.valor >= 5) {
-              mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/5reais.png';
-            } else if (wonPrize.valor >= 2) {
-              mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/2reais.png';
+              mappedPrize.bgColor = 'rgb(59, 130, 246)';
             } else {
-              mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/1real.png';
+              // Fallback para outros valores
+              if (wonPrize.valor >= 5000) {
+                mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/ps5.png';
+                mappedPrize.rarity = 'rarity-5.png';
+                mappedPrize.bgColor = 'rgb(255, 215, 0)';
+              } else if (wonPrize.valor >= 4000) {
+                mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/xboxone.webp';
+                mappedPrize.rarity = 'rarity-5.png';
+                mappedPrize.bgColor = 'rgb(255, 215, 0)';
+              } else if (wonPrize.valor >= 3000) {
+                mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/steamdeck.png';
+                mappedPrize.rarity = 'rarity-4.png';
+                mappedPrize.bgColor = 'rgb(255, 59, 59)';
+              } else if (wonPrize.valor >= 100) {
+                mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/100reais.png';
+                mappedPrize.rarity = 'rarity-2.png';
+                mappedPrize.bgColor = 'rgb(59, 130, 246)';
+              } else {
+                mappedPrize.image = '/imagens/CAIXA CONSOLE DOS SONHOS/1.png';
+                mappedPrize.rarity = 'rarity-1.png';
+                mappedPrize.bgColor = 'rgb(176, 190, 197)';
+              }
             }
-          }
           }
           
           allPrizes.push(mappedPrize);
@@ -356,24 +358,16 @@ const ConsoleCase = () => {
 
   // Função para gerar sequência aleatória de prêmios
   const generateRandomPrizeSequence = () => {
-    // Prêmios sorteáveis (até R$ 1.000,00)
+    // Prêmios reais da caixa Console
     const sorteablePrizes = [
-      { name: 'R$ 1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/1real.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
-      { name: 'R$ 2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/2reais.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
-      { name: 'R$ 5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/5reais.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
-      { name: 'R$ 10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/10reais.png', bgColor: 'rgb(176, 190, 197)', sorteavel: true },
-      { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/100reais.png', bgColor: 'rgb(59, 130, 246)', sorteavel: true }
+      { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/100reais.png', bgColor: 'rgb(59, 130, 246)', sorteavel: true },
+      { name: 'Steam Deck', value: 'R$ 3000,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/steamdeck.png', bgColor: 'rgb(255, 59, 59)', sorteavel: true },
+      { name: 'Xbox One', value: 'R$ 4000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/xboxone.webp', bgColor: 'rgb(255, 215, 0)', sorteavel: true },
+      { name: 'PS5', value: 'R$ 5000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/ps5.png', bgColor: 'rgb(255, 215, 0)', sorteavel: true }
     ];
 
-    // Prêmios ilustrativos (acima de R$ 1.000,00) - não sorteáveis
-    const illustrativePrizes = [
-      { name: 'STEAM DECK', value: 'R$ 3.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/steamdeck.png', bgColor: 'rgb(255, 215, 0)', sorteavel: false },
-      { name: 'PLAYSTATION 5', value: 'R$ 4.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/ps5.png', bgColor: 'rgb(255, 215, 0)', sorteavel: false },
-      { name: 'XBOX ONE X', value: 'R$ 4.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/xboxone.webp', bgColor: 'rgb(255, 215, 0)', sorteavel: false }
-    ];
-
-    // Combinar todos os prêmios (sorteáveis + ilustrativos para exibição)
-    const allPrizes = [...sorteablePrizes, ...illustrativePrizes];
+    // Combinar todos os prêmios (apenas os reais)
+    const allPrizes = [...sorteablePrizes];
     
     // Criar uma sequência aleatória longa para simular sorteio real
     let randomSequence = [];
@@ -616,16 +610,12 @@ const ConsoleCase = () => {
               </h3>
               
               {/* Mobile Grid */}
-              <div className="grid md:hidden" style={{gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px 0px', padding: '0px', margin: '0px 0px 0px calc(50% - 50vw)', width: '100vw', maxWidth: '100vw'}}>
+              <div className="grid md:hidden" style={{gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px 0px', padding: '0px', margin: '0px 0px 0px calc(50% - 50vw)', width: '100vw', maxWidth: '100vw'}}>
                 {[
-                  { name: 'PS5 1TB', value: 'R$ 4.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/ps5.png', bgColor: 'rgb(255, 215, 0)' },
-                  { name: 'XBOX ONE X 1TB', value: 'R$ 4.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/xboxone.webp', bgColor: 'rgb(255, 215, 0)' },
-                  { name: 'STEAMDECK', value: 'R$ 3.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/steamdeck.png', bgColor: 'rgb(255, 215, 0)' },
-                  { name: 'R$100,00', value: 'R$ 100,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/100reais.png', bgColor: 'rgb(255, 59, 59)' },
-                  { name: 'R$10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/10reais.png', bgColor: 'rgb(176, 190, 197)' },
-                  { name: 'R$5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/5reais.png', bgColor: 'rgb(176, 190, 197)' },
-                  { name: 'R$2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/2reais.png', bgColor: 'rgb(176, 190, 197)' },
-                  { name: 'R$1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/1real.png', bgColor: 'rgb(176, 190, 197)' }
+                  { name: 'PS5', value: 'R$ 5000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/ps5.png', bgColor: 'rgb(255, 215, 0)' },
+                  { name: 'Xbox One', value: 'R$ 4000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/xboxone.webp', bgColor: 'rgb(255, 215, 0)' },
+                  { name: 'Steam Deck', value: 'R$ 3000,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/steamdeck.png', bgColor: 'rgb(255, 59, 59)' },
+                  { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/100reais.png', bgColor: 'rgb(59, 130, 246)' }
                 ].map((prize, index) => (
                   <div key={index} className="rounded-none p-0 text-center relative overflow-hidden flex flex-col items-center justify-between transition-all duration-300 group" style={{width: '100%', maxWidth: '100%', minWidth: '0px', height: '200px', minHeight: '120px', maxHeight: '200px', margin: '0px', borderRadius: '0px 0px 12px 12px', border: '2px solid rgb(14, 16, 21)', boxSizing: 'border-box', background: `linear-gradient(0deg, ${prize.bgColor}32 0%, rgb(14, 16, 21) 100%)`}}>
                     <img alt="Raridade" className="absolute inset-0 pointer-events-none" src={`/imagens/${prize.rarity}`} style={{zIndex: 1, objectFit: 'contain', width: '75%', height: '75%', left: '50%', top: '44%', transform: 'translate(-50%, -50%)', opacity: 0.6, position: 'absolute'}} />
@@ -642,16 +632,12 @@ const ConsoleCase = () => {
               </div>
 
               {/* Desktop Grid */}
-              <div className="hidden md:grid" style={{gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px 0px', padding: '0px', margin: '0px', width: '100%', maxWidth: '100%', overflow: 'hidden'}}>
+              <div className="hidden md:grid" style={{gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px 0px', padding: '0px', margin: '0px', width: '100%', maxWidth: '100%', overflow: 'hidden'}}>
                 {[
-                  { name: 'PS5 1TB', value: 'R$ 4.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/ps5.png', bgColor: 'rgb(255, 215, 0)' },
-                  { name: 'XBOX ONE X 1TB', value: 'R$ 4.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/xboxone.webp', bgColor: 'rgb(255, 215, 0)' },
-                  { name: 'STEAMDECK', value: 'R$ 3.000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/steamdeck.png', bgColor: 'rgb(255, 215, 0)' },
-                  { name: 'R$100,00', value: 'R$ 100,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/100reais.png', bgColor: 'rgb(255, 59, 59)' },
-                  { name: 'R$10,00', value: 'R$ 10,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/10reais.png', bgColor: 'rgb(176, 190, 197)' },
-                  { name: 'R$5,00', value: 'R$ 5,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/5reais.png', bgColor: 'rgb(176, 190, 197)' },
-                  { name: 'R$2,00', value: 'R$ 2,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/2reais.png', bgColor: 'rgb(176, 190, 197)' },
-                  { name: 'R$1,00', value: 'R$ 1,00', rarity: 'rarity-1.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/1real.png', bgColor: 'rgb(176, 190, 197)' }
+                  { name: 'PS5', value: 'R$ 5000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/ps5.png', bgColor: 'rgb(255, 215, 0)' },
+                  { name: 'Xbox One', value: 'R$ 4000,00', rarity: 'rarity-5.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/xboxone.webp', bgColor: 'rgb(255, 215, 0)' },
+                  { name: 'Steam Deck', value: 'R$ 3000,00', rarity: 'rarity-4.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/steamdeck.png', bgColor: 'rgb(255, 59, 59)' },
+                  { name: 'R$ 100,00', value: 'R$ 100,00', rarity: 'rarity-2.png', image: '/imagens/CAIXA CONSOLE DOS SONHOS/100reais.png', bgColor: 'rgb(59, 130, 246)' }
                 ].map((prize, index) => (
                   <div key={index} className="rounded-none p-0 text-center relative overflow-hidden flex flex-col items-center justify-between transition-all duration-300 group" style={{width: '100%', maxWidth: '100%', minWidth: '0px', height: '200px', minHeight: '120px', maxHeight: '250px', margin: '0px', borderRadius: '0px 0px 12px 12px', border: '2px solid rgb(14, 16, 21)', boxSizing: 'border-box', background: `linear-gradient(0deg, ${prize.bgColor}32 0%, rgb(14, 16, 21) 100%)`}}>
                     <img alt="Raridade" className="absolute inset-0 pointer-events-none" src={`/imagens/${prize.rarity}`} style={{zIndex: 1, objectFit: 'contain', width: '65%', height: '65%', left: '50%', top: '44%', transform: 'translate(-50%, -50%)', opacity: 0.6, position: 'absolute'}} />

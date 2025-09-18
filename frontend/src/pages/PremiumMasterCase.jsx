@@ -248,14 +248,23 @@ const PremiumMasterCase = () => {
                 mappedPrize.bgColor = 'rgb(176, 190, 197)';
               } else {
                 // Fallback para outros prêmios baseado no valor
-                if (apiPrize.valor >= 1000) {
+                if (apiPrize.valor >= 2000) {
+                  // Para valores altos, usar imagem de produto premium
                   mappedPrize.rarity = 'rarity-5.png';
-                  mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/10.png';
+                  mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/macbook.png';
                   mappedPrize.bgColor = 'rgb(255, 215, 0)';
+                } else if (apiPrize.valor >= 1000) {
+                  mappedPrize.rarity = 'rarity-5.png';
+                  mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/iphone 16 pro max.png';
+                  mappedPrize.bgColor = 'rgb(255, 215, 0)';
+                } else if (apiPrize.valor >= 500) {
+                  mappedPrize.rarity = 'rarity-4.png';
+                  mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/ipad.png';
+                  mappedPrize.bgColor = 'rgb(255, 59, 59)';
                 } else if (apiPrize.valor >= 100) {
-                  mappedPrize.rarity = 'rarity-2.png';
-                  mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/10.png';
-                  mappedPrize.bgColor = 'rgb(59, 130, 246)';
+                  mappedPrize.rarity = 'rarity-3.png';
+                  mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/airpods.png';
+                  mappedPrize.bgColor = 'rgb(162, 89, 255)';
                 } else if (apiPrize.valor >= 20) {
                   mappedPrize.rarity = 'rarity-1.png';
                   mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/20.png';

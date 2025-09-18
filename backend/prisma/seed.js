@@ -632,49 +632,13 @@ async function main() {
     }
   });
 
-  // Criar prêmios para Caixa Weekend - RTP 100%
+  // Criar prêmios para Caixa Weekend - 6 prêmios corretos
   await prisma.prize.create({
     data: {
       case_id: caixaWeekend.id,
-      nome: 'GALAXY BUDS',
-      valor: 300.00,
-      probabilidade: 0.001 // 0.1%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaWeekend.id,
-      nome: 'REDMI NOTE 13',
-      valor: 1000.00,
-      probabilidade: 0.0 // 0%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaWeekend.id,
-      nome: 'R$500,00',
-      valor: 500.00,
-      probabilidade: 0.001 // 0.1%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaWeekend.id,
-      nome: 'R$100,00',
-      valor: 100.00,
-      probabilidade: 0.02 // 2%
-    }
-  });
-
-  await prisma.prize.create({
-    data: {
-      case_id: caixaWeekend.id,
-      nome: 'POWER BANK',
-      valor: 50.00,
-      probabilidade: 0.05 // 5%
+      nome: 'R$1,00',
+      valor: 1.00,
+      probabilidade: 0.40 // 40%
     }
   });
 
@@ -683,16 +647,43 @@ async function main() {
       case_id: caixaWeekend.id,
       nome: 'R$2,00',
       valor: 2.00,
-      probabilidade: 0.20 // 20%
+      probabilidade: 0.30 // 30%
     }
   });
 
   await prisma.prize.create({
     data: {
       case_id: caixaWeekend.id,
-      nome: 'R$1,00',
-      valor: 1.00,
-      probabilidade: 0.73 // 73%
+      nome: 'R$5,00',
+      valor: 5.00,
+      probabilidade: 0.15 // 15%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaWeekend.id,
+      nome: 'R$10,00',
+      valor: 10.00,
+      probabilidade: 0.10 // 10%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaWeekend.id,
+      nome: 'R$100,00',
+      valor: 100.00,
+      probabilidade: 0.04 // 4%
+    }
+  });
+
+  await prisma.prize.create({
+    data: {
+      case_id: caixaWeekend.id,
+      nome: 'R$500,00',
+      valor: 500.00,
+      probabilidade: 0.01 // 1%
     }
   });
 

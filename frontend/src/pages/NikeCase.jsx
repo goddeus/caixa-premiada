@@ -193,7 +193,24 @@ const NikeCase = () => {
               mappedPrize.bgColor = 'rgb(176, 190, 197)';
             } else {
               // Fallback para outros prêmios baseado no valor
-              if (apiPrize.valor >= 10) {
+              if (apiPrize.valor >= 1000) {
+                // Para valores altos, usar imagem de produto premium
+                mappedPrize.image = '/imagens/CAIXA KIT NIKE/jordan.png';
+                mappedPrize.rarity = 'rarity-5.png';
+                mappedPrize.bgColor = 'rgb(255, 215, 0)';
+              } else if (apiPrize.valor >= 500) {
+                mappedPrize.image = '/imagens/CAIXA KIT NIKE/airforce.webp';
+                mappedPrize.rarity = 'rarity-4.png';
+                mappedPrize.bgColor = 'rgb(255, 59, 59)';
+              } else if (apiPrize.valor >= 100) {
+                mappedPrize.image = '/imagens/CAIXA KIT NIKE/camisa nike.webp';
+                mappedPrize.rarity = 'rarity-3.png';
+                mappedPrize.bgColor = 'rgb(162, 89, 255)';
+              } else if (apiPrize.valor >= 50) {
+                mappedPrize.image = '/imagens/CAIXA KIT NIKE/boné nike.png';
+                mappedPrize.rarity = 'rarity-2.png';
+                mappedPrize.bgColor = 'rgb(59, 130, 246)';
+              } else if (apiPrize.valor >= 10) {
                 mappedPrize.image = '/imagens/CAIXA KIT NIKE/10.png';
               } else if (apiPrize.valor >= 5) {
                 mappedPrize.image = '/imagens/CAIXA KIT NIKE/5.png';

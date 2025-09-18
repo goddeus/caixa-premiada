@@ -12,12 +12,12 @@ class CasesController {
         preco: 1.5,
         ativo: true,
         prizes: [
-          { id: '1', nome: 'R$ 0,50', valor: 0.5, probabilidade: 0.3 },
-          { id: '2', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.2 },
-          { id: '3', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.1 },
-          { id: '4', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.05 },
-          { id: '5', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.02 },
-          { id: '6', nome: 'Nada', valor: 0, probabilidade: 0.33 }
+          { id: 'weekend_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.40 },
+          { id: 'weekend_2', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.30 },
+          { id: 'weekend_3', nome: 'R$ 5,00', valor: 5.0, probabilidade: 0.15 },
+          { id: 'weekend_4', nome: 'R$ 10,00', valor: 10.0, probabilidade: 0.10 },
+          { id: 'weekend_5', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.04 },
+          { id: 'weekend_6', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.01 }
         ]
       },
       '0b5e9b8a-9d56-4769-a45a-55a3025640f4': {
@@ -142,12 +142,9 @@ class CasesController {
     
     const demoPrizes = {
       '1abd77cf-472b-473d-9af0-6cd47f9f1452': [ // CAIXA WEEKEND (R$1,50)
-        { id: 'weekend_demo_1', nome: 'R$ 50,00', valor: 50.0, probabilidade: 0.3 },
-        { id: 'weekend_demo_2', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.2 },
-        { id: 'weekend_demo_3', nome: 'R$ 200,00', valor: 200.0, probabilidade: 0.1 },
-        { id: 'weekend_demo_4', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.05 },
-        { id: 'weekend_demo_5', nome: 'R$ 1000,00', valor: 1000.0, probabilidade: 0.02 },
-        { id: 'weekend_demo_6', nome: 'Nada', valor: 0, probabilidade: 0.33 }
+        { id: 'weekend_demo_1', nome: 'R$ 100,00', valor: 100.0, probabilidade: 0.3 },
+        { id: 'weekend_demo_2', nome: 'R$ 500,00', valor: 500.0, probabilidade: 0.2 },
+        { id: 'weekend_demo_3', nome: 'Nada', valor: 0, probabilidade: 0.5 }
       ],
       '0b5e9b8a-9d56-4769-a45a-55a3025640f4': [ // CAIXA NIKE (R$2,50)
         { id: 'nike_demo_1', nome: 'R$ 50,00', valor: 50.0, probabilidade: 0.25 },
@@ -225,7 +222,8 @@ class CasesController {
     
     const controlledPrizes = {
       '1abd77cf-472b-473d-9af0-6cd47f9f1452': [ // CAIXA WEEKEND (R$1,50)
-        { id: 'weekend_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 1.0 }
+        { id: 'weekend_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.6 },
+        { id: 'weekend_2', nome: 'R$ 2,00', valor: 2.0, probabilidade: 0.4 }
       ],
       '0b5e9b8a-9d56-4769-a45a-55a3025640f4': [ // CAIXA NIKE (R$2,50)
         { id: 'nike_1', nome: 'R$ 1,00', valor: 1.0, probabilidade: 0.6 },

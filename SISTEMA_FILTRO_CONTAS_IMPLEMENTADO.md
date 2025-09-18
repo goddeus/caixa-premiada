@@ -113,3 +113,4 @@ Resultado: Usuário pode ganhar apenas prêmios altos
 ✅ **SISTEMA IMPLEMENTADO E FUNCIONANDO**
 
 O sistema está pronto para uso e funcionará automaticamente baseado no tipo de conta do usuário.
+

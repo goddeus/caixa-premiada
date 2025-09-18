@@ -98,3 +98,4 @@ O sistema agora usa um **sorteio simples e direto** baseado nas probabilidades c
 🎉 **SISTEMA RTP COMPLETAMENTE REMOVIDO**
 
 O projeto agora opera com um sistema de sorteio ético, transparente e baseado em probabilidades fixas, sem manipulação psicológica ou RTP dinâmico.
+
