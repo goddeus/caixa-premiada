@@ -31,6 +31,9 @@ const depositRoutes = require('./routes/depositRoutes');
 const withdrawRoutes = require('./routes/withdrawRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
 
+// Rotas de correção
+const fixRoutes = require('./routes/fixRoutes');
+
 
 const app = express();
 
@@ -1697,6 +1700,9 @@ app.use('/api/deposit', depositRoutes);
 app.use('/api/withdraw', withdrawRoutes);
 app.use('/api/webhook', webhookRoutes);
 
+// Rotas de correção
+app.use('/api/fix', fixRoutes);
+
 
 // Servir arquivos estáticos do frontend (para produção)
 // CORREÇÃO: Backend não deve servir frontend em produção
@@ -1753,13 +1759,28 @@ const server = app.listen(PORT, async () => {
   }
   
   // Executar correção automática do depósito pendente
-  try {
-    console.log('\n🔧 Iniciando correção automática do depósito...');
-    const { autoFixDeposit } = require('./scripts/autoFixDeposit');
-    await autoFixDeposit();
-  } catch (error) {
-    console.error('❌ Erro na correção automática:', error.message);
-  }
+  setTimeout(async () => {
+    try {
+      console.log('\n🔧 Iniciando correção automática do depósito...');
+      const { autoFixDeposit } = require('./scripts/autoFixDeposit');
+      await autoFixDeposit();
+    } catch (error) {
+      console.error('❌ Erro na correção automática:', error.message);
+      console.error('⚠️  Servidor continuará funcionando normalmente');
+    }
+  }, 5000); // Aguardar 5 segundos após inicialização
+  
+  // Executar correção forçada completa
+  setTimeout(async () => {
+    try {
+      console.log('\n🔧 Iniciando correção forçada completa...');
+      const { forceFixAll } = require('./scripts/forceFixAll');
+      await forceFixAll();
+    } catch (error) {
+      console.error('❌ Erro na correção forçada:', error.message);
+      console.error('⚠️  Servidor continuará funcionando normalmente');
+    }
+  }, 10000); // Aguardar 10 segundos após inicialização
   
   // Keep-alive para Render Free Tier
   if (config.nodeEnv === 'production') {
