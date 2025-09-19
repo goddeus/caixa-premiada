@@ -122,3 +122,4 @@ export const useThrottledClick = (callback, delay = 100) => {
 };
 
 export default useOptimizedClick;
+

@@ -155,3 +155,4 @@ export const useAnimationOptimized = () => {
 };
 
 export default usePerformanceOptimized;
+

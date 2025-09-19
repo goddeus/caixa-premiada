@@ -14,6 +14,7 @@ const WeekendCase = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, login, refreshUserData, getUserBalance } = useAuth();
   const { isLocked, executeWithLock } = useDoubleClickPrevention(3000); // 3 segundos de cooldown
+  const { playAudio, stopAllAudio, cleanup: audioCleanup } = useAudioOptimized();
   const [isSimulating, setIsSimulating] = useState(false);
   const [showSimulation, setShowSimulation] = useState(false);
   const [showResult, setShowResult] = useState(false);

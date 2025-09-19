@@ -96,3 +96,4 @@ Foi realizada uma auditoria completa nas páginas das caixas e componentes do fr
 
 Todas as referências ao sistema RTP antigo foram removidas do frontend. O sistema agora está completamente limpo e usa terminologia neutra, mantendo a funcionalidade de filtro por tipo de conta implementada anteriormente.
 
+
