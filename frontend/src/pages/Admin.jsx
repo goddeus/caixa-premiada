@@ -14,9 +14,7 @@ import {
   FaFileAlt,
   FaBars,
   FaTimes,
-  FaSignOutAlt,
-  FaChartBar,
-  FaGift
+  FaSignOutAlt
 } from 'react-icons/fa';
 
 // Componentes das páginas
@@ -28,10 +26,6 @@ import FinancialManagement from '../components/admin/FinancialManagement';
 import BannerManagement from '../components/admin/BannerManagement';
 import HistoryLogs from '../components/admin/HistoryLogs';
 import SystemSettings from '../components/admin/SystemSettings';
-import PrizeValidation from '../components/admin/PrizeValidation';
-import PrizeManagement from '../components/admin/PrizeManagement';
-import CasePrizeManagement from '../components/admin/CasePrizeManagement';
-import GatewayConfig from '../components/admin/GatewayConfig';
 
 const Admin = () => {
   const { user, logout } = useAuth();
@@ -45,10 +39,6 @@ const Admin = () => {
     { id: 'users', label: 'Usuários', icon: FaUsers },
     { id: 'affiliates', label: 'Afiliados', icon: FaUserFriends },
     { id: 'financial', label: 'Financeiro', icon: FaCreditCard },
-    { id: 'gateway-config', label: 'Gateways de Pagamento', icon: FaCreditCard },
-    { id: 'prize-management', label: 'Gerenciamento de Prêmios', icon: FaGift },
-    { id: 'case-prize-management', label: 'Prêmios por Caixa', icon: FaGift },
-    { id: 'prize-validation', label: 'Validação de Prêmios', icon: FaChartBar },
     { id: 'banners', label: 'Banners', icon: FaImage },
     { id: 'history', label: 'Histórico', icon: FaHistory },
     { id: 'settings', label: 'Configurações', icon: FaCog },
@@ -80,14 +70,6 @@ const Admin = () => {
         return <AffiliateManagement />;
       case 'financial':
         return <FinancialManagement />;
-      case 'gateway-config':
-        return <GatewayConfig />;
-      case 'prize-management':
-        return <PrizeManagement />;
-      case 'case-prize-management':
-        return <CasePrizeManagement />;
-      case 'prize-validation':
-        return <PrizeValidation />;
       case 'banners':
         return <BannerManagement />;
       case 'history':

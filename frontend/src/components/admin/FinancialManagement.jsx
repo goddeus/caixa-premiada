@@ -22,8 +22,8 @@ const FinancialManagement = () => {
       setLoading(true);
       // Buscar depósitos da nova tabela deposits (VizzionPay)
       const response = await api.get('/admin/deposits');
-      if (response.success && response.data) {
-        setDeposits(response.data.deposits || []);
+      if (response.data.success && response.data.data) {
+        setDeposits(response.data.data.deposits || []);
       } else {
         setDeposits([]);
         toast.error('Erro ao carregar dados dos depósitos');
@@ -40,8 +40,8 @@ const FinancialManagement = () => {
     try {
       setLoading(true);
       const response = await api.get('/admin/withdrawals');
-      if (response.success && response.data) {
-        setWithdrawals(response.data.withdrawals || []);
+      if (response.data.success && response.data.data) {
+        setWithdrawals(response.data.data.withdrawals || []);
       } else {
         setWithdrawals([]);
         toast.error('Erro ao carregar dados dos saques');
