@@ -32,14 +32,14 @@ const TopNavbar = () => {
             <div className="relative group">
               <button className="flex items-center space-x-2 text-white hover:text-gray-300 transition-colors">
                 <FaUser />
-                <span className="hidden sm:block">{user?.nome}</span>
+                <span className="hidden sm:block">{user?.username || user?.nome}</span>
               </button>
               
               {/* Dropdown Menu */}
               <div className="absolute right-0 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                 <div className="py-2">
                   <div className="px-4 py-2 text-sm text-gray-300 border-b border-slate-700">
-                    <div className="font-medium">{user?.nome}</div>
+                    <div className="font-medium">{user?.username || user?.nome}</div>
                     <div className="text-gray-400">{user?.email}</div>
                   </div>
                   <button

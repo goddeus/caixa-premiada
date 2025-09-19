@@ -15,8 +15,10 @@ class ProfileController {
           select: {
             id: true,
             nome: true,
+            username: true,
             email: true,
             cpf: true,
+            telefone: true,
             criado_em: true,
             saldo_reais: true,
             saldo_demo: true,
@@ -36,8 +38,10 @@ class ProfileController {
         user = {
           id: userId,
           nome: 'Usuário',
+          username: 'usuario',
           email: 'user@example.com',
           cpf: '00000000000',
+          telefone: '',
           criado_em: new Date(),
           saldo_reais: 1000.00,
           saldo_demo: 1000.00,
@@ -113,7 +117,7 @@ class ProfileController {
       const totalRetirado = withdrawals._sum.valor || 0;
       const totalGastoEmJogos = gameTransactions.reduce((sum, t) => sum + parseFloat(t.valor), 0);
       const totalGanhoEmPremios = prizes._sum.valor || 0;
-      const ganhoCashback = totalGanhoEmPremios - totalGastoEmJogos;
+      const totalJogos = gameTransactions.length;
 
       // Determinar saldo correto baseado no tipo de conta
       const saldoAtual = user.tipo_conta === 'afiliado_demo' ? user.saldo_demo : user.saldo_reais;
@@ -122,13 +126,13 @@ class ProfileController {
         success: true,
         data: {
           email: user.email,
-          username: user.nome,
-          telefone: '', // Campo não existe no schema atual
+          username: user.username || user.nome, // Usar username se disponível, senão nome
+          telefone: user.telefone || '',
           documento: user.cpf,
           dataEntrada: user.criado_em,
           totalDepositado,
           totalRetirado,
-          ganhoCashback: Math.max(0, ganhoCashback), // Não pode ser negativo
+          totalJogos,
           saldoAtual: saldoAtual,
           tipoConta: user.tipo_conta
         }
@@ -146,7 +150,7 @@ class ProfileController {
       const updateData = req.body;
 
       // Campos permitidos para atualização
-      const allowedFields = ['nome', 'email', 'cpf'];
+      const allowedFields = ['nome', 'username', 'email', 'cpf', 'telefone'];
       const filteredData = {};
 
       for (const field of allowedFields) {
@@ -166,8 +170,10 @@ class ProfileController {
         select: {
           id: true,
           nome: true,
+          username: true,
           email: true,
           cpf: true,
+          telefone: true,
           criado_em: true
         }
       });

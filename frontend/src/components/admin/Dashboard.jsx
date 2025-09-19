@@ -307,7 +307,7 @@ const Dashboard = () => {
               <tbody>
                 {stats.recent_transactions.slice(0, 5).map((transaction) => (
                   <tr key={transaction.id} className="border-b border-gray-700">
-                    <td className="py-2 text-white">{transaction.user?.nome}</td>
+                    <td className="py-2 text-white">{transaction.user?.username || transaction.user?.nome}</td>
                     <td className="py-2 text-gray-300">{transaction.tipo}</td>
                     <td className="py-2 text-white">{formatCurrency(transaction.valor)}</td>
                     <td className="py-2">

@@ -45,7 +45,8 @@ class TransactionsController {
       const total = await prisma.transaction.count({ where });
       
       res.json({
-        transactions,
+        success: true,
+        data: transactions,
         pagination: {
           page: parseInt(page),
           limit: parseInt(limit),

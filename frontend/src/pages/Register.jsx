@@ -7,10 +7,12 @@ import { toast } from 'react-toastify';
 const Register = () => {
   const [formData, setFormData] = useState({
     nome: '',
+    username: '',
     email: '',
     senha: '',
     confirmarSenha: '',
-    cpf: ''
+    cpf: '',
+    telefone: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -64,6 +66,20 @@ const Register = () => {
     return true;
   };
 
+  // Validação de telefone
+  const validateTelefone = (telefone) => {
+    const cleanTelefone = telefone.replace(/\D/g, '');
+    // Aceitar telefones com 10 ou 11 dígitos (com ou sem DDD)
+    return cleanTelefone.length >= 10 && cleanTelefone.length <= 11;
+  };
+
+  // Validação de username
+  const validateUsername = (username) => {
+    if (!username) return true; // Username é opcional
+    // Username deve ter entre 3 e 20 caracteres, apenas letras, números e underscore
+    return /^[a-zA-Z0-9_]{3,20}$/.test(username);
+  };
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -72,6 +88,11 @@ const Register = () => {
       newErrors.nome = 'Nome é obrigatório';
     } else if (formData.nome.trim().length < 2) {
       newErrors.nome = 'Nome deve ter pelo menos 2 caracteres';
+    }
+
+    // Validar username (opcional)
+    if (formData.username && !validateUsername(formData.username)) {
+      newErrors.username = 'Username deve ter entre 3 e 20 caracteres (apenas letras, números e _)';
     }
 
     // Validar email
@@ -86,6 +107,11 @@ const Register = () => {
       newErrors.cpf = 'CPF é obrigatório';
     } else if (!validateCPF(formData.cpf)) {
       newErrors.cpf = 'CPF deve ser válido';
+    }
+
+    // Validar telefone (opcional)
+    if (formData.telefone && !validateTelefone(formData.telefone)) {
+      newErrors.telefone = 'Telefone deve ter 10 ou 11 dígitos';
     }
 
     // Validar senha
@@ -120,9 +146,11 @@ const Register = () => {
     try {
       const userData = {
         nome: formData.nome.trim(),
+        username: formData.username.trim() || null,
         email: formData.email.trim().toLowerCase(),
         senha: formData.senha,
         cpf: formData.cpf.replace(/\D/g, ''), // Remove non-digits
+        telefone: formData.telefone.replace(/\D/g, '') || null, // Remove non-digits
         referralCode: referralCode
       };
 
@@ -189,6 +217,24 @@ const Register = () => {
               </div>
 
               <div className="space-y-2">
+                <label className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white font-medium" htmlFor="username">
+                  Username (Opcional)
+                </label>
+                <input 
+                  className={`flex h-10 w-full rounded-md border px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-[#0E1015] text-white placeholder:text-gray-400 focus:ring-yellow-500/20 ${
+                    errors.username ? 'border-red-500 focus:border-red-500' : 'border-gray-600 focus:border-yellow-500'
+                  }`}
+                  id="username" 
+                  name="username"
+                  placeholder="Digite seu username" 
+                  type="text" 
+                  value={formData.username}
+                  onChange={handleChange}
+                />
+                {errors.username && <p className="text-red-400 text-sm">{errors.username}</p>}
+              </div>
+
+              <div className="space-y-2">
                 <label className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white font-medium" htmlFor="email">
                   Email
                 </label>
@@ -225,6 +271,24 @@ const Register = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, cpf: formatCPF(e.target.value) }))}
                 />
                 {errors.cpf && <p className="text-red-400 text-sm">{errors.cpf}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white font-medium" htmlFor="telefone">
+                  Telefone (Opcional)
+                </label>
+                <input 
+                  className={`flex h-10 w-full rounded-md border px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-[#0E1015] text-white placeholder:text-gray-400 focus:ring-yellow-500/20 ${
+                    errors.telefone ? 'border-red-500 focus:border-red-500' : 'border-gray-600 focus:border-yellow-500'
+                  }`}
+                  id="telefone" 
+                  name="telefone"
+                  placeholder="(11) 99999-9999" 
+                  type="text" 
+                  value={formData.telefone}
+                  onChange={handleChange}
+                />
+                {errors.telefone && <p className="text-red-400 text-sm">{errors.telefone}</p>}
               </div>
               
               <div className="space-y-2">

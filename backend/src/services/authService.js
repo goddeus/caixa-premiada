@@ -36,8 +36,10 @@ class AuthService {
     // Sanitizar dados
     const sanitizedData = {
       nome: sanitizeString(userData.nome),
+      username: userData.username ? sanitizeString(userData.username) : null,
       email: userData.email.toLowerCase().trim(),
       cpf: userData.cpf.replace(/\D/g, ''), // Remove caracteres não numéricos
+      telefone: userData.telefone ? userData.telefone.replace(/\D/g, '') : null,
       senha: userData.senha
     };
 
@@ -68,16 +70,20 @@ class AuthService {
     const user = await prisma.user.create({
       data: {
         nome: sanitizedData.nome,
+        username: sanitizedData.username,
         email: sanitizedData.email,
         cpf: sanitizedData.cpf,
+        telefone: sanitizedData.telefone,
         senha_hash,
         codigo_indicacao_usado: userData.codigo_indicacao_usado || null
       },
       select: {
         id: true,
         nome: true,
+        username: true,
         email: true,
         cpf: true,
+        telefone: true,
         saldo_reais: true,
         saldo_demo: true,
         tipo_conta: true,
@@ -163,8 +169,10 @@ class AuthService {
         select: {
           id: true,
           nome: true,
+          username: true,
           email: true,
           cpf: true,
+          telefone: true,
           saldo_reais: true,
           saldo_demo: true,
           tipo_conta: true,
@@ -198,8 +206,10 @@ class AuthService {
       user = {
         id: userId,
         nome: 'Usuário',
+        username: 'usuario',
         email: 'user@example.com',
         cpf: '00000000000',
+        telefone: null,
         saldo_reais: 1000.00,
         saldo_demo: 1000.00,
         tipo_conta: 'normal',

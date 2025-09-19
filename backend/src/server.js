@@ -5,6 +5,75 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const config = require('./config/index');
 
+// Função para executar migração automática do banco de dados
+async function runDatabaseMigration() {
+  try {
+    const { PrismaClient } = require('@prisma/client');
+    const prisma = new PrismaClient();
+    
+    console.log('🔍 Verificando se migração é necessária...');
+    
+    // Verificar se as colunas já existem
+    const checkColumnsQuery = `
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'User' 
+      AND column_name IN ('username', 'telefone')
+    `;
+    
+    const existingColumns = await prisma.$queryRawUnsafe(checkColumnsQuery);
+    const existingColumnNames = existingColumns.map(col => col.column_name);
+    
+    console.log('📋 Colunas existentes:', existingColumnNames);
+    
+    const needsMigration = !existingColumnNames.includes('username') || !existingColumnNames.includes('telefone');
+    
+    if (needsMigration) {
+      console.log('🔄 Executando migração...');
+      
+      // Adicionar coluna username se não existir
+      if (!existingColumnNames.includes('username')) {
+        console.log('➕ Adicionando coluna username...');
+        await prisma.$executeRawUnsafe('ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "username" TEXT;');
+        
+        // Atualizar usuários existentes para ter username baseado no nome
+        await prisma.$executeRawUnsafe(`
+          UPDATE "User" 
+          SET "username" = LOWER(REPLACE("nome", ' ', '_')) 
+          WHERE "username" IS NULL;
+        `);
+        
+        console.log('✅ Coluna username adicionada e populada');
+      }
+      
+      // Adicionar coluna telefone se não existir
+      if (!existingColumnNames.includes('telefone')) {
+        console.log('➕ Adicionando coluna telefone...');
+        await prisma.$executeRawUnsafe('ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "telefone" TEXT;');
+        console.log('✅ Coluna telefone adicionada');
+      }
+      
+      // Criar índice para username (opcional, para melhor performance)
+      try {
+        await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS "User_username_idx" ON "User"("username");');
+        console.log('✅ Índice para username criado');
+      } catch (indexError) {
+        console.log('⚠️  Índice já existe ou erro ao criar:', indexError.message);
+      }
+      
+      console.log('🎉 Migração concluída com sucesso!');
+    } else {
+      console.log('✅ Migração não necessária - colunas já existem');
+    }
+    
+    await prisma.$disconnect();
+    
+  } catch (error) {
+    console.error('❌ Erro na migração:', error);
+    throw error;
+  }
+}
+
 // Importar rotas
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
@@ -164,11 +233,15 @@ app.post('/api/auth/login', async (req, res) => {
       user: {
         id: user.id,
         nome: user.nome,
+        username: user.username,
         email: user.email,
+        cpf: user.cpf,
+        telefone: user.telefone,
         is_admin: user.is_admin,
         saldo_reais: user.saldo_reais,
         saldo_demo: user.saldo_demo,
-        tipo_conta: user.tipo_conta
+        tipo_conta: user.tipo_conta,
+        criado_em: user.criado_em
       }
     });
 
@@ -232,9 +305,11 @@ app.post('/api/auth/register', async (req, res) => {
     const novoUsuario = await prisma.user.create({
       data: {
         nome,
+        username: null, // Será preenchido automaticamente se necessário
         email,
         senha_hash: senhaHash,
         cpf,
+        telefone: null, // Campo opcional
         codigo_indicacao_usado: codigo_indicacao || null,
         saldo_reais: 0,
         saldo_demo: 0,
@@ -271,11 +346,15 @@ app.post('/api/auth/register', async (req, res) => {
       user: {
         id: novoUsuario.id,
         nome: novoUsuario.nome,
+        username: novoUsuario.username,
         email: novoUsuario.email,
+        cpf: novoUsuario.cpf,
+        telefone: novoUsuario.telefone,
         is_admin: false,
         saldo_reais: 0,
         saldo_demo: 0,
-        tipo_conta: 'normal'
+        tipo_conta: 'normal',
+        criado_em: novoUsuario.criado_em
       }
     });
 
@@ -1178,8 +1257,10 @@ app.get('/api/profile', authenticateToken, async (req, res) => {
       select: {
         id: true,
         nome: true,
+        username: true,
         email: true,
         cpf: true,
+        telefone: true,
         saldo_reais: true,
         saldo_demo: true,
         tipo_conta: true,
@@ -1934,6 +2015,17 @@ const server = app.listen(PORT, async () => {
   if (config.nodeEnv === 'development') {
     console.log(`🔍 Health check: http://localhost:${PORT}/api/health`);
   }
+  
+  // Executar migração automática do banco de dados
+  setTimeout(async () => {
+    try {
+      console.log('\n🔄 Iniciando migração automática do banco de dados...');
+      await runDatabaseMigration();
+    } catch (error) {
+      console.error('❌ Erro na migração automática:', error.message);
+      console.error('⚠️  Servidor continuará funcionando normalmente');
+    }
+  }, 2000); // Aguardar 2 segundos após inicialização
   
   // Executar correção automática do depósito pendente
   setTimeout(async () => {

@@ -128,7 +128,7 @@ const HistoryLogs = ({ showLogs = false }) => {
                       </>
                     ) : (
                       <>
-                        <td className="py-2 text-white">{item.user?.nome}</td>
+                        <td className="py-2 text-white">{item.user?.username || item.user?.nome}</td>
                         <td className="py-2 text-gray-300">{item.ip_address}</td>
                         <td className="py-2">
                           <span className={`px-2 py-1 rounded-full text-xs ${

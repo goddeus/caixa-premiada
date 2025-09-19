@@ -71,9 +71,11 @@ class AuthController {
       const user = await prisma.user.create({
         data: {
           nome,
+          username: null, // Será preenchido automaticamente se necessário
           email: email.toLowerCase(),
           senha_hash: senhaHash,
           cpf: cpf.replace(/\D/g, ''),
+          telefone: null, // Campo opcional
           saldo_reais: 0,
           saldo_demo: 0,
           tipo_conta: 'normal',
@@ -118,12 +120,16 @@ class AuthController {
           user: {
             id: user.id,
             nome: user.nome,
+            username: user.username,
             email: user.email,
+            cpf: user.cpf,
+            telefone: user.telefone,
             saldo_reais: user.saldo_reais,
             saldo_demo: user.saldo_demo,
             tipo_conta: user.tipo_conta,
             primeiro_deposito_feito: user.primeiro_deposito_feito,
-            rollover_liberado: user.rollover_liberado
+            rollover_liberado: user.rollover_liberado,
+            criado_em: user.criado_em
           }
         }
       });
@@ -238,13 +244,17 @@ class AuthController {
           user: {
             id: user.id,
             nome: user.nome,
+            username: user.username,
             email: user.email,
+            cpf: user.cpf,
+            telefone: user.telefone,
             saldo_reais: user.saldo_reais,
             saldo_demo: user.saldo_demo,
             tipo_conta: user.tipo_conta,
             primeiro_deposito_feito: user.primeiro_deposito_feito,
             rollover_liberado: user.rollover_liberado,
-            is_admin: user.is_admin
+            is_admin: user.is_admin,
+            criado_em: user.criado_em
           }
         }
       });
@@ -269,8 +279,10 @@ class AuthController {
         select: {
           id: true,
           nome: true,
+          username: true,
           email: true,
           cpf: true,
+          telefone: true,
           saldo_reais: true,
           saldo_demo: true,
           tipo_conta: true,

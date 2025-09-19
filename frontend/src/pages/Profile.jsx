@@ -17,7 +17,7 @@ const Profile = () => {
   const [profileData, setProfileData] = useState({
     totalDepositado: 0,
     totalRetirado: 0,
-    ganhoCashback: 0,
+    totalJogos: 0,
     email: '',
     username: '',
     telefone: '',
@@ -168,7 +168,7 @@ const Profile = () => {
       setProfileData({
         totalDepositado: data.totalDepositado || 0,
         totalRetirado: data.totalRetirado || 0,
-        ganhoCashback: data.ganhoCashback || 0,
+        totalJogos: data.totalJogos || 0,
         email: data.email || user?.email || '',
         username: data.username || user?.username || '',
         telefone: data.telefone || '',
@@ -185,7 +185,7 @@ const Profile = () => {
         setProfileData({
           totalDepositado: localData.totalDepositado || 0,
           totalRetirado: localData.totalRetirado || 0,
-          ganhoCashback: localData.ganhoCashback || 0,
+          totalJogos: localData.totalJogos || 0,
           email: localData.email || user?.email || '',
           username: localData.username || user?.username || '',
           telefone: localData.telefone || '',
@@ -199,7 +199,7 @@ const Profile = () => {
         setProfileData({
           totalDepositado: 0,
           totalRetirado: 0,
-          ganhoCashback: 0,
+          totalJogos: 0,
           email: user?.email || '',
           username: user?.username || '',
           telefone: '',
@@ -521,20 +521,20 @@ const Profile = () => {
                   </div>
                 </div>
 
-                {/* Ganho em Cashback */}
+                {/* Total de Jogos */}
                 <div className="bg-gray-800 rounded-lg p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-400 text-sm mb-1">Ganho em Cashback</p>
-                      <p className="text-green-400 text-2xl font-bold">{formatCurrency(profileData.ganhoCashback)}</p>
+                      <p className="text-gray-400 text-sm mb-1">Total de Jogos</p>
+                      <p className="text-blue-400 text-2xl font-bold">{profileData.totalJogos || 0}</p>
                     </div>
-                    <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
-                        <path d="M12 1v6l3-3 3 3V1"></path>
-                        <path d="M12 23v-6l3 3 3-3v6"></path>
-                        <path d="M12 12h6"></path>
-                        <path d="M12 12H6"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
+                        <line x1="6" x2="10" y1="11" y2="11"></line>
+                        <line x1="8" x2="8" y1="9" y2="13"></line>
+                        <line x1="15" x2="15.01" y1="12" y2="12"></line>
+                        <line x1="18" x2="18.01" y1="10" y2="10"></line>
+                        <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"></path>
                       </svg>
                     </div>
                   </div>

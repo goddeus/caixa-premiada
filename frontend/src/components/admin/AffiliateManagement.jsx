@@ -95,7 +95,7 @@ const AffiliateManagement = () => {
               ) : affiliates.map((affiliate) => (
                 <tr key={affiliate.id} className="hover:bg-gray-700">
                   <td className="px-6 py-4">
-                    <div className="text-sm font-medium text-white">{affiliate.user?.nome}</div>
+                    <div className="text-sm font-medium text-white">{affiliate.user?.username || affiliate.user?.nome}</div>
                     <div className="text-sm text-gray-400">{affiliate.user?.email}</div>
                   </td>
                   <td className="px-6 py-4 text-sm text-white">{affiliate.codigo_indicacao}</td>

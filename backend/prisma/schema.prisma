@@ -18,9 +18,11 @@ datasource db {
 model User {
   id          String   @id @default(uuid())
   nome        String
+  username    String?  // Nome de usuário personalizado
   email       String   @unique
   senha_hash  String
   cpf         String   @unique
+  telefone    String?  // Telefone do usuário
   saldo_reais Float    @default(0) // Saldo em reais (separado do demo)
   codigo_indicacao_usado String? // Código usado para se cadastrar
   criado_em   DateTime @default(now())

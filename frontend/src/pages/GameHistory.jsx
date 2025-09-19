@@ -15,7 +15,7 @@ const GameHistory = () => {
     try {
       setLoading(true);
       const response = await api.get('/profile/game-history');
-      setGameHistory(response.data.data); // A resposta agora vem em data.data
+      setGameHistory(response.data.data || []); // A resposta agora vem em data.data
     } catch (error) {
       console.error('Erro ao buscar histórico de jogos:', error);
       // Dados mock para demonstração

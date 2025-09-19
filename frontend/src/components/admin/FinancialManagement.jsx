@@ -121,7 +121,7 @@ const FinancialManagement = () => {
                     <tr><td colSpan="5" className="py-8 text-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div></td></tr>
                   ) : deposits.map((deposit) => (
                     <tr key={deposit.id} className="border-b border-gray-700">
-                      <td className="py-2 text-white">{deposit.user?.nome}</td>
+                      <td className="py-2 text-white">{deposit.user?.username || deposit.user?.nome}</td>
                       <td className="py-2 text-green-400 font-semibold">{formatCurrency(deposit.amount)}</td>
                       <td className="py-2 text-gray-300">PIX</td>
                       <td className="py-2">
@@ -159,7 +159,7 @@ const FinancialManagement = () => {
                     <tr><td colSpan="6" className="py-8 text-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div></td></tr>
                   ) : withdrawals.map((withdrawal) => (
                     <tr key={withdrawal.id} className="border-b border-gray-700">
-                      <td className="py-2 text-white">{withdrawal.user?.nome}</td>
+                      <td className="py-2 text-white">{withdrawal.user?.username || withdrawal.user?.nome}</td>
                       <td className="py-2 text-red-400 font-semibold">{formatCurrency(withdrawal.amount)}</td>
                       <td className="py-2 text-gray-300">{withdrawal.pix_key}</td>
                       <td className="py-2">

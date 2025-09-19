@@ -25,9 +25,6 @@ const Dashboard = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const [showAffiliateModal, setShowAffiliateModal] = useState(false);
-  const [affiliateData, setAffiliateData] = useState(null);
-  const [affiliateLoading, setAffiliateLoading] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [registerData, setRegisterData] = useState({ 
     nome: '', 
@@ -202,35 +199,10 @@ const Dashboard = () => {
       return;
     }
 
-    setAffiliateLoading(true);
-    try {
-      console.log('[DEBUG] Buscando dados do afiliado...');
-      const response = await api.get('/affiliate/me');
-      console.log('[DEBUG] Resposta do afiliado:', response);
-      
-      if (response.success) {
-        setAffiliateData(response.data);
-        setShowAffiliateModal(true);
-      } else {
-        throw new Error(response.message || 'Erro ao carregar dados do afiliado');
-      }
-    } catch (error) {
-      console.error('[DEBUG] Erro ao buscar dados do afiliado:', error);
-      toast.error('Erro ao carregar dados do afiliado');
-    } finally {
-      setAffiliateLoading(false);
-    }
+    // Redirecionar para a página de afiliados
+    navigate('/affiliates');
   };
 
-  const copyAffiliateLink = async () => {
-    try {
-      await navigator.clipboard.writeText(affiliateData.link);
-      toast.success('Link copiado para a área de transferência!');
-    } catch (error) {
-      console.error('Erro ao copiar link:', error);
-      toast.error('Erro ao copiar link');
-    }
-  };
 
   const handleDepositAmountChange = (e) => {
     let value = e.target.value.replace(/[^0-9,]/g, '');
@@ -794,7 +766,7 @@ const Dashboard = () => {
                       <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
                       <circle cx="12" cy="7" r="4"></circle>
                     </svg>
-                    {user?.username || 'Usuário'}
+                    {user?.username || user?.nome || 'Usuário'}
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-2">
                       <path d="m6 9 6 6 6-6"/>
                     </svg>
@@ -901,7 +873,7 @@ const Dashboard = () => {
                       <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
                       <circle cx="12" cy="7" r="4"></circle>
                     </svg>
-                    {user?.username || 'Usuário'}
+                    {user?.username || user?.nome || 'Usuário'}
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1">
                       <path d="m6 9 6 6 6-6"/>
                     </svg>
@@ -1098,7 +1070,7 @@ const Dashboard = () => {
             </button>
             <span className="text-xs font-semibold mt-1 text-white">Depósito</span>
           </div>
-          <button className="flex flex-col items-center justify-center flex-1 text-gray-400 hover:text-yellow-400 transition-colors" style={{minWidth:'0'}} onClick={handleAffiliateClick} disabled={affiliateLoading}>
+          <button className="flex flex-col items-center justify-center flex-1 text-gray-400 hover:text-yellow-400 transition-colors" style={{minWidth:'0'}} onClick={handleAffiliateClick}>
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-users w-5 h-5 mb-1">
               <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
               <circle cx="9" cy="7" r="4"></circle>
@@ -1444,142 +1416,6 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Modal de Afiliados */}
-      {showAffiliateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-          <div className="bg-gradient-to-t from-purple-500 from-[-60%] via-[5%] to-100% via-slate-900 to-slate-900 animate-in fade-in-0 zoom-in-95 w-full max-w-md mx-auto rounded-lg border shadow-lg duration-200 outline-none overflow-auto max-h-[90vh]">
-            <div className="p-4">
-              {/* Header */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
-                    <span className="text-white text-lg">💎</span>
-                  </div>
-                  <h1 className="text-xl font-medium text-white">Indique e Ganhe</h1>
-                </div>
-                <button 
-                  type="button" 
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-black/20 text-white hover:bg-black/40 transition-colors"
-                  onClick={() => setShowAffiliateModal(false)}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 6 6 18"></path>
-                    <path d="m6 6 12 12"></path>
-                  </svg>
-                </button>
-              </div>
-              
-              {affiliateData ? (
-                <div className="space-y-4">
-                  {/* Texto explicativo */}
-                  <div className="bg-gradient-to-r from-purple-500/20 to-purple-600/20 rounded-lg p-4 border border-purple-500/30">
-                    <p className="text-white text-sm leading-relaxed">
-                      Convide amigos e ganhe <span className="font-bold text-yellow-400">R$10,00</span> por cada indicado que se cadastrar e realizar o depósito mínimo de <span className="font-bold text-yellow-400">R$20,00</span>.
-                    </p>
-                  </div>
-
-                  {/* Link de indicação */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-300">Seu link único:</label>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="text"
-                        value={affiliateData.link}
-                        readOnly
-                        className="flex-1 px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white text-sm font-mono"
-                      />
-                      <button
-                        onClick={copyAffiliateLink}
-                        className="px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors flex items-center gap-1"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
-                          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
-                        </svg>
-                        Copiar
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Estatísticas */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-700">
-                      <div className="text-yellow-400 font-bold text-lg">R$ {affiliateData.ganhos?.toFixed(2) || '0.00'}</div>
-                      <div className="text-gray-400 text-xs">Ganhos Totais</div>
-                    </div>
-                    <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-700">
-                      <div className="text-green-400 font-bold text-lg">{affiliateData.total_indicados || 0}</div>
-                      <div className="text-gray-400 text-xs">Indicados</div>
-                    </div>
-                  </div>
-
-                  {/* Lista de Usuários Indicados */}
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
-                    <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                      <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                      </svg>
-                      Usuários Indicados
-                    </h3>
-                    
-                    {affiliateData.referrals && affiliateData.referrals.length > 0 ? (
-                      <div className="space-y-2 max-h-48 overflow-y-auto">
-                        {affiliateData.referrals.map((referral, index) => (
-                          <div key={index} className="flex items-center justify-between bg-slate-700/50 rounded-lg p-3 border border-slate-600">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
-                                <span className="text-white text-xs font-bold">
-                                  {referral.user_id ? referral.user_id.substring(0, 4).toUpperCase() : 'N/A'}
-                                </span>
-                              </div>
-                              <div>
-                                <div className="text-white text-sm font-medium">
-                                  ID: {referral.user_id ? referral.user_id.substring(0, 8) + '...' : 'N/A'}
-                                </div>
-                                <div className="text-gray-400 text-xs">
-                                  {referral.created_at ? new Date(referral.created_at).toLocaleDateString('pt-BR') : 'Data não disponível'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              {referral.deposit_amount && referral.deposit_amount > 0 ? (
-                                <div className="text-green-400 font-bold text-sm">
-                                  R$ {referral.deposit_amount.toFixed(2)}
-                                </div>
-                              ) : (
-                                <div className="text-yellow-400 font-medium text-sm">
-                                  Aguardando depósito
-                                </div>
-                              )}
-                              {referral.commission_earned && referral.commission_earned > 0 && (
-                                <div className="text-blue-400 text-xs">
-                                  +R$ {referral.commission_earned.toFixed(2)} comissão
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-6">
-                        <svg className="w-12 h-12 text-gray-500 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                        </svg>
-                        <p className="text-gray-400 text-sm">Nenhum usuário indicado ainda</p>
-                        <p className="text-gray-500 text-xs mt-1">Compartilhe seu link para começar a ganhar!</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Modal de Registro */}
       {showRegisterModal && (

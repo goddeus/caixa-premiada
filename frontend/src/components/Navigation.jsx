@@ -36,7 +36,7 @@ export function Navigation() {
               {isAuthenticated ? (
                 <>
                   <span className="text-sm text-gray-600">
-                    Olá, {user?.nome?.split(' ')[0]}!
+                    Olá, {(user?.username || user?.nome)?.split(' ')[0]}!
                   </span>
                   <span className="text-sm font-medium text-primary-600">
                     R$ {getUserBalance().toFixed(2)}
