@@ -25,6 +25,7 @@ router.get('/deposits', (req, res) => adminController.getDeposits(req, res));
 
 // Financeiro - Saques
 router.get('/withdrawals', (req, res) => adminController.getWithdrawals(req, res));
+router.get('/withdrawals/stats', (req, res) => adminController.getWithdrawalStats(req, res));
 router.put('/withdrawals/:withdrawalId/status', (req, res) => adminController.updateWithdrawalStatus(req, res));
 
 // Afiliados

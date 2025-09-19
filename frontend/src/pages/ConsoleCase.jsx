@@ -24,7 +24,7 @@ const ConsoleCase = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
   const [currentConsoleCase, setCurrentConsoleCase] = useState(null);
-  const [quantity, setQuantity] = useState(1);
+  // Removido: sistema de múltiplas compras
   const [wonPrizes, setWonPrizes] = useState([]);
   const [currentPrizeIndex, setCurrentPrizeIndex] = useState(0);
   const [isShowingPrizes, setIsShowingPrizes] = useState(false);
@@ -33,9 +33,7 @@ const ConsoleCase = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  const handleQuantityChange = (change) => {
-    setQuantity(prev => Math.max(1, prev + change));
-  };
+  // Removido: handleQuantityChange - não há mais múltiplas compras
 
 
   const handleLogin = async (e) => {
@@ -114,7 +112,7 @@ const ConsoleCase = () => {
     console.log('- isAuthenticated:', isAuthenticated);
     console.log('- user:', user);
     console.log('- token:', localStorage.getItem('token'));
-    console.log('- quantity:', quantity);
+    // Removido: quantity
     
     if (!isAuthenticated) {
       console.log('❌ Usuário não autenticado');
@@ -149,11 +147,11 @@ const ConsoleCase = () => {
       setCurrentConsoleCase(consoleCase);
 
       const casePrice = parseFloat(consoleCase.preco);
-      const totalCost = casePrice * quantity;
+      const totalCost = casePrice; // Apenas uma caixa
 
       console.log('💰 Verificando saldo:');
       console.log('- casePrice:', casePrice);
-      console.log('- quantity:', quantity);
+      // Removido: quantity
       console.log('- totalCost:', totalCost);
       console.log('- user.saldo:', getUserBalance());
 
@@ -164,42 +162,39 @@ const ConsoleCase = () => {
         return;
       }
 
-      console.log('✅ Saldo suficiente, comprando múltiplas caixas...');
+      console.log('✅ Saldo suficiente, comprando caixa...');
       
-      // Comprar múltiplas caixas
-      const allPrizes = [];
-      
-      for (let i = 0; i < quantity; i++) {
-        try {
-          console.log(`🛒 Comprando caixa ${i + 1}/${quantity}...`);
-          
-          // Sistema de retry para rate limiting
-          let response;
-          let retryCount = 0;
-          const maxRetries = 3;
-          
-          while (retryCount < maxRetries) {
-            try {
-              response = await api.post(`/cases/buy/${consoleCase.id}`);
-              break; // Sucesso, sair do loop de retry
-            } catch (error) {
-              if (error.response?.status === 429 && retryCount < maxRetries - 1) {
-                // Rate limiting - aguardar mais tempo antes de tentar novamente
-                const retryDelay = (retryCount + 1) * 2000; // 2s, 4s, 6s
-                console.log(`⚠️ Rate limit atingido. Aguardando ${retryDelay}ms antes de tentar novamente... (tentativa ${retryCount + 1}/${maxRetries})`);
-                await new Promise(resolve => setTimeout(resolve, retryDelay));
-                retryCount++;
-              } else {
-                throw error; // Re-throw se não for rate limiting ou se esgotaram as tentativas
-              }
+      // Comprar uma caixa apenas
+      try {
+        console.log(`🛒 Comprando caixa...`);
+        
+        // Sistema de retry para rate limiting
+        let response;
+        let retryCount = 0;
+        const maxRetries = 3;
+        
+        while (retryCount < maxRetries) {
+          try {
+            response = await api.post(`/cases/buy/${consoleCase.id}`);
+            break; // Sucesso, sair do loop de retry
+          } catch (error) {
+            if (error.response?.status === 429 && retryCount < maxRetries - 1) {
+              // Rate limiting - aguardar mais tempo antes de tentar novamente
+              const retryDelay = (retryCount + 1) * 2000; // 2s, 4s, 6s
+              console.log(`⚠️ Rate limit atingido. Aguardando ${retryDelay}ms antes de tentar novamente... (tentativa ${retryCount + 1}/${maxRetries})`);
+              await new Promise(resolve => setTimeout(resolve, retryDelay));
+              retryCount++;
+            } else {
+              throw error; // Re-throw se não for rate limiting ou se esgotaram as tentativas
             }
           }
-          
-          // Verificar se a resposta foi obtida com sucesso
-          if (!response) {
-            throw new Error('Falha ao obter resposta após todas as tentativas');
-          }
-          console.log(`📦 Resposta da compra ${i + 1}:`, response);
+        }
+        
+        // Verificar se a resposta foi obtida com sucesso
+        if (!response) {
+          throw new Error('Falha ao obter resposta após todas as tentativas');
+        }
+        console.log(`📦 Resposta da compra:`, response);
 
           if (response && response.data && response.data.premio) {
           const wonPrize = response.data.premio;
@@ -315,35 +310,46 @@ const ConsoleCase = () => {
             }
           }
           
-          allPrizes.push(mappedPrize);
-          console.log(`🎁 Prêmio ${i + 1} ganho:`, mappedPrize);
+          console.log(`🎁 Prêmio ganho:`, mappedPrize);
+          
+          // Simular abertura da caixa
+          setTimeout(() => {
+            try {
+              console.log('🎲 Simulando abertura da caixa...');
+              setIsSimulating(false);
+              setShowSimulation(false);
+              setShowResult(true);
+              setWonPrizes([mappedPrize]);
+              setCurrentPrizeIndex(0);
+              setIsShowingPrizes(true);
+              setSelectedPrize(mappedPrize);
+              
+              // Creditar prêmio automaticamente
+              setTimeout(async () => {
+                try {
+                  await creditPrize(mappedPrize, consoleCase);
+                } catch (error) {
+                  console.error('Erro ao creditar prêmio:', error);
+                }
+              }, 2000);
+              
+              // Tocar som de vitória
+              const winAudio = new Audio('/sounds/win.mp3');
+              winAudio.volume = 0.5;
+              winAudio.play().catch(e => console.log('Audio não pode ser reproduzido'));
+            } catch (error) {
+              console.error('Erro ao abrir caixa:', error);
+              toast.error('Erro ao abrir caixa');
+              setIsSimulating(false);
+              setShowSimulation(false);
+            }
+          }, 3000);
         }
         } catch (error) {
-          console.error(`Erro ao comprar caixa ${i + 1}:`, error);
-          const errorMessage = error.response?.data?.error || `Erro ao comprar caixa ${i + 1}`;
+          console.error(`Erro ao comprar caixa:`, error);
+          const errorMessage = error.response?.data?.error || `Erro ao comprar caixa`;
           toast.error(errorMessage);
-          
-          // Se for erro de saldo insuficiente, parar as compras
-          if (errorMessage.includes('Saldo insuficiente')) {
-            toast.error('Saldo insuficiente para continuar as compras');
-            break;
-          }
         }
-        
-        // Delay inteligente entre compras para evitar rate limiting
-        if (i < quantity - 1) {
-          // Delay progressivo: mais caixas = mais delay
-          const baseDelay = 1000; // 1 segundo base
-          const progressiveDelay = Math.min(quantity * 200, 2000); // Máximo 2 segundos
-          const totalDelay = baseDelay + progressiveDelay;
-          
-          console.log(`⏳ Aguardando ${totalDelay}ms antes da próxima compra...`);
-          await new Promise(resolve => setTimeout(resolve, totalDelay));
-        }
-      }
-
-      console.log('✅ Todas as caixas compradas!');
-      console.log('🎁 Total de prêmios:', allPrizes.length);
       
       // Dados serão atualizados após o crédito do prêmio
       console.log('💰 Débito processado pelo backend');
@@ -352,47 +358,6 @@ const ConsoleCase = () => {
       const audio = new Audio('/sounds/slot-machine.mp3');
       audio.volume = 0.3;
       audio.play().catch(e => console.log('Audio não pode ser reproduzido'));
-
-      // Simular abertura das caixas
-      setTimeout(() => {
-        try {
-          console.log('🎲 Simulando abertura das caixas...');
-          setIsSimulating(false);
-          setShowSimulation(false);
-          setShowResult(true);
-          setWonPrizes(allPrizes);
-          setCurrentPrizeIndex(0);
-          setIsShowingPrizes(true);
-          
-          if (allPrizes.length > 0) {
-            setSelectedPrize(allPrizes[0]);
-            
-            // Creditar todos os prêmios automaticamente de forma sequencial
-            setTimeout(async () => {
-              try {
-                for (let i = 0; i < allPrizes.length; i++) {
-                  await new Promise(resolve => setTimeout(resolve, 1000)); // Delay de 1 segundo entre cada crédito
-                  await creditPrize(allPrizes[i], consoleCase);
-                }
-              } catch (error) {
-                console.error('Erro na simulação:', error);
-              }
-            }, 2000);
-          }
-        
-          // Tocar som de vitória
-          const winAudio = new Audio('/sounds/win.mp3');
-          winAudio.volume = 0.5;
-          winAudio.play().catch(e => console.log('Audio não pode ser reproduzido'));
-        } catch (error) {
-          console.error('Erro ao abrir caixas:', error);
-          console.error('Erro completo:', error.response?.data);
-          const message = error.response?.data?.error || 'Erro ao abrir caixas';
-          toast.error(message);
-          setIsSimulating(false);
-          setShowSimulation(false);
-        }
-      }, 5000);
     }, 'Abertura de caixa Console');
     
     if (!result.success) {
@@ -560,30 +525,7 @@ const ConsoleCase = () => {
               <h1 className="text-4xl font-extrabold text-white mb-2 drop-shadow-lg">CAIXA CONSOLE DOS SONHOS</h1>
               <p className="text-gray-300 mb-4 text-lg">Ganhe até R$5.000 NO PIX!</p>
               
-              {/* Quantity Selector */}
-              <div className="flex justify-center items-center mb-4">
-                <div className="flex items-center bg-[#0E1015] rounded-lg p-2 border border-gray-700">
-                  <button 
-                    disabled={quantity <= 1}
-                    onClick={() => handleQuantityChange(-1)}
-                    className="p-2 text-white hover:text-purple-400 disabled:text-gray-600 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-minus">
-                      <path d="M5 12h14"></path>
-                    </svg>
-                  </button>
-                  <div className="mx-4 text-white font-bold text-lg min-w-[60px] text-center">{quantity}x</div>
-                  <button 
-                    onClick={() => handleQuantityChange(1)}
-                    className="p-2 text-white hover:text-purple-400 disabled:text-gray-600 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-plus">
-                      <path d="M5 12h14"></path>
-                      <path d="M12 5v14"></path>
-                    </svg>
-                  </button>
-                </div>
-              </div>
+              {/* Removido: Seletor de quantidade - apenas uma caixa por vez */}
 
               {/* Botão Dinâmico baseado no saldo */}
               <div className="flex justify-center gap-3 mb-2">

@@ -121,12 +121,30 @@ const Profile = () => {
   const loadRolloverData = async () => {
     try {
       const response = await api.get('/wallet/');
-      if (response.success) {
-        const userData = response.balance.usuario;
+      if (response.success && response.balance) {
+        // Tentar acessar dados de rollover de forma mais robusta
+        const userData = response.balance?.usuario || response.balance;
+        
+        if (userData && typeof userData === 'object') {
+          setRolloverData({
+            total_giros: userData.total_giros || 0,
+            rollover_liberado: userData.rollover_liberado || false,
+            rollover_minimo: userData.rollover_minimo || 20.00
+          });
+        } else {
+          // Fallback para dados do contexto
+          setRolloverData({
+            total_giros: user?.total_giros || 0,
+            rollover_liberado: user?.rollover_liberado || false,
+            rollover_minimo: user?.rollover_minimo || 20.00
+          });
+        }
+      } else {
+        // Fallback para dados do contexto
         setRolloverData({
-          total_giros: userData.total_giros || 0,
-          rollover_liberado: userData.rollover_liberado || false,
-          rollover_minimo: userData.rollover_minimo || 20.00
+          total_giros: user?.total_giros || 0,
+          rollover_liberado: user?.rollover_liberado || false,
+          rollover_minimo: user?.rollover_minimo || 20.00
         });
       }
     } catch (error) {

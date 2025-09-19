@@ -562,6 +562,50 @@ class AdminController {
     }
   }
 
+  // Obter estatísticas de saques
+  async getWithdrawalStats(req, res) {
+    try {
+      const [
+        totalWithdrawals,
+        pendingWithdrawals,
+        approvedWithdrawals,
+        rejectedWithdrawals,
+        totalAmount,
+        pendingAmount
+      ] = await Promise.all([
+        prisma.withdrawal.count(),
+        prisma.withdrawal.count({ where: { status: 'processing' } }),
+        prisma.withdrawal.count({ where: { status: 'approved' } }),
+        prisma.withdrawal.count({ where: { status: 'rejected' } }),
+        prisma.withdrawal.aggregate({
+          _sum: { amount: true }
+        }),
+        prisma.withdrawal.aggregate({
+          where: { status: 'processing' },
+          _sum: { amount: true }
+        })
+      ]);
+
+      res.json({
+        success: true,
+        data: {
+          total: totalWithdrawals,
+          pending: pendingWithdrawals,
+          approved: approvedWithdrawals,
+          rejected: rejectedWithdrawals,
+          totalAmount: totalAmount._sum.amount || 0,
+          pendingAmount: pendingAmount._sum.amount || 0
+        }
+      });
+    } catch (error) {
+      console.error('Erro ao buscar estatísticas de saques:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erro interno do servidor'
+      });
+    }
+  }
+
   // Aprovar/Recusar saque
   async updateWithdrawalStatus(req, res) {
     try {

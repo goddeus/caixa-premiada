@@ -22,7 +22,7 @@ const WeekendCase = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
   const [currentWeekendCase, setCurrentWeekendCase] = useState(null);
-  const [quantity, setQuantity] = useState(1);
+  // Removido: sistema de múltiplas compras
   const [wonPrizes, setWonPrizes] = useState([]);
   const [currentPrizeIndex, setCurrentPrizeIndex] = useState(0);
   const [isShowingPrizes, setIsShowingPrizes] = useState(false);
@@ -31,9 +31,7 @@ const WeekendCase = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  const handleQuantityChange = (change) => {
-    setQuantity(prev => Math.max(1, prev + change));
-  };
+  // Removido: handleQuantityChange - não há mais múltiplas compras
 
 
   const handleLogin = async (e) => {
@@ -140,51 +138,52 @@ const WeekendCase = () => {
       setCurrentWeekendCase(weekendCase);
 
       const casePrice = parseFloat(weekendCase.preco);
-      const totalCost = casePrice * quantity;
+      const totalCost = casePrice; // Apenas uma caixa
 
       if ((getUserBalance()) < totalCost) {
         toast.error('Saldo insuficiente! Faça um depósito para continuar.');
         return;
       }
 
-      // Comprar múltiplas caixas
+      // Comprar uma caixa apenas
       const allPrizes = [];
       
-      for (let i = 0; i < quantity; i++) {
-        try {
-          // Sistema de retry para rate limiting
-          let response;
-          let retryCount = 0;
-          const maxRetries = 3;
-          
-          while (retryCount < maxRetries) {
-            try {
-              response = await api.post(`/cases/buy/${weekendCase.id}`);
-              break; // Sucesso, sair do loop de retry
-            } catch (error) {
-              if (error.response?.status === 429 && retryCount < maxRetries - 1) {
-                // Rate limiting - aguardar mais tempo antes de tentar novamente
-                const retryDelay = (retryCount + 1) * 2000; // 2s, 4s, 6s
-                console.log(`⚠️ Rate limit atingido. Aguardando ${retryDelay}ms antes de tentar novamente... (tentativa ${retryCount + 1}/${maxRetries})`);
-                await new Promise(resolve => setTimeout(resolve, retryDelay));
-                retryCount++;
-              } else {
-                throw error; // Re-throw se não for rate limiting ou se esgotaram as tentativas
-              }
+      // Comprar apenas uma caixa
+      try {
+        // Sistema de retry para rate limiting
+        let response;
+        let retryCount = 0;
+        const maxRetries = 3;
+        
+        while (retryCount < maxRetries) {
+          try {
+            response = await api.post(`/cases/buy/${weekendCase.id}`);
+            break; // Sucesso, sair do loop de retry
+          } catch (error) {
+            if (error.response?.status === 429 && retryCount < maxRetries - 1) {
+              // Rate limiting - aguardar mais tempo antes de tentar novamente
+              const retryDelay = (retryCount + 1) * 2000; // 2s, 4s, 6s
+              console.log(`⚠️ Rate limit atingido. Aguardando ${retryDelay}ms antes de tentar novamente... (tentativa ${retryCount + 1}/${maxRetries})`);
+              await new Promise(resolve => setTimeout(resolve, retryDelay));
+              retryCount++;
+            } else {
+              throw error; // Re-throw se não for rate limiting ou se esgotaram as tentativas
             }
           }
-          console.log(`📦 Resposta da API (caixa ${i + 1}):`, response);
+        }
+        
+        console.log(`📦 Resposta da API:`, response);
 
         if (response && response.data && response.data.premio) {
           const apiPrize = response.data.premio;
-          console.log(`🎁 Prêmio recebido da API (caixa ${i + 1}):`, apiPrize);
-        
+          console.log(`🎁 Prêmio recebido da API:`, apiPrize);
+          
           // Mapear prêmio da API para formato do frontend
           const mappedPrize = {
             name: apiPrize.nome,
             value: `R$ ${parseFloat(apiPrize.valor).toFixed(2).replace('.', ',')}`,
             rarity: 'rarity-1.png',
-          image: apiPrize.sem_imagem ? null : '/imagens/CAIXA FINAL DE SEMANA/1.png', // Imagem padrão da pasta local
+            image: apiPrize.sem_imagem ? null : '/imagens/CAIXA FINAL DE SEMANA/1.png', // Imagem padrão da pasta local
             bgColor: 'rgb(176, 190, 197)',
             apiPrize: apiPrize,
             sem_imagem: apiPrize.sem_imagem || false
@@ -250,27 +249,10 @@ const WeekendCase = () => {
           allPrizes.push(mappedPrize);
         }
       } catch (error) {
-        console.error(`Erro ao comprar caixa ${i + 1}:`, error);
-        const errorMessage = error.response?.data?.error || `Erro ao comprar caixa ${i + 1}`;
+        console.error('Erro ao comprar caixa:', error);
+        const errorMessage = error.response?.data?.error || 'Erro ao comprar caixa';
         toast.error(errorMessage);
-        
-        // Se for erro de saldo insuficiente, parar as compras
-        if (errorMessage.includes('Saldo insuficiente')) {
-          toast.error('Saldo insuficiente para continuar as compras');
-          break;
-        }
-      }
-        
-        // Delay inteligente entre compras para evitar rate limiting
-        if (i < quantity - 1) {
-          // Delay progressivo: mais caixas = mais delay
-          const baseDelay = 1000; // 1 segundo base
-          const progressiveDelay = Math.min(quantity * 200, 2000); // Máximo 2 segundos
-          const totalDelay = baseDelay + progressiveDelay;
-          
-          console.log(`⏳ Aguardando ${totalDelay}ms antes da próxima compra...`);
-          await new Promise(resolve => setTimeout(resolve, totalDelay));
-        }
+        return;
       }
 
       if (allPrizes.length > 0) {
@@ -668,30 +650,7 @@ const WeekendCase = () => {
               <h1 className="text-4xl font-extrabold text-white mb-2 drop-shadow-lg">CAIXA FINAL DE SEMANA</h1>
               <p className="text-gray-300 mb-4 text-lg">Ganhe até R$500 NO PIX!</p>
               
-              {/* Quantity Selector */}
-              <div className="flex justify-center items-center mb-4">
-                <div className="flex items-center bg-[#0E1015] rounded-lg p-2 border border-gray-700">
-                  <button 
-                    disabled={quantity <= 1}
-                    onClick={() => handleQuantityChange(-1)}
-                    className="p-2 text-white hover:text-purple-400 disabled:text-gray-600 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-minus">
-                      <path d="M5 12h14"></path>
-                    </svg>
-                  </button>
-                  <div className="mx-4 text-white font-bold text-lg min-w-[60px] text-center">{quantity}x</div>
-                  <button 
-                    onClick={() => handleQuantityChange(1)}
-                    className="p-2 text-white hover:text-purple-400 disabled:text-gray-600 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-plus">
-                      <path d="M5 12h14"></path>
-                      <path d="M12 5v14"></path>
-                    </svg>
-                  </button>
-                </div>
-              </div>
+              {/* Removido: Seletor de quantidade - apenas uma caixa por vez */}
 
               {/* Dynamic Button */}
               <div className="flex justify-center gap-3 mb-2">
@@ -838,8 +797,8 @@ const WeekendCase = () => {
               {(getUserBalance()) >= 1.50 ? (
                 <button
                   onClick={handleOpenCase}
-                  disabled={isLocked || isSimulating || (getUserBalance()) < (1.50 * quantity)}
-                  style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (getUserBalance()) < (1.50 * quantity)) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (getUserBalance()) < (1.50 * quantity)) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
+                  disabled={isLocked || isSimulating || (getUserBalance()) < 1.50}
+                  style={{background: 'rgb(14, 16, 21)', border: 'none', padding: '0px', borderRadius: '1.5rem', minWidth: '240px', cursor: (isSimulating || (getUserBalance()) < 1.50) ? 'not-allowed' : 'pointer', opacity: (isSimulating || (getUserBalance()) < 1.50) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', boxShadow: 'none'}}
                 >
                   <span style={{display: 'flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(90deg, rgb(34, 197, 94) 0%, rgb(22, 163, 74) 100%)', borderRadius: '0.7rem', padding: '0.5rem 1.2rem 0.5rem 1.1rem', fontWeight: 700, fontSize: '17px', color: 'rgb(255, 255, 255)', flex: '1 1 0%', position: 'relative'}}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-box" style={{marginRight: '8px'}}>
@@ -849,7 +808,7 @@ const WeekendCase = () => {
                     </svg>
                     Abrir Caixa
                     <span style={{marginLeft: '18px', background: 'rgb(14, 16, 21)', color: 'rgb(255, 255, 255)', fontWeight: 700, fontSize: '17px', borderRadius: '0.7rem', padding: '0.35rem 1.1rem', display: 'flex', alignItems: 'center', minWidth: '80px', position: 'relative', right: '-8px'}}>
-                      R$ {(1.50 * quantity).toFixed(2).replace('.', ',')}
+                      R$ 1,50
                     </span>
                   </span>
                 </button>

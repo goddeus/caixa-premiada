@@ -22,7 +22,7 @@ const PremiumMasterCase = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
   const [currentPremiumCase, setCurrentPremiumCase] = useState(null);
-  const [quantity, setQuantity] = useState(1);
+  // Removido: sistema de múltiplas compras
   const [wonPrizes, setWonPrizes] = useState([]);
   const [currentPrizeIndex, setCurrentPrizeIndex] = useState(0);
   const [isShowingPrizes, setIsShowingPrizes] = useState(false);
@@ -32,9 +32,7 @@ const PremiumMasterCase = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  const handleQuantityChange = (change) => {
-    setQuantity(prev => Math.max(1, prev + change));
-  };
+  // Removido: handleQuantityChange - não há mais múltiplas compras
 
 
   const handleLogin = async (e) => {
@@ -139,176 +137,159 @@ const PremiumMasterCase = () => {
       setCurrentPremiumCase(premiumCase);
 
       const casePrice = parseFloat(premiumCase.preco);
-      const totalCost = casePrice * quantity;
+      const totalCost = casePrice; // Apenas uma caixa
 
       if ((getUserBalance()) < totalCost) {
         toast.error('Saldo insuficiente! Faça um depósito para continuar.');
         return;
       }
 
-      // Comprar múltiplas caixas
+      // Comprar uma caixa apenas
       const allPrizes = [];
       
-      for (let i = 0; i < quantity; i++) {
-        try {
-          // Sistema de retry para rate limiting
-          let response;
-          let retryCount = 0;
-          const maxRetries = 3;
-          
-          while (retryCount < maxRetries) {
-            try {
-              response = await api.post(`/cases/buy/${premiumCase.id}`);
-              break; // Sucesso, sair do loop de retry
-            } catch (error) {
-              if (error.response?.status === 429 && retryCount < maxRetries - 1) {
-                // Rate limiting - aguardar mais tempo antes de tentar novamente
-                const retryDelay = (retryCount + 1) * 2000; // 2s, 4s, 6s
-                console.log(`⚠️ Rate limit atingido. Aguardando ${retryDelay}ms antes de tentar novamente... (tentativa ${retryCount + 1}/${maxRetries})`);
-                await new Promise(resolve => setTimeout(resolve, retryDelay));
-                retryCount++;
-              } else {
-                throw error; // Re-throw se não for rate limiting ou se esgotaram as tentativas
-              }
+      // Comprar apenas uma caixa
+      try {
+        // Sistema de retry para rate limiting
+        let response;
+        let retryCount = 0;
+        const maxRetries = 3;
+        
+        while (retryCount < maxRetries) {
+          try {
+            response = await api.post(`/cases/buy/${premiumCase.id}`);
+            break; // Sucesso, sair do loop de retry
+          } catch (error) {
+            if (error.response?.status === 429 && retryCount < maxRetries - 1) {
+              // Rate limiting - aguardar mais tempo antes de tentar novamente
+              const retryDelay = (retryCount + 1) * 2000; // 2s, 4s, 6s
+              console.log(`⚠️ Rate limit atingido. Aguardando ${retryDelay}ms antes de tentar novamente... (tentativa ${retryCount + 1}/${maxRetries})`);
+              await new Promise(resolve => setTimeout(resolve, retryDelay));
+              retryCount++;
+            } else {
+              throw error; // Re-throw se não for rate limiting ou se esgotaram as tentativas
             }
-          }
-          
-          // Verificar se a resposta foi obtida com sucesso
-          if (!response) {
-            throw new Error('Falha ao obter resposta após todas as tentativas');
-          }
-
-          if (response && response.data && response.data.premio) {
-            const apiPrize = response.data.premio;
-            
-            // Mapear prêmio da API para formato do frontend
-            const mappedPrize = {
-              name: apiPrize.nome,
-              value: `R$ ${parseFloat(apiPrize.valor).toFixed(2).replace('.', ',')}`,
-              rarity: 'rarity-1.png',
-              image: apiPrize.sem_imagem ? null : '/imagens/CAIXA PREMIUM MASTER/2.png', // Imagem padrão da pasta local
-              bgColor: 'rgb(176, 190, 197)',
-              apiPrize: apiPrize,
-              sem_imagem: apiPrize.sem_imagem || false
-            };
-            
-            // Mapear prêmios específicos da caixa premium baseado no nome (apenas se não for prêmio ilustrativo)
-            if (!apiPrize.sem_imagem) {
-              if (apiPrize.nome.includes('HONDA')) {
-                mappedPrize.rarity = 'rarity-5.png';
-                mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/honda cg fan.webp';
-                mappedPrize.bgColor = 'rgb(255, 215, 0)';
-              } else if (apiPrize.nome.includes('MACBOOK')) {
-                mappedPrize.rarity = 'rarity-5.png';
-                mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/macbook.png';
-                mappedPrize.bgColor = 'rgb(255, 215, 0)';
-              } else if (apiPrize.nome.includes('IPHONE')) {
-                mappedPrize.rarity = 'rarity-5.png';
-                mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/iphone 16 pro max.png';
-                mappedPrize.bgColor = 'rgb(255, 215, 0)';
-              } else if (apiPrize.nome.includes('S25')) {
-                mappedPrize.rarity = 'rarity-4.png';
-                mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/samsung s25.png';
-                mappedPrize.bgColor = 'rgb(255, 59, 59)';
-              } else if (apiPrize.nome.includes('PC GAMER')) {
-                mappedPrize.rarity = 'rarity-4.png';
-                mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/samsung s25.png';
-                mappedPrize.bgColor = 'rgb(255, 59, 59)';
-              } else if (apiPrize.nome.includes('IPAD')) {
-                mappedPrize.rarity = 'rarity-4.png';
-                mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/ipad.png';
-                mappedPrize.bgColor = 'rgb(255, 59, 59)';
-              } else if (apiPrize.nome.includes('AIRPODS')) {
-                mappedPrize.rarity = 'rarity-3.png';
-                mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/airpods.png';
-                mappedPrize.bgColor = 'rgb(162, 89, 255)';
-              } else if (apiPrize.valor === 500) {
-                mappedPrize.rarity = 'rarity-3.png';
-                mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/500.webp';
-                mappedPrize.bgColor = 'rgb(162, 89, 255)';
-              } else if (apiPrize.valor === 100) {
-                mappedPrize.rarity = 'rarity-2.png';
-                mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/10.png';
-                mappedPrize.bgColor = 'rgb(59, 130, 246)';
-              } else if (apiPrize.valor === 20) {
-                mappedPrize.rarity = 'rarity-1.png';
-                mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/20.png';
-                mappedPrize.bgColor = 'rgb(176, 190, 197)';
-              } else if (apiPrize.valor === 10) {
-                mappedPrize.rarity = 'rarity-1.png';
-                mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/10.png';
-                mappedPrize.bgColor = 'rgb(176, 190, 197)';
-              } else if (apiPrize.valor === 5) {
-                mappedPrize.rarity = 'rarity-1.png';
-                mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/5.png';
-                mappedPrize.bgColor = 'rgb(176, 190, 197)';
-              } else if (apiPrize.valor === 2) {
-                mappedPrize.rarity = 'rarity-1.png';
-                mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/2.png';
-                mappedPrize.bgColor = 'rgb(176, 190, 197)';
-              } else {
-                // Fallback para outros prêmios baseado no valor
-                if (apiPrize.valor >= 2000) {
-                  // Para valores altos, usar imagem de produto premium
-                  mappedPrize.rarity = 'rarity-5.png';
-                  mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/macbook.png';
-                  mappedPrize.bgColor = 'rgb(255, 215, 0)';
-                } else if (apiPrize.valor >= 1000) {
-                  mappedPrize.rarity = 'rarity-5.png';
-                  mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/iphone 16 pro max.png';
-                  mappedPrize.bgColor = 'rgb(255, 215, 0)';
-                } else if (apiPrize.valor >= 500) {
-                  mappedPrize.rarity = 'rarity-4.png';
-                  mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/ipad.png';
-                  mappedPrize.bgColor = 'rgb(255, 59, 59)';
-                } else if (apiPrize.valor >= 100) {
-                  mappedPrize.rarity = 'rarity-3.png';
-                  mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/airpods.png';
-                  mappedPrize.bgColor = 'rgb(162, 89, 255)';
-                } else if (apiPrize.valor >= 20) {
-                  mappedPrize.rarity = 'rarity-1.png';
-                  mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/20.png';
-                  mappedPrize.bgColor = 'rgb(176, 190, 197)';
-                } else if (apiPrize.valor >= 10) {
-                  mappedPrize.rarity = 'rarity-1.png';
-                  mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/10.png';
-                  mappedPrize.bgColor = 'rgb(176, 190, 197)';
-                } else if (apiPrize.valor >= 5) {
-                  mappedPrize.rarity = 'rarity-1.png';
-                  mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/5.png';
-                  mappedPrize.bgColor = 'rgb(176, 190, 197)';
-                } else {
-                  mappedPrize.rarity = 'rarity-1.png';
-                  mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/2.png';
-                  mappedPrize.bgColor = 'rgb(176, 190, 197)';
-                }
-              }
-            }
-            
-            allPrizes.push(mappedPrize);
-          }
-        } catch (error) {
-          console.error(`Erro ao comprar caixa ${i + 1}:`, error);
-          const errorMessage = error.response?.data?.error || `Erro ao comprar caixa ${i + 1}`;
-          toast.error(errorMessage);
-          
-          // Se for erro de saldo insuficiente, parar as compras
-          if (errorMessage.includes('Saldo insuficiente')) {
-            toast.error('Saldo insuficiente para continuar as compras');
-            break;
           }
         }
         
-        // Delay inteligente entre compras para evitar rate limiting
-        if (i < quantity - 1) {
-          // Delay progressivo: mais caixas = mais delay
-          const baseDelay = 1000; // 1 segundo base
-          const progressiveDelay = Math.min(quantity * 200, 2000); // Máximo 2 segundos
-          const totalDelay = baseDelay + progressiveDelay;
-          
-          console.log(`⏳ Aguardando ${totalDelay}ms antes da próxima compra...`);
-          await new Promise(resolve => setTimeout(resolve, totalDelay));
+        // Verificar se a resposta foi obtida com sucesso
+        if (!response) {
+          throw new Error('Falha ao obter resposta após todas as tentativas');
         }
+
+        if (response && response.data && response.data.premio) {
+          const apiPrize = response.data.premio;
+          
+          // Mapear prêmio da API para formato do frontend
+          const mappedPrize = {
+            name: apiPrize.nome,
+            value: `R$ ${parseFloat(apiPrize.valor).toFixed(2).replace('.', ',')}`,
+            rarity: 'rarity-1.png',
+            image: apiPrize.sem_imagem ? null : '/imagens/CAIXA PREMIUM MASTER/2.png', // Imagem padrão da pasta local
+            bgColor: 'rgb(176, 190, 197)',
+            apiPrize: apiPrize,
+            sem_imagem: apiPrize.sem_imagem || false
+          };
+          
+          // Mapear prêmios específicos da caixa premium baseado no nome (apenas se não for prêmio ilustrativo)
+          if (!apiPrize.sem_imagem) {
+            if (apiPrize.nome.includes('HONDA')) {
+              mappedPrize.rarity = 'rarity-5.png';
+              mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/honda cg fan.webp';
+              mappedPrize.bgColor = 'rgb(255, 215, 0)';
+            } else if (apiPrize.nome.includes('MACBOOK')) {
+              mappedPrize.rarity = 'rarity-5.png';
+              mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/macbook.png';
+              mappedPrize.bgColor = 'rgb(255, 215, 0)';
+            } else if (apiPrize.nome.includes('IPHONE')) {
+              mappedPrize.rarity = 'rarity-5.png';
+              mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/iphone 16 pro max.png';
+              mappedPrize.bgColor = 'rgb(255, 215, 0)';
+            } else if (apiPrize.nome.includes('S25')) {
+              mappedPrize.rarity = 'rarity-4.png';
+              mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/samsung s25.png';
+              mappedPrize.bgColor = 'rgb(255, 59, 59)';
+            } else if (apiPrize.nome.includes('PC GAMER')) {
+              mappedPrize.rarity = 'rarity-4.png';
+              mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/samsung s25.png';
+              mappedPrize.bgColor = 'rgb(255, 59, 59)';
+            } else if (apiPrize.nome.includes('IPAD')) {
+              mappedPrize.rarity = 'rarity-4.png';
+              mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/ipad.png';
+              mappedPrize.bgColor = 'rgb(255, 59, 59)';
+            } else if (apiPrize.nome.includes('AIRPODS')) {
+              mappedPrize.rarity = 'rarity-3.png';
+              mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/airpods.png';
+              mappedPrize.bgColor = 'rgb(162, 89, 255)';
+            } else if (apiPrize.valor === 500) {
+              mappedPrize.rarity = 'rarity-3.png';
+              mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/500.webp';
+              mappedPrize.bgColor = 'rgb(162, 89, 255)';
+            } else if (apiPrize.valor === 100) {
+              mappedPrize.rarity = 'rarity-2.png';
+              mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/10.png';
+              mappedPrize.bgColor = 'rgb(59, 130, 246)';
+            } else if (apiPrize.valor === 20) {
+              mappedPrize.rarity = 'rarity-1.png';
+              mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/20.png';
+              mappedPrize.bgColor = 'rgb(176, 190, 197)';
+            } else if (apiPrize.valor === 10) {
+              mappedPrize.rarity = 'rarity-1.png';
+              mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/10.png';
+              mappedPrize.bgColor = 'rgb(176, 190, 197)';
+            } else if (apiPrize.valor === 5) {
+              mappedPrize.rarity = 'rarity-1.png';
+              mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/5.png';
+              mappedPrize.bgColor = 'rgb(176, 190, 197)';
+            } else if (apiPrize.valor === 2) {
+              mappedPrize.rarity = 'rarity-1.png';
+              mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/2.png';
+              mappedPrize.bgColor = 'rgb(176, 190, 197)';
+            } else {
+              // Fallback para outros prêmios baseado no valor
+              if (apiPrize.valor >= 2000) {
+                // Para valores altos, usar imagem de produto premium
+                mappedPrize.rarity = 'rarity-5.png';
+                mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/macbook.png';
+                mappedPrize.bgColor = 'rgb(255, 215, 0)';
+              } else if (apiPrize.valor >= 1000) {
+                mappedPrize.rarity = 'rarity-5.png';
+                mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/iphone 16 pro max.png';
+                mappedPrize.bgColor = 'rgb(255, 215, 0)';
+              } else if (apiPrize.valor >= 500) {
+                mappedPrize.rarity = 'rarity-4.png';
+                mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/ipad.png';
+                mappedPrize.bgColor = 'rgb(255, 59, 59)';
+              } else if (apiPrize.valor >= 100) {
+                mappedPrize.rarity = 'rarity-3.png';
+                mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/airpods.png';
+                mappedPrize.bgColor = 'rgb(162, 89, 255)';
+              } else if (apiPrize.valor >= 20) {
+                mappedPrize.rarity = 'rarity-1.png';
+                mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/20.png';
+                mappedPrize.bgColor = 'rgb(176, 190, 197)';
+              } else if (apiPrize.valor >= 10) {
+                mappedPrize.rarity = 'rarity-1.png';
+                mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/10.png';
+                mappedPrize.bgColor = 'rgb(176, 190, 197)';
+              } else if (apiPrize.valor >= 5) {
+                mappedPrize.rarity = 'rarity-1.png';
+                mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/5.png';
+                mappedPrize.bgColor = 'rgb(176, 190, 197)';
+              } else {
+                mappedPrize.rarity = 'rarity-1.png';
+                mappedPrize.image = '/imagens/CAIXA PREMIUM MASTER/2.png';
+                mappedPrize.bgColor = 'rgb(176, 190, 197)';
+              }
+            }
+          }
+          
+          allPrizes.push(mappedPrize);
+        }
+      } catch (error) {
+        console.error('Erro ao comprar caixa:', error);
+        const errorMessage = error.response?.data?.error || 'Erro ao comprar caixa';
+        toast.error(errorMessage);
+        return;
       }
 
       // Dados serão atualizados após o crédito do prêmio
@@ -332,20 +313,10 @@ const PremiumMasterCase = () => {
           if (allPrizes.length > 0) {
             setSelectedPrize(allPrizes[0]);
             
-            // Creditar todos os prêmios automaticamente de forma sequencial
-            if (quantity > 1) {
-              setTimeout(async () => {
-                for (let i = 0; i < allPrizes.length; i++) {
-                  await new Promise(resolve => setTimeout(resolve, 1000)); // Delay de 1 segundo entre cada creditação
-                  await creditPrize(allPrizes[i], premiumCase);
-                }
-              }, 2000);
-            } else {
-              // Para uma única caixa, creditar apenas o primeiro prêmio
-              setTimeout(() => {
-                creditPrize(allPrizes[0], premiumCase);
-              }, 2000);
-            }
+            // Creditar o prêmio automaticamente
+            setTimeout(() => {
+              creditPrize(allPrizes[0], premiumCase);
+            }, 2000);
           }
           
           // Tocar som de vitória
@@ -743,30 +714,7 @@ const PremiumMasterCase = () => {
               <h1 className="text-4xl font-extrabold text-white mb-2 drop-shadow-lg">CAIXA PREMIUM MASTER!</h1>
               <p className="text-gray-300 mb-4 text-lg">Ganhe até R$25.000 NO PIX!</p>
               
-              {/* Quantity Selector */}
-              <div className="flex justify-center items-center mb-4">
-                <div className="flex items-center bg-[#0E1015] rounded-lg p-2 border border-gray-700">
-                  <button 
-                    disabled={quantity <= 1}
-                    onClick={() => handleQuantityChange(-1)}
-                    className="p-2 text-white hover:text-purple-400 disabled:text-gray-600 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-minus">
-                      <path d="M5 12h14"></path>
-                    </svg>
-                  </button>
-                  <div className="mx-4 text-white font-bold text-lg min-w-[60px] text-center">{quantity}x</div>
-                  <button 
-                    onClick={() => handleQuantityChange(1)}
-                    className="p-2 text-white hover:text-purple-400 disabled:text-gray-600 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-plus">
-                      <path d="M5 12h14"></path>
-                      <path d="M12 5v14"></path>
-                    </svg>
-                  </button>
-                </div>
-              </div>
+              {/* Removido: Seletor de quantidade - apenas uma caixa por vez */}
 
               {/* Dynamic Button */}
               <div className="flex justify-center gap-3 mb-2">

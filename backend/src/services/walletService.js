@@ -220,6 +220,19 @@ class WalletService {
       }
     });
 
+    // Criar registro de saque para o painel admin
+    const withdrawal = await prisma.withdrawal.create({
+      data: {
+        user_id: userId,
+        amount: amount,
+        pix_key: pixKey,
+        pix_key_type: this.detectPixKeyType(pixKey),
+        status: 'processing'
+      }
+    });
+
+    console.log(`✅ Saque criado: ${withdrawal.id} - R$ ${amount.toFixed(2)} - User: ${user.nome || user.email}`);
+
     // Deduzir saldo do usuário (apenas saldo_reais para contas normais)
     const updatedUser = await prisma.user.update({
       where: { id: userId },
@@ -250,9 +263,34 @@ class WalletService {
 
     return {
       transaction,
+      withdrawal,
       novo_saldo: saldoAtual,
       message: `Saque de R$ ${amount.toFixed(2)} solicitado. Processamento em até 24h.`
     };
+  }
+
+  // Detectar tipo de chave PIX
+  detectPixKeyType(pixKey) {
+    if (!pixKey) return 'unknown';
+    
+    const key = pixKey.trim();
+    
+    // CPF (11 dígitos)
+    if (/^\d{11}$/.test(key)) return 'cpf';
+    
+    // CNPJ (14 dígitos)
+    if (/^\d{14}$/.test(key)) return 'cnpj';
+    
+    // Email
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(key)) return 'email';
+    
+    // Telefone (com DDD)
+    if (/^\+?55\d{10,11}$/.test(key)) return 'phone';
+    
+    // Chave aleatória (UUID ou similar)
+    if (/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(key)) return 'random';
+    
+    return 'unknown';
   }
 
   // Atualizar saldo (usado internamente)
