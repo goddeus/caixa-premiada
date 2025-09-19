@@ -75,6 +75,10 @@ const UserManagement = () => {
         // Fallback para estrutura alternativa
         setUsers(response.data.users || []);
         setPagination(response.data.pagination || pagination);
+      } else if (Array.isArray(response.data)) {
+        // API retorna array diretamente
+        setUsers(response.data || []);
+        setPagination(pagination);
       } else {
         setUsers([]);
         console.warn('Estrutura de resposta inesperada:', response.data);

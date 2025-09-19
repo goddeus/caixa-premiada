@@ -22,10 +22,17 @@ const FinancialManagement = () => {
       setLoading(true);
       // Buscar depósitos da nova tabela deposits (VizzionPay)
       const response = await api.get('/admin/deposits');
-      if (response.data.success && response.data.data) {
+      console.log('📡 Resposta completa da API Deposits:', response.data);
+      
+      if (response.data?.success && response.data?.data) {
         setDeposits(response.data.data.deposits || []);
+      } else if (response.data?.deposits) {
+        setDeposits(response.data.deposits || []);
+      } else if (Array.isArray(response.data)) {
+        setDeposits(response.data || []);
       } else {
         setDeposits([]);
+        console.warn('Estrutura de resposta inesperada para depósitos:', response.data);
         toast.error('Erro ao carregar dados dos depósitos');
       }
     } catch (error) {
@@ -40,10 +47,17 @@ const FinancialManagement = () => {
     try {
       setLoading(true);
       const response = await api.get('/withdraw/all');
-      if (response.success && response.data) {
+      console.log('📡 Resposta completa da API Withdrawals:', response.data);
+      
+      if (response.data?.success && response.data?.data) {
+        setWithdrawals(response.data.data.withdrawals || []);
+      } else if (response.data?.withdrawals) {
         setWithdrawals(response.data.withdrawals || []);
+      } else if (Array.isArray(response.data)) {
+        setWithdrawals(response.data || []);
       } else {
         setWithdrawals([]);
+        console.warn('Estrutura de resposta inesperada para saques:', response.data);
         toast.error('Erro ao carregar dados dos saques');
       }
     } catch (error) {
