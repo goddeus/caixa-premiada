@@ -205,20 +205,6 @@ class ProfileController {
             in: ['abertura_caixa', 'premio']
           }
         },
-        include: {
-          case: {
-            select: {
-              nome: true,
-              imagem_url: true
-            }
-          },
-          prize: {
-            select: {
-              nome: true,
-              valor: true
-            }
-          }
-        },
         orderBy: {
           criado_em: 'desc'
         },
