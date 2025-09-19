@@ -23,11 +23,18 @@ const AffiliateManagement = () => {
       });
 
       const response = await api.get(`/admin/affiliates?${params}`);
-      if (response.data.success && response.data.data) {
+      console.log('📡 Resposta completa da API Affiliates:', response.data);
+      
+      if (response.data?.success && response.data?.data) {
         setAffiliates(response.data.data.affiliates || []);
         setPagination(response.data.data.pagination || pagination);
+      } else if (response.data?.affiliates) {
+        // Fallback para estrutura alternativa
+        setAffiliates(response.data.affiliates || []);
+        setPagination(response.data.pagination || pagination);
       } else {
         setAffiliates([]);
+        console.warn('Estrutura de resposta inesperada para afiliados:', response.data);
         toast.error('Erro ao carregar dados dos afiliados');
       }
     } catch (error) {

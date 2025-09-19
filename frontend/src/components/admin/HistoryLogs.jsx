@@ -26,7 +26,7 @@ const HistoryLogs = ({ showLogs = false }) => {
       });
 
       const response = await api.get(`/admin/logs?${params}`);
-      setData(response.data.data.logs || []);
+      setData(response.data?.data?.logs || response.data?.logs || []);
     } catch (error) {
       console.error('Erro ao carregar logs:', error);
       toast.error('Erro ao carregar logs');
@@ -43,7 +43,7 @@ const HistoryLogs = ({ showLogs = false }) => {
       });
 
       const response = await api.get(`/admin/login-history?${params}`);
-      setData(response.data.data.loginHistory || []);
+      setData(response.data?.data?.loginHistory || response.data?.loginHistory || []);
     } catch (error) {
       console.error('Erro ao carregar histórico:', error);
       toast.error('Erro ao carregar histórico');

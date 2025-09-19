@@ -18,14 +18,16 @@ const SystemSettings = () => {
     try {
       setLoading(true);
       const response = await api.get('/admin/settings');
-      if (response.data.success) {
-        const settingsWithIds = response.data.settings.map((setting, index) => ({
+      if (response.data?.success || response.data?.settings) {
+        const settings = response.data?.settings || response.data?.data?.settings || [];
+        const settingsWithIds = settings.map((setting, index) => ({
           ...setting,
           id: index + 1
         }));
         setSettings(settingsWithIds);
       } else {
-        throw new Error('Erro ao carregar configurações');
+        setSettings([]);
+        console.warn('Nenhuma configuração encontrada');
       }
     } catch (error) {
       console.error('Erro ao carregar configurações:', error);

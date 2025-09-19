@@ -28,8 +28,18 @@ const Dashboard = () => {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/admin/dashboard/stats');
-      setStats(response.data.data || {});
+      const [dashboardResponse, withdrawStatsResponse] = await Promise.all([
+        api.get('/admin/dashboard/stats'),
+        api.get('/withdraw/stats')
+      ]);
+      
+      const dashboardData = dashboardResponse.data.data || {};
+      const withdrawStats = withdrawStatsResponse.success ? withdrawStatsResponse.data : {};
+      
+      setStats({
+        ...dashboardData,
+        withdrawStats
+      });
     } catch (error) {
       console.error('Erro ao carregar dados do dashboard:', error);
       toast.error('Erro ao carregar dados do dashboard');
@@ -160,7 +170,10 @@ const Dashboard = () => {
             <div>
               <p className="text-gray-400 text-sm">Total Saques</p>
               <p className="text-white font-bold text-2xl">
-                {formatCurrency(stats.total_withdrawals)}
+                {formatCurrency(stats.withdrawStats?.total?.total || stats.total_withdrawals)}
+              </p>
+              <p className="text-gray-500 text-xs">
+                {formatNumber(stats.withdrawStats?.total?.count || 0)} saques
               </p>
             </div>
             <div className="text-red-400">
@@ -193,7 +206,10 @@ const Dashboard = () => {
             <div>
               <p className="text-gray-400 text-sm">Saques Pendentes</p>
               <p className="text-white font-bold text-2xl">
-                {formatNumber(stats.pending_withdrawals)}
+                {formatNumber(stats.withdrawStats?.pending || stats.pending_withdrawals)}
+              </p>
+              <p className="text-gray-500 text-xs">
+                Processamento automático
               </p>
             </div>
             <div className="text-yellow-400">
@@ -217,13 +233,16 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Novos Esta Semana */}
+        {/* Saques Hoje */}
         <div className="bg-gray-800 rounded-lg p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-400 text-sm">Novos Esta Semana</p>
+              <p className="text-gray-400 text-sm">Saques Hoje</p>
               <p className="text-white font-bold text-2xl">
-                {formatNumber(stats.new_users_this_week)}
+                {formatNumber(stats.withdrawStats?.today?.count || 0)}
+              </p>
+              <p className="text-gray-500 text-xs">
+                {formatCurrency(stats.withdrawStats?.today?.total || 0)}
               </p>
             </div>
             <div className="text-green-400">

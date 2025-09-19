@@ -39,9 +39,9 @@ const FinancialManagement = () => {
   const loadWithdrawals = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/admin/withdrawals');
-      if (response.data.success && response.data.data) {
-        setWithdrawals(response.data.data.withdrawals || []);
+      const response = await api.get('/withdraw/all');
+      if (response.success && response.data) {
+        setWithdrawals(response.data.withdrawals || []);
       } else {
         setWithdrawals([]);
         toast.error('Erro ao carregar dados dos saques');
@@ -55,11 +55,10 @@ const FinancialManagement = () => {
   };
 
   const handleWithdrawalStatus = async (withdrawalId, status) => {
-    if (window.confirm(`Tem certeza que deseja ${status === 'approved' ? 'aprovar' : 'cancelar'} este saque?`)) {
+    if (window.confirm(`Tem certeza que deseja ${status === 'concluido' ? 'aprovar' : 'rejeitar'} este saque?`)) {
       try {
-        await api.put(`/admin/withdrawals/${withdrawalId}/status`, { status });
-        toast.success(`Saque ${status === 'approved' ? 'aprovado' : 'cancelado'} com sucesso`);
-        loadWithdrawals();
+        // Como os saques são automáticos via Vizzion Pay, apenas informamos que não é possível alterar
+        toast.info('Saques são processados automaticamente via Vizzion Pay. Não é possível alterar o status manualmente.');
       } catch (error) {
         console.error('Erro ao atualizar status:', error);
         toast.error('Erro ao atualizar status do saque');
@@ -159,41 +158,32 @@ const FinancialManagement = () => {
                     <tr><td colSpan="6" className="py-8 text-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div></td></tr>
                   ) : withdrawals.map((withdrawal) => (
                     <tr key={withdrawal.id} className="border-b border-gray-700">
-                      <td className="py-2 text-white">{withdrawal.user?.username || withdrawal.user?.nome}</td>
-                      <td className="py-2 text-red-400 font-semibold">{formatCurrency(withdrawal.amount)}</td>
-                      <td className="py-2 text-gray-300">{withdrawal.pix_key}</td>
+                      <td className="py-2 text-white">{withdrawal.user?.nome || withdrawal.user?.email}</td>
+                      <td className="py-2 text-red-400 font-semibold">{formatCurrency(withdrawal.valor)}</td>
+                      <td className="py-2 text-gray-300">
+                        {withdrawal.metadata?.pixKey ? 
+                          `${withdrawal.metadata.pixKey.slice(0, 10)}...` : 
+                          'N/A'
+                        }
+                      </td>
                       <td className="py-2">
                         <span className={`px-2 py-1 rounded-full text-xs ${
-                          withdrawal.status === 'approved' ? 'bg-green-100 text-green-800' :
-                          withdrawal.status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
-                          withdrawal.status === 'failed' ? 'bg-red-100 text-red-800' :
+                          withdrawal.status === 'concluido' ? 'bg-green-100 text-green-800' :
+                          withdrawal.status === 'processando' ? 'bg-yellow-100 text-yellow-800' :
+                          withdrawal.status === 'rejeitado' || withdrawal.status === 'falhou' ? 'bg-red-100 text-red-800' :
                           'bg-gray-100 text-gray-800'
                         }`}>
-                          {withdrawal.status === 'approved' ? 'Aprovado' : 
-                           withdrawal.status === 'processing' ? 'Processando' : 
-                           withdrawal.status === 'failed' ? 'Falhou' : withdrawal.status}
+                          {withdrawal.status === 'concluido' ? 'Aprovado' : 
+                           withdrawal.status === 'processando' ? 'Processando' : 
+                           withdrawal.status === 'rejeitado' ? 'Rejeitado' :
+                           withdrawal.status === 'falhou' ? 'Falhou' : withdrawal.status}
                         </span>
                       </td>
-                      <td className="py-2 text-gray-300">{formatDate(withdrawal.created_at)}</td>
+                      <td className="py-2 text-gray-300">{formatDate(withdrawal.criado_em)}</td>
                       <td className="py-2">
-                        {withdrawal.status === 'processing' && (
-                          <div className="flex space-x-2">
-                            <button
-                              onClick={() => handleWithdrawalStatus(withdrawal.id, 'approved')}
-                              className="text-green-400 hover:text-green-300"
-                              title="Aprovar saque"
-                            >
-                              <FaCheck />
-                            </button>
-                            <button
-                              onClick={() => handleWithdrawalStatus(withdrawal.id, 'failed')}
-                              className="text-red-400 hover:text-red-300"
-                              title="Cancelar saque"
-                            >
-                              <FaTimes />
-                            </button>
-                          </div>
-                        )}
+                        <span className="text-gray-400 text-xs">
+                          Automático
+                        </span>
                       </td>
                     </tr>
                   ))}

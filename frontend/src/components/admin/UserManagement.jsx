@@ -66,11 +66,18 @@ const UserManagement = () => {
       });
 
       const response = await api.get(`/admin/users?${params}`);
-      if (response.data.success && response.data.data) {
+      console.log('📡 Resposta completa da API Users:', response.data);
+      
+      if (response.data?.success && response.data?.data) {
         setUsers(response.data.data.users || []);
         setPagination(response.data.data.pagination || pagination);
+      } else if (response.data?.users) {
+        // Fallback para estrutura alternativa
+        setUsers(response.data.users || []);
+        setPagination(response.data.pagination || pagination);
       } else {
         setUsers([]);
+        console.warn('Estrutura de resposta inesperada:', response.data);
         toast.error('Erro ao carregar dados dos usuários');
       }
     } catch (error) {
@@ -274,10 +281,10 @@ const UserManagement = () => {
             <thead className="bg-gray-700">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Usuário
+                  ID / Usuário
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Saldo
+                  Saldo / Tipo
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                   Status
@@ -286,7 +293,7 @@ const UserManagement = () => {
                   Cadastro
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Último Login
+                  Afiliado
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                   Ações
@@ -312,16 +319,27 @@ const UserManagement = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-white">
-                          {user.nome}
+                          ID: {user.id} - {user.nome}
                         </div>
                         <div className="text-sm text-gray-400">
                           {user.email}
                         </div>
+                        <div className="text-xs text-gray-500">
+                          CPF: {user.cpf || 'N/A'}
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-white font-semibold">
-                        {formatCurrency(user.saldo_reais || 0)}
+                      <div>
+                        <div className="text-sm text-white font-semibold">
+                          Real: {formatCurrency(user.saldo_reais || 0)}
+                        </div>
+                        <div className="text-sm text-gray-400">
+                          Demo: {formatCurrency(user.saldo_demo || 0)}
+                        </div>
+                        <div className="text-xs text-blue-400">
+                          {user.is_admin ? 'ADMIN' : user.tipo_conta || 'REAL'}
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -334,10 +352,26 @@ const UserManagement = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                      {formatDate(user.criado_em)}
+                      <div>
+                        <div>{formatDate(user.criado_em)}</div>
+                        <div className="text-xs text-gray-500">
+                          Login: {user.ultimo_login ? formatDate(user.ultimo_login) : 'Nunca'}
+                        </div>
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                      {user.ultimo_login ? formatDate(user.ultimo_login) : 'Nunca'}
+                      {user.affiliate?.codigo_indicacao ? (
+                        <div>
+                          <div className="text-green-400 font-semibold">
+                            {user.affiliate.codigo_indicacao}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            Ganhos: {formatCurrency(user.affiliate.ganhos || 0)}
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-gray-500">Sem link</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">

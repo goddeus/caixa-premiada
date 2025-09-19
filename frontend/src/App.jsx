@@ -19,6 +19,7 @@ import WeekendCase from './pages/WeekendCase';
 import SamsungCase from './pages/SamsungCase';
 import Profile from './pages/Profile';
 import GameHistory from './pages/GameHistory';
+import Withdraw from './pages/Withdraw';
 
 // Components
 import Layout from './components/Layout';
@@ -46,6 +47,7 @@ function AppRoutes() {
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="/game-history" element={<ProtectedRoute><GameHistory /></ProtectedRoute>} />
       <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
+      <Route path="/withdraw" element={<ProtectedRoute><Withdraw /></ProtectedRoute>} />
       {/* <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} /> REMOVIDO - página deletada */}
       <Route path="/affiliates" element={<ProtectedRoute><Affiliates /></ProtectedRoute>} />
       <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />

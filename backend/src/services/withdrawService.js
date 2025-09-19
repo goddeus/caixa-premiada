@@ -203,12 +203,12 @@ class WithdrawService {
       
       console.log(`[WITHDRAW] Enviando saque para VizzionPay: ${identifier} - R$ ${validation.amount}`);
       
-      // Tentar diferentes endpoints da VizzionPay
+      // Usar o mesmo padrão dos depósitos que já funcionam
       const endpoints = [
-        'https://app.vizzionpay.com/api/v1/gateway/pix/payout',
         'https://app.vizzionpay.com/api/v1/gateway/pix/transfer',
+        'https://app.vizzionpay.com/api/v1/gateway/pix/payout',
         'https://app.vizzionpay.com/api/v1/pix/transfer',
-        'https://app.vizzionpay.com/api/v1/withdraw'
+        'https://app.vizzionpay.com/api/v1/pix/payout'
       ];
       
       let response;
@@ -221,7 +221,6 @@ class WithdrawService {
           response = await axios.post(endpoint, vizzionData, {
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${process.env.VIZZION_API_KEY || 'juniorcoxtaa_m5mbahi4jiqphich'}`,
               'x-public-key': process.env.VIZZION_PUBLIC_KEY || 'juniorcoxtaa_m5mbahi4jiqphich',
               'x-secret-key': process.env.VIZZION_SECRET_KEY || '6u7lv2h871fn9aepj4hugoxlnldoxhpfqhla2rbcrow7mvq50xzut9xdiimzt513'
             },
