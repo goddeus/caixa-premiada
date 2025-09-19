@@ -111,18 +111,40 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-// CORS
+// CORS - Configuração mais robusta
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://slotbox.shop', 'https://www.slotbox.shop'] 
-    : [
-    'https://slotbox.shop',
-    'https://www.slotbox.shop',
-    'http://localhost:5173'
-  ],
+  origin: function (origin, callback) {
+    // Permitir requisições sem origin (ex: mobile apps, Postman)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'https://slotbox.shop',
+      'https://www.slotbox.shop',
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'http://127.0.0.1:5173',
+      'http://127.0.0.1:3000'
+    ];
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('🚫 CORS bloqueado para origem:', origin);
+      callback(new Error('Não permitido pelo CORS'));
+    }
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Signature']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'X-Signature',
+    'X-Requested-With',
+    'Accept',
+    'Origin'
+  ],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  optionsSuccessStatus: 200 // Para suportar navegadores legados
 }));
 
 // Rate limiting
@@ -161,6 +183,26 @@ app.use((req, res, next) => {
   const timestamp = new Date().toISOString();
   const ip = req.ip || req.connection.remoteAddress;
   console.log(`[${timestamp}] ${req.method} ${req.path} - ${ip}`);
+  next();
+});
+
+// Middleware adicional para garantir CORS em todas as respostas
+app.use((req, res, next) => {
+  // Adicionar headers CORS manualmente como backup
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Signature, X-Requested-With, Accept, Origin');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
+  // Responder imediatamente para requisições OPTIONS (preflight)
+  if (req.method === 'OPTIONS') {
+    console.log('🔄 Respondendo a requisição OPTIONS (preflight)');
+    return res.status(200).json({
+      success: true,
+      message: 'CORS preflight OK'
+    });
+  }
+  
   next();
 });
 

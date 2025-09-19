@@ -3,9 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
+import transactionService from '../services/transactionService';
+import useBalanceSync from '../hooks/useBalanceSync';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
+import BalanceSyncIndicator from '../components/BalanceSyncIndicator';
 import useDoubleClickPrevention from '../hooks/useDoubleClickPrevention';
 import { useOptimizedClick } from '../hooks/useOptimizedClick';
 import { useAudioOptimized } from '../hooks/useAudioOptimized';
@@ -13,6 +16,7 @@ import { useAudioOptimized } from '../hooks/useAudioOptimized';
 const WeekendCase = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, login, refreshUserData, getUserBalance } = useAuth();
+  const { balance, forceSync } = useBalanceSync();
   const { isLocked, executeWithLock } = useDoubleClickPrevention(3000); // 3 segundos de cooldown
   const { playAudio, stopAllAudio, cleanup: audioCleanup } = useAudioOptimized();
   const [isSimulating, setIsSimulating] = useState(false);
@@ -149,32 +153,18 @@ const WeekendCase = () => {
         return;
       }
 
-      // Comprar uma caixa apenas
+      // Comprar uma caixa usando o serviço de transação
       const allPrizes = [];
       
-      // Comprar apenas uma caixa
       try {
-        // Sistema de retry para rate limiting
-        let response;
-        let retryCount = 0;
-        const maxRetries = 3;
+        console.log(`🎲 Abrindo caixa usando serviço de transação...`);
         
-        while (retryCount < maxRetries) {
-          try {
-            response = await api.post(`/cases/buy/${weekendCase.id}`);
-            break; // Sucesso, sair do loop de retry
-          } catch (error) {
-            if (error.response?.status === 429 && retryCount < maxRetries - 1) {
-              // Rate limiting - aguardar mais tempo antes de tentar novamente
-              const retryDelay = (retryCount + 1) * 2000; // 2s, 4s, 6s
-              console.log(`⚠️ Rate limit atingido. Aguardando ${retryDelay}ms antes de tentar novamente... (tentativa ${retryCount + 1}/${maxRetries})`);
-              await new Promise(resolve => setTimeout(resolve, retryDelay));
-              retryCount++;
-            } else {
-              throw error; // Re-throw se não for rate limiting ou se esgotaram as tentativas
-            }
-          }
-        }
+        // Usar o serviço de transação que já inclui retry e sincronização automática
+        const response = await transactionService.openCase(
+          weekendCase.id, 
+          weekendCase.nome, 
+          casePrice
+        );
         
         console.log(`📦 Resposta da API:`, response);
 
@@ -397,19 +387,19 @@ const WeekendCase = () => {
         return;
       }
 
-      // ✅ CORREÇÃO: Chamar endpoint de crédito separadamente
-      console.log('📤 Chamando endpoint de crédito...');
+      console.log('📤 Creditando prêmio usando serviço de transação...');
       
-      const creditResponse = await api.post(`/cases/credit/${caseInfo.id}`, {
-        prizeId: prize.apiPrize.id,
-        prizeValue: prize.apiPrize.valor
-      });
+      // Usar o serviço de transação que já inclui sincronização automática
+      const creditResponse = await transactionService.creditPrize(
+        caseInfo.id,
+        prize.apiPrize.id,
+        prize.apiPrize.valor
+      );
       
       if (creditResponse.success || creditResponse.credited) {
         console.log('✅ Prêmio creditado com sucesso!');
         
-        // Atualizar dados do usuário após crédito
-        await refreshUserData(true);
+        // A sincronização automática já foi feita pelo serviço
         toast.success(`Prêmio de R$ ${prize.apiPrize.valor.toFixed(2).replace('.', ',')} creditado na sua carteira!`);
       } else {
         throw new Error(creditResponse.message || 'Erro ao creditar prêmio');
@@ -488,14 +478,17 @@ const WeekendCase = () => {
               </>
             ) : (
               <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2 bg-green-600 px-3 py-1 rounded-lg">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
-                    <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"></path>
-                    <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path>
-                  </svg>
-                  <span className="text-white font-semibold">
-                    R$ {getUserBalance().toFixed(2)}
-                  </span>
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2 bg-green-600 px-3 py-1 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+                      <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"></path>
+                      <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path>
+                    </svg>
+                    <span className="text-white font-semibold">
+                      R$ {balance.saldo_reais?.toFixed(2) || '0,00'}
+                    </span>
+                  </div>
+                  <BalanceSyncIndicator />
                 </div>
                 <button 
                   onClick={() => navigate('/profile')}
@@ -589,14 +582,17 @@ const WeekendCase = () => {
               </>
             ) : (
               <div className="flex items-center space-x-2">
-                <div className="flex items-center space-x-2 bg-green-600 px-2 py-1 rounded-lg">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white text-sm">
-                    <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"></path>
-                    <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path>
-                  </svg>
-                  <span className="text-white font-semibold text-sm">
-                    R$ {getUserBalance().toFixed(2)}
-                  </span>
+                <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 bg-green-600 px-2 py-1 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white text-sm">
+                      <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"></path>
+                      <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path>
+                    </svg>
+                    <span className="text-white font-semibold text-sm">
+                      R$ {balance.saldo_reais?.toFixed(2) || '0,00'}
+                    </span>
+                  </div>
+                  <BalanceSyncIndicator />
                 </div>
                 <button 
                   onClick={() => navigate('/profile')}
