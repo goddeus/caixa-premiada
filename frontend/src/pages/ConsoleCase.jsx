@@ -7,6 +7,8 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
 import useDoubleClickPrevention from '../hooks/useDoubleClickPrevention';
+import { useOptimizedClick } from '../hooks/useOptimizedClick';
+import { useAudioOptimized } from '../hooks/useAudioOptimized';
 
 const ConsoleCase = () => {
   const navigate = useNavigate();
@@ -31,7 +33,12 @@ const ConsoleCase = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    
+    // ✅ CORREÇÃO: Cleanup de áudio no unmount
+    return () => {
+      audioCleanup();
+    };
+  }, [audioCleanup]);
 
   // Removido: handleQuantityChange - não há mais múltiplas compras
 
@@ -75,19 +82,15 @@ const ConsoleCase = () => {
     const randomPrize = incentivePrizes[Math.floor(Math.random() * incentivePrizes.length)];
     setSelectedPrize(randomPrize);
     
-    // Tocar som de sorteio
-    const audio = new Audio('/sounds/slot-machine.mp3');
-    audio.volume = 0.3;
-    audio.play().catch(e => console.log('Audio não pode ser reproduzido'));
+    // ✅ CORREÇÃO: Tocar som de sorteio otimizado
+    playAudio('/sounds/slot-machine.mp3', { volume: 0.3 });
     
     setTimeout(() => {
       setIsSimulating(false);
       setShowSimulation(false); // Fechar modal de simulação
       setShowResult(true);
-      // Tocar som de vitória
-      const winAudio = new Audio('/sounds/win.mp3');
-      winAudio.volume = 0.5;
-      winAudio.play().catch(e => console.log('Audio não pode ser reproduzido'));
+      // ✅ CORREÇÃO: Tocar som de vitória otimizado
+      playAudio('/sounds/win.mp3', { volume: 0.5 });
     }, 5000); // 5 segundos
   };
 
@@ -333,10 +336,8 @@ const ConsoleCase = () => {
                 }
               }, 2000);
               
-              // Tocar som de vitória
-              const winAudio = new Audio('/sounds/win.mp3');
-              winAudio.volume = 0.5;
-              winAudio.play().catch(e => console.log('Audio não pode ser reproduzido'));
+              // ✅ CORREÇÃO: Tocar som de vitória otimizado
+      playAudio('/sounds/win.mp3', { volume: 0.5 });
             } catch (error) {
               console.error('Erro ao abrir caixa:', error);
               toast.error('Erro ao abrir caixa');
@@ -354,10 +355,8 @@ const ConsoleCase = () => {
       // Dados serão atualizados após o crédito do prêmio
       console.log('💰 Débito processado pelo backend');
 
-      // Tocar som de sorteio
-      const audio = new Audio('/sounds/slot-machine.mp3');
-      audio.volume = 0.3;
-      audio.play().catch(e => console.log('Audio não pode ser reproduzido'));
+      // ✅ CORREÇÃO: Tocar som de sorteio otimizado
+    playAudio('/sounds/slot-machine.mp3', { volume: 0.3 });
     }, 'Abertura de caixa Console');
     
     if (!result.success) {

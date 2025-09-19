@@ -7,11 +7,18 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
 import useDoubleClickPrevention from '../hooks/useDoubleClickPrevention';
+import { useOptimizedClick } from '../hooks/useOptimizedClick';
+import { useAudioOptimized } from '../hooks/useAudioOptimized';
+import { useErrorHandler } from '../hooks/useErrorHandler';
+import { usePerformanceOptimized } from '../hooks/usePerformanceOptimized';
 
 const AppleCase = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, login, refreshUserData, getUserBalance } = useAuth();
   const { isLocked, executeWithLock } = useDoubleClickPrevention(3000); // 3 segundos de cooldown
+  const { playAudio, stopAllAudio, cleanup: audioCleanup } = useAudioOptimized();
+  const { handleError, withErrorHandling } = useErrorHandler();
+  const { nextFrame, optimizedScroll } = usePerformanceOptimized();
   const [isSimulating, setIsSimulating] = useState(false);
   const [showSimulation, setShowSimulation] = useState(false);
   const [showResult, setShowResult] = useState(false);
@@ -28,8 +35,14 @@ const AppleCase = () => {
   const [isShowingPrizes, setIsShowingPrizes] = useState(false);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+    // ✅ CORREÇÃO: Scroll otimizado para evitar reflows
+    optimizedScroll(window, { top: 0, left: 0, behavior: 'auto' });
+    
+    // ✅ CORREÇÃO: Cleanup de áudio no unmount
+    return () => {
+      audioCleanup();
+    };
+  }, [audioCleanup, optimizedScroll]);
 
   // Removido: handleQuantityChange - não há mais múltiplas compras
 
@@ -75,19 +88,15 @@ const AppleCase = () => {
     const randomPrize = incentivePrizes[Math.floor(Math.random() * incentivePrizes.length)];
     setSelectedPrize(randomPrize);
     
-    // Tocar som de sorteio
-    const audio = new Audio('/sounds/slot-machine.mp3');
-      audio.volume = 0.3;
-    audio.play().catch(e => console.log('Audio não pode ser reproduzido'));
+    // ✅ CORREÇÃO: Tocar som de sorteio otimizado
+    playAudio('/sounds/slot-machine.mp3', { volume: 0.3 });
     
     setTimeout(() => {
       setIsSimulating(false);
       setShowSimulation(false); // Fechar modal de simulação
       setShowResult(true);
-      // Tocar som de vitória
-      const winAudio = new Audio('/sounds/win.mp3');
-        winAudio.volume = 0.5;
-      winAudio.play().catch(e => console.log('Audio não pode ser reproduzido'));
+      // ✅ CORREÇÃO: Tocar som de vitória otimizado
+      playAudio('/sounds/win.mp3', { volume: 0.5 });
     }, 5000); // 5 segundos
   };
 
@@ -106,7 +115,8 @@ const AppleCase = () => {
     return messages[Math.floor(Math.random() * messages.length)];
   };
 
-  const handleOpenCase = async () => {
+  // ✅ CORREÇÃO: Handler otimizado para evitar violações de performance
+  const { optimizedCallback: handleOpenCaseOptimized } = useOptimizedClick(async () => {
     if (!isAuthenticated) {
       setShowLoginModal(true);
       return;
@@ -145,6 +155,8 @@ const AppleCase = () => {
       }
 
       // Comprar uma caixa apenas
+      const allPrizes = []; // ✅ CORREÇÃO: Declarar allPrizes no escopo correto
+      
       try {
         // Sistema de retry para rate limiting
         let response;
@@ -271,20 +283,16 @@ const AppleCase = () => {
           
       // Dados serão atualizados após o crédito do prêmio
           
-      // Tocar som de sorteio
-      const audio = new Audio('/sounds/slot-machine.mp3');
-      audio.volume = 0.3;
-      audio.play().catch(e => console.log('Audio não pode ser reproduzido'));
+      // ✅ CORREÇÃO: Tocar som de sorteio otimizado
+      playAudio('/sounds/slot-machine.mp3', { volume: 0.3 });
           
       setTimeout(() => {
         setIsSimulating(false);
         setShowSimulation(false);
         setShowResult(true);
         
-        // Tocar som de vitória
-        const winAudio = new Audio('/sounds/win.mp3');
-        winAudio.volume = 0.5;
-        winAudio.play().catch(e => console.log('Audio não pode ser reproduzido'));
+        // ✅ CORREÇÃO: Tocar som de vitória otimizado
+        playAudio('/sounds/win.mp3', { volume: 0.5 });
         
         // Creditar todos os prêmios automaticamente de forma sequencial
         setTimeout(async () => {
@@ -305,7 +313,10 @@ const AppleCase = () => {
       setIsSimulating(false);
       setShowSimulation(false);
     }
-  };
+  });
+
+  // Wrapper para manter compatibilidade
+  const handleOpenCase = handleOpenCaseOptimized;
 
   // Função para gerar sequência aleatória de prêmios
   const generateRandomPrizeSequence = () => {
@@ -386,40 +397,34 @@ const AppleCase = () => {
     navigate('/');
   };
 
-  const creditPrize = async (prizeData = null, caseData = null) => {
-    try {
-      // Usar dados passados como parâmetro ou do estado
-      const prize = prizeData || selectedPrize;
-      const caseInfo = caseData || currentAppleCase;
-      
-      if (!caseInfo || !prize?.apiPrize) {
-        toast.error('Dados do prêmio não encontrados');
-        return;
-      }
-
-      // ✅ CORREÇÃO: Chamar endpoint de crédito separadamente
-      console.log('📤 Chamando endpoint de crédito...');
-      
-      const creditResponse = await api.post(`/cases/credit/${caseInfo.id}`, {
-        prizeId: prize.apiPrize.id,
-        prizeValue: prize.apiPrize.valor
-      });
-      
-      if (creditResponse.success || creditResponse.credited) {
-        console.log('✅ Prêmio creditado com sucesso!');
-        
-        // Atualizar dados do usuário após crédito
-        await refreshUserData(true);
-        toast.success(`Prêmio de R$ ${prize.apiPrize.valor.toFixed(2).replace('.', ',')} creditado na sua carteira!`);
-      } else {
-        throw new Error(creditResponse.message || 'Erro ao creditar prêmio');
-      }
-    } catch (error) {
-      console.error('Erro ao creditar prêmio:', error);
-      const message = error.response?.data?.error || 'Erro ao creditar prêmio';
-      toast.error(message);
+  // ✅ CORREÇÃO: Função de crédito com tratamento de erros otimizado
+  const creditPrize = withErrorHandling(async (prizeData = null, caseData = null) => {
+    // Usar dados passados como parâmetro ou do estado
+    const prize = prizeData || selectedPrize;
+    const caseInfo = caseData || currentAppleCase;
+    
+    if (!caseInfo || !prize?.apiPrize) {
+      throw new Error('Dados do prêmio não encontrados');
     }
-  };
+
+    // ✅ CORREÇÃO: Chamar endpoint de crédito separadamente
+    console.log('📤 Chamando endpoint de crédito...');
+    
+    const creditResponse = await api.post(`/cases/credit/${caseInfo.id}`, {
+      prizeId: prize.apiPrize.id,
+      prizeValue: prize.apiPrize.valor
+    });
+    
+    if (creditResponse.success || creditResponse.credited) {
+      console.log('✅ Prêmio creditado com sucesso!');
+      
+      // Atualizar dados do usuário após crédito
+      await refreshUserData(true);
+      toast.success(`Prêmio de R$ ${prize.apiPrize.valor.toFixed(2).replace('.', ',')} creditado na sua carteira!`);
+    } else {
+      throw new Error(creditResponse.message || 'Erro ao creditar prêmio');
+    }
+  }, 'creditPrize');
 
   const resetToMain = () => {
     setShowIncentive(false);
