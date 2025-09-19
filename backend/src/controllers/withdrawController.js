@@ -61,7 +61,8 @@ class WithdrawController {
         });
       }
       
-      const { userId, amount, pixKey, pixKeyType } = req.body;
+      const { amount, pixKey, pixKeyType } = req.body;
+      const userId = req.user.id; // Usar ID do usuário autenticado
       
       // Usar serviço de saques
       const result = await withdrawService.createWithdraw({
@@ -97,7 +98,7 @@ class WithdrawController {
    */
   static async getWithdrawHistory(req, res) {
     try {
-      const { userId } = req.params;
+      const userId = req.user.id; // Usar ID do usuário autenticado
       const { page = 1, limit = 20 } = req.query;
       
       const result = await withdrawService.getWithdrawHistory(userId, {
@@ -137,6 +138,36 @@ class WithdrawController {
       
     } catch (error) {
       console.error('[WITHDRAW] Erro ao obter estatísticas:', error);
+      
+      res.status(500).json({
+        success: false,
+        error: 'Erro interno do servidor'
+      });
+    }
+  }
+
+  /**
+   * GET /api/withdraw/all (Admin)
+   * Obter todos os saques
+   */
+  static async getAllWithdrawals(req, res) {
+    try {
+      const { page = 1, limit = 50, status } = req.query;
+      
+      const result = await withdrawService.getAllWithdrawals({
+        page: parseInt(page),
+        limit: parseInt(limit),
+        status
+      });
+      
+      if (!result.success) {
+        return res.status(500).json(result);
+      }
+      
+      res.json(result);
+      
+    } catch (error) {
+      console.error('[WITHDRAW] Erro ao obter todos os saques:', error);
       
       res.status(500).json({
         success: false,

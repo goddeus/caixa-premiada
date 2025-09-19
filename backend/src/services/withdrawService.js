@@ -94,7 +94,8 @@ class WithdrawService {
           tipo_conta: true,
           saldo_reais: true,
           saldo_demo: true,
-          cpf: true
+          cpf: true,
+          primeiro_deposito_feito: true
         }
       });
       
@@ -105,6 +106,11 @@ class WithdrawService {
       // Verificar se é conta demo
       if (user.tipo_conta === 'afiliado_demo') {
         return { canWithdraw: false, reason: 'Contas demo não podem realizar saques' };
+      }
+      
+      // Verificar se fez pelo menos 1 depósito confirmado
+      if (!user.primeiro_deposito_feito) {
+        return { canWithdraw: false, reason: 'É necessário fazer pelo menos 1 depósito confirmado para realizar saques' };
       }
       
       // Verificar saldo
@@ -204,8 +210,9 @@ class WithdrawService {
         {
           headers: {
             'Content-Type': 'application/json',
-            'x-public-key': 'juniorcoxtaa_m5mbahi4jiqphich',
-            'x-secret-key': '6u7lv2h871fn9aepj4hugoxlnldoxhpfqhla2rbcrow7mvq50xzut9xdiimzt513'
+            'Authorization': `Bearer ${process.env.VIZZION_API_KEY || 'juniorcoxtaa_m5mbahi4jiqphich'}`,
+            'x-public-key': process.env.VIZZION_PUBLIC_KEY || 'juniorcoxtaa_m5mbahi4jiqphich',
+            'x-secret-key': process.env.VIZZION_SECRET_KEY || '6u7lv2h871fn9aepj4hugoxlnldoxhpfqhla2rbcrow7mvq50xzut9xdiimzt513'
           },
           timeout: 30000
         }
@@ -473,6 +480,68 @@ class WithdrawService {
       
     } catch (error) {
       console.error('Erro ao obter estatísticas de saques:', error);
+      return {
+        success: false,
+        error: 'Erro interno do servidor'
+      };
+    }
+  }
+
+  /**
+   * Obtém todos os saques para admin
+   * @param {Object} options - Opções de paginação e filtro
+   * @returns {Object} Lista de saques
+   */
+  async getAllWithdrawals(options = {}) {
+    const { page = 1, limit = 50, status } = options;
+    const skip = (page - 1) * limit;
+    
+    try {
+      const whereClause = {
+        tipo: 'saque'
+      };
+      
+      if (status) {
+        whereClause.status = status;
+      }
+      
+      const [withdrawals, total] = await Promise.all([
+        prisma.transaction.findMany({
+          where: whereClause,
+          include: {
+            user: {
+              select: {
+                id: true,
+                nome: true,
+                email: true,
+                cpf: true
+              }
+            }
+          },
+          orderBy: { criado_em: 'desc' },
+          skip,
+          take: limit
+        }),
+        prisma.transaction.count({
+          where: whereClause
+        })
+      ]);
+      
+      return {
+        success: true,
+        data: {
+          withdrawals,
+          pagination: {
+            page,
+            limit,
+            total,
+            pages: Math.ceil(total / limit)
+          }
+        }
+      };
+      
+    } catch (error) {
+      console.error('Erro ao obter todos os saques:', error);
       return {
         success: false,
         error: 'Erro interno do servidor'
