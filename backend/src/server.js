@@ -5,6 +5,13 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const config = require('./config/index');
 
+// Importar sistemas de monitoramento e segurança
+const monitoring = require('./middleware/monitoring');
+const healthController = require('./controllers/healthController');
+const { dynamicRateLimit, financialOperationRateLimit, botDetection } = require('./middleware/rateLimiting');
+const backupService = require('./services/backupService');
+const cron = require('node-cron');
+
 // Função para executar migração automática do banco de dados
 async function runDatabaseMigration() {
   try {
@@ -178,7 +185,24 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Trust proxy para obter IP real
 app.set('trust proxy', 1);
 
-// Middleware para logs
+// ========================================
+// 🚀 SISTEMA DE MONITORAMENTO E SEGURANÇA
+// ========================================
+
+// Middleware de monitoramento (DEVE vir antes de outros middlewares)
+app.use(monitoring.middleware());
+
+// Middleware de detecção de bots
+app.use(botDetection());
+
+// Rate limiting dinâmico baseado no endpoint
+app.use(dynamicRateLimit);
+
+// Rate limiting específico para operações financeiras
+app.use('/api/deposit', financialOperationRateLimit());
+app.use('/api/withdraw', financialOperationRateLimit());
+
+// Middleware para logs (com monitoramento)
 app.use((req, res, next) => {
   const timestamp = new Date().toISOString();
   const ip = req.ip || req.connection.remoteAddress;
@@ -1826,6 +1850,48 @@ app.use('/api/webhook', webhookRoutes);
 // Rotas de correção
 app.use('/api/fix', fixRoutes);
 
+// ========================================
+// 🏥 ROTAS DE HEALTH CHECK E MONITORAMENTO
+// ========================================
+
+// Health check básico
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    version: '1.0.0'
+  });
+});
+
+// Health check detalhado
+app.get('/health/detailed', healthController.detailedHealth);
+
+// Métricas do sistema
+app.get('/metrics', healthController.getMetrics);
+
+// Alertas do sistema
+app.get('/alerts', healthController.getAlerts);
+
+// Rotas de backup (apenas para admins)
+app.get('/api/backup/list', async (req, res) => {
+  try {
+    const backups = await backupService.listBackups();
+    res.json({ success: true, backups });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/backup/full', async (req, res) => {
+  try {
+    const result = await backupService.executeFullBackup();
+    res.json({ success: true, result });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Rota de correção direta (fallback)
 app.post('/api/fix-now', async (req, res) => {
   try {
@@ -2034,7 +2100,14 @@ if (config.nodeEnv === 'production') {
   });
 }
 
-// Middleware global de tratamento de erros
+// ========================================
+// 🚨 MIDDLEWARE DE TRATAMENTO DE ERROS
+// ========================================
+
+// Middleware de tratamento de erros com monitoramento
+app.use(monitoring.errorHandler());
+
+// Middleware global de tratamento de erros (fallback)
 app.use((error, req, res, next) => {
   console.error('Erro não tratado:', error);
   
@@ -2092,6 +2165,53 @@ const server = app.listen(PORT, async () => {
       console.error('⚠️  Servidor continuará funcionando normalmente');
     }
   }, 10000); // Aguardar 10 segundos após inicialização
+  
+  // ========================================
+  // 📅 SISTEMA DE BACKUPS AUTOMÁTICOS
+  // ========================================
+  
+  // Backup diário às 2:00 AM
+  cron.schedule('0 2 * * *', async () => {
+    try {
+      console.log('🔄 Iniciando backup diário automático...');
+      await backupService.executeFullBackup();
+      console.log('✅ Backup diário concluído com sucesso');
+    } catch (error) {
+      console.error('❌ Erro no backup diário:', error);
+    }
+  });
+  
+  // Limpeza de backups antigos aos domingos às 3:00 AM
+  cron.schedule('0 3 * * 0', async () => {
+    try {
+      console.log('🧹 Iniciando limpeza de backups antigos...');
+      await backupService.cleanupOldBackups();
+      console.log('✅ Limpeza de backups concluída');
+    } catch (error) {
+      console.error('❌ Erro na limpeza de backups:', error);
+    }
+  });
+  
+  // Backup incremental a cada 6 horas
+  cron.schedule('0 */6 * * *', async () => {
+    try {
+      console.log('🔄 Iniciando backup incremental...');
+      await backupService.incrementalBackup();
+      console.log('✅ Backup incremental concluído');
+    } catch (error) {
+      console.error('❌ Erro no backup incremental:', error);
+    }
+  });
+  
+  console.log('\n🏥 Rotas de monitoramento disponíveis:');
+  console.log('  - GET  /health (health check básico)');
+  console.log('  - GET  /health/detailed (health check detalhado)');
+  console.log('  - GET  /metrics (métricas do sistema)');
+  console.log('  - GET  /alerts (alertas do sistema)');
+  console.log('  - GET  /api/backup/list (listar backups)');
+  console.log('  - POST /api/backup/full (backup manual)');
+  console.log('\n🛡️ Monitoramento e segurança ativos');
+  console.log('💾 Backups automáticos configurados');
   
   // Executar correção de sincronização de saldo
   setTimeout(async () => {

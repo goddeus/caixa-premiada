@@ -390,7 +390,17 @@ class WalletService {
         }
       },
       select: {
-        saldo_demo: true
+        saldo_demo: true,
+        saldo_reais: true
+      }
+    });
+
+    // Sincronizar com Wallet
+    await prisma.wallet.update({
+      where: { user_id: userId },
+      data: {
+        saldo_demo: updatedUser.saldo_demo,
+        saldo_reais: updatedUser.saldo_reais
       }
     });
 

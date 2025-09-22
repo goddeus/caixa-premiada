@@ -316,6 +316,12 @@ class VizzionPayService {
               data: { saldo_demo: { increment: valorDeposito } }
             });
             
+            // Sincronizar com Wallet
+            await tx.wallet.update({
+              where: { user_id: payment.user_id },
+              data: { saldo_demo: { increment: valorDeposito } }
+            });
+            
             // Registrar transação demo
             await tx.transactionDemo.create({
               data: {
@@ -330,6 +336,12 @@ class VizzionPayService {
             // Conta normal - creditar saldo_reais
             await tx.user.update({
               where: { id: payment.user_id },
+              data: { saldo_reais: { increment: valorDeposito } }
+            });
+            
+            // Sincronizar com Wallet
+            await tx.wallet.update({
+              where: { user_id: payment.user_id },
               data: { saldo_reais: { increment: valorDeposito } }
             });
             
