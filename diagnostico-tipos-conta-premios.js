@@ -344,3 +344,4 @@ console.log('🔍 Diagnóstico de tipos de conta carregado! Use window.diagnosti
 
 
 
+

@@ -354,3 +354,4 @@ console.log('🎯 Solução definitiva e simples carregada! Use window.solucaoDe
 
 
 
+
