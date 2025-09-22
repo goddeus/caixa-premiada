@@ -1,5 +1,6 @@
 const prisma = require('../utils/prisma');
 const { isValidAmount } = require('../utils/validation');
+const PixupService = require('./pixupService');
 
 class WalletService {
   // Consultar saldo
@@ -58,7 +59,7 @@ class WalletService {
     };
   }
 
-  // Simular depósito (futuro: integração com ASAAS)
+  // Depósito via Pixup
   async deposit(userId, amount) {
     if (!isValidAmount(amount) || amount < 20) {
       throw new Error('Valor mínimo para depósito é R$ 20,00');
@@ -68,7 +69,7 @@ class WalletService {
       throw new Error('Valor máximo para depósito é R$ 10.000,00');
     }
 
-    // Verificar se é o primeiro depósito do usuário e se tem afiliado
+    // Verificar usuário
     let user;
     try {
       user = await prisma.user.findUnique({
@@ -79,7 +80,10 @@ class WalletService {
           rollover_liberado: true,
           rollover_minimo: true,
           affiliate_id: true,
-          tipo_conta: true
+          tipo_conta: true,
+          nome: true,
+          email: true,
+          cpf: true
         }
       });
     } catch (dbError) {
@@ -96,71 +100,23 @@ class WalletService {
       throw new Error('Depósitos não são permitidos em contas demo');
     }
 
-    // Verificar se é o primeiro depósito e se tem afiliado
-    const isFirstDeposit = !user.primeiro_deposito_feito;
-    const hasAffiliate = user.affiliate_id;
-
-    // Criar transação de depósito
-    const transaction = await prisma.transaction.create({
-      data: {
-        user_id: userId,
-        tipo: 'deposito',
-        valor: amount,
-        status: 'concluido',
-        descricao: `Depósito de R$ ${amount.toFixed(2)}`
-      }
-    });
-
-    // Atualizar saldo do usuário
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        saldo_reais: {
-          increment: amount
-        },
-        // Marcar que fez o primeiro depósito
-        primeiro_deposito_feito: true
-      },
-      select: {
-        id: true,
-        nome: true,
-        saldo_reais: true,
-        saldo_demo: true,
-        tipo_conta: true,
-        total_giros: true,
-        rollover_liberado: true,
-        rollover_minimo: true,
-        primeiro_deposito_feito: true
-      }
-    });
-
-    // Atualizar carteira
-    await prisma.wallet.update({
-      where: { user_id: userId },
-      data: {
-        saldo_reais: updatedUser.saldo_reais,
-        saldo_demo: updatedUser.saldo_demo
-      }
-    });
-
-    // Processar comissão de afiliado se for primeiro depósito >= R$20
-    if (isFirstDeposit && hasAffiliate && amount >= 20) {
-      try {
-        await this.processAffiliateCommission(userId, amount);
-      } catch (error) {
-        console.error('Erro ao processar comissão de afiliado:', error);
-        // Não falha o depósito por causa da comissão
-      }
-    }
+    // Usar PixupService para criar depósito
+    const pixupService = new PixupService();
+    const result = await pixupService.createPayment({ userId, valor: amount });
 
     return {
-      transaction,
-      novo_saldo: updatedUser.saldo_reais,
-      message: `Depósito de R$ ${amount.toFixed(2)} realizado com sucesso`
+      success: true,
+      qrCode: result.qrCode,
+      qrCodeImage: result.qrCodeImage,
+      transaction_id: result.transaction_id,
+      external_id: result.external_id,
+      amount: result.amount,
+      expires_at: result.expires_at,
+      message: `QR Code PIX gerado para depósito de R$ ${amount.toFixed(2)}`
     };
   }
 
-  // Solicitar saque
+  // Saque via Pixup
   async withdraw(userId, amount, pixKey) {
     if (!isValidAmount(amount) || amount < 20) {
       throw new Error('Valor mínimo para saque é R$ 20,00');
@@ -174,7 +130,7 @@ class WalletService {
       throw new Error('Chave PIX é obrigatória');
     }
 
-    // Verificar tipo de conta e saldo
+    // Verificar usuário
     let user;
     try {
       user = await prisma.user.findUnique({
@@ -186,7 +142,10 @@ class WalletService {
           rollover_liberado: true, 
           rollover_minimo: true,
           primeiro_deposito_feito: true,
-          tipo_conta: true
+          tipo_conta: true,
+          nome: true,
+          email: true,
+          cpf: true
         }
       });
     } catch (dbError) {
@@ -194,7 +153,7 @@ class WalletService {
       throw new Error('Sistema temporariamente indisponível. Tente novamente em alguns minutos.');
     }
 
-    // Bloquear saque para contas demo (sem mencionar que é demo)
+    // Bloquear saque para contas demo
     if (user.tipo_conta === 'afiliado_demo') {
       throw new Error('Saque temporariamente indisponível. Tente novamente mais tarde.');
     }
@@ -203,69 +162,30 @@ class WalletService {
       throw new Error('Saldo insuficiente para o saque');
     }
 
-    // Verificar rollover APENAS se já fez o primeiro depósito
+    // Verificar rollover
     if (user.primeiro_deposito_feito && !user.rollover_liberado) {
       const girosFaltantes = user.rollover_minimo - user.total_giros;
       throw new Error(`Você precisa apostar mais R$ ${girosFaltantes.toFixed(2)} para liberar saques. Total apostado: R$ ${user.total_giros.toFixed(2)}/${user.rollover_minimo.toFixed(2)}`);
     }
 
-    // Criar transação de saque
-    const transaction = await prisma.transaction.create({
-      data: {
-        user_id: userId,
-        tipo: 'saque',
-        valor: amount,
-        status: 'pendente',
-        descricao: `Saque de R$ ${amount.toFixed(2)} - PIX: ${pixKey}`
-      }
+    // Usar PixupService para criar saque
+    const pixupService = new PixupService();
+    const result = await pixupService.createWithdrawal({
+      userId,
+      amount,
+      pixKey: pixKey.trim(),
+      pixKeyType: this.detectPixKeyType(pixKey),
+      ownerName: user.nome,
+      ownerDocument: user.cpf?.replace(/\D/g, '') || "00000000000"
     });
-
-    // Criar registro de saque para o painel admin
-    const withdrawal = await prisma.withdrawal.create({
-      data: {
-        user_id: userId,
-        amount: amount,
-        pix_key: pixKey,
-        pix_key_type: this.detectPixKeyType(pixKey),
-        status: 'processing'
-      }
-    });
-
-    console.log(`✅ Saque criado: ${withdrawal.id} - R$ ${amount.toFixed(2)} - User: ${user.nome || user.email}`);
-
-    // Deduzir saldo do usuário (apenas saldo_reais para contas normais)
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        saldo_reais: {
-          decrement: amount
-        }
-      },
-      select: {
-        id: true,
-        nome: true,
-        saldo_reais: true,
-        saldo_demo: true,
-        tipo_conta: true
-      }
-    });
-
-    // Atualizar carteira
-    await prisma.wallet.update({
-      where: { user_id: userId },
-      data: {
-        saldo_reais: updatedUser.saldo_reais
-      }
-    });
-
-    // Determinar saldo correto baseado no tipo de conta
-    const saldoAtual = updatedUser.tipo_conta === 'afiliado_demo' ? updatedUser.saldo_demo : updatedUser.saldo_reais;
 
     return {
-      transaction,
-      withdrawal,
-      novo_saldo: saldoAtual,
-      message: `Saque de R$ ${amount.toFixed(2)} solicitado. Processamento em até 24h.`
+      success: true,
+      message: 'Saque solicitado com sucesso! Aguarde a aprovação.',
+      external_id: result.external_id,
+      transaction_id: result.transaction_id,
+      amount: result.amount,
+      status: result.status
     };
   }
 

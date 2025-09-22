@@ -102,10 +102,13 @@ const imageUploadRoutes = require('./routes/imageUpload');
 const gatewayConfigRoutes = require('./routes/gatewayConfig');
 const seedRoutes = require('./routes/seedRoutes');
 
-// Novas rotas VizzionPay
+// Rotas Pixup (substituiu VizzionPay)
 const depositRoutes = require('./routes/depositRoutes');
 const withdrawRoutes = require('./routes/withdrawRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
+
+// Rotas Pixup
+const pixupRoutes = require('./routes/pixup');
 
 // Rotas de correção
 const fixRoutes = require('./routes/fixRoutes');
@@ -1788,24 +1791,22 @@ app.post('/api/init-demo-accounts', async (req, res) => {
   }
 });
 
-// Rota de teste do VizzionPay
-app.get('/api/vizzionpay-test', (req, res) => {
+// Rota de teste da Pixup
+app.get('/api/pixup-test', (req, res) => {
   try {
     res.json({
       success: true,
-      message: 'VizzionPay configurações',
+      message: 'Pixup configurações',
       config: {
-        apiKey: config.vizzionpay.apiKey ? '***configurado***' : 'NÃO CONFIGURADO',
-        baseUrl: config.vizzionpay.baseUrl || 'NÃO CONFIGURADO',
-        webhookSecret: config.vizzionpay.webhookSecret ? '***configurado***' : 'NÃO CONFIGURADO',
-        pixKey: config.vizzionpay.pixKey || 'NÃO CONFIGURADO',
-        pixKeyType: config.vizzionpay.pixKeyType || 'NÃO CONFIGURADO'
+        clientId: config.pixup.clientId ? '***configurado***' : 'NÃO CONFIGURADO',
+        apiUrl: config.pixup.apiUrl || 'NÃO CONFIGURADO',
+        webhookSecret: config.pixup.webhookSecret ? '***configurado***' : 'NÃO CONFIGURADO'
       }
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Erro ao verificar configurações VizzionPay',
+      message: 'Erro ao verificar configurações Pixup',
       error: error.message
     });
   }
@@ -1842,10 +1843,13 @@ app.use('/api/image-upload', imageUploadRoutes);
 app.use('/api/gateway-config', gatewayConfigRoutes);
 app.use('/api/seed', seedRoutes);
 
-// Novas rotas VizzionPay
+// Rotas Pixup (substituiu VizzionPay)
 app.use('/api/deposit', depositRoutes);
 app.use('/api/withdraw', withdrawRoutes);
 app.use('/api/webhook', webhookRoutes);
+
+// Rotas Pixup
+app.use('/api/pixup', pixupRoutes);
 
 // Rotas de correção
 app.use('/api/fix', fixRoutes);

@@ -126,15 +126,15 @@ class HealthController {
   async checkExternalServices() {
     const services = {};
     
-    // Verificar VizzionPay (simulado)
+    // Verificar Pixup (simulado)
     try {
-      services.vizzionpay = {
+      services.pixup = {
         status: 'healthy',
         response_time: 150,
         note: 'Simulado - implementar verificação real'
       };
     } catch (error) {
-      services.vizzionpay = {
+      services.pixup = {
         status: 'unhealthy',
         error: error.message
       };

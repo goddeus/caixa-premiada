@@ -238,7 +238,7 @@ const Dashboard = () => {
       setLoading(true);
       console.log('[DEBUG] Iniciando depósito PIX:', { userId: user.id, amount: parseFloat(depositAmount.replace(',', '.')) });
       
-      const response = await api.post('/deposit/pix', { 
+      const response = await api.post('/pixup/deposit', { 
         userId: user.id,
         amount: parseFloat(depositAmount.replace(',', '.')) 
       });

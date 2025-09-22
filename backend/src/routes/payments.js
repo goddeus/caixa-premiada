@@ -6,11 +6,10 @@ const router = express.Router();
 
 // Rotas de depósito (métodos estáticos)
 router.post('/deposit', authenticateToken, PaymentController.createDeposit);
-router.post('/deposit/pix', PaymentController.createDepositPix);
+// router.post('/deposit/pix', PaymentController.createDepositPix); // REMOVIDO - usar /pixup/deposit
 router.post('/deposit/callback', PaymentController.depositCallback);
 
-// Webhook VizzionPay
-router.post('/webhook/vizzion', PaymentController.vizzionWebhook);
+// Webhook VizzionPay removido - usando apenas Pixup
 
 // Rotas de saque (apenas contas normais) (métodos estáticos)
 router.post('/withdraw', authenticateToken, requireNormalAccount, PaymentController.createWithdraw);

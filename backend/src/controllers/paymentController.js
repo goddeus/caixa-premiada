@@ -1,18 +1,18 @@
 const { PrismaClient } = require('@prisma/client');
-const VizzionPayService = require('../services/vizzionPayService');
+const PixupService = require('../services/pixupService');
 
 const prisma = new PrismaClient();
-const vizzionPay = new VizzionPayService();
+const pixupService = new PixupService();
 
 class PaymentController {
   
   /**
    * POST /api/deposit/pix
-   * Criar depósito via PIX usando nova integração VizzionPay
+   * Criar depósito via PIX usando Pixup (redireciona para /pixup/deposit)
    */
   static async createDepositPix(req, res) {
     try {
-      console.log('[DEBUG] Depósito PIX iniciado:', req.body);
+      console.log('[DEBUG] Depósito PIX iniciado (redirecionando para Pixup):', req.body);
       
       const { userId, amount } = req.body;
       
@@ -51,95 +51,25 @@ class PaymentController {
         });
       }
       
-      // Criar identifier único
-      const timestamp = Date.now();
-      const identifier = `deposit_${userId}_${timestamp}`;
+      console.log('[DEBUG] Usuário encontrado:', user.email);
       
-      // Preparar dados para VizzionPay
-      const vizzionData = {
-        identifier,
-        amount: valorNumerico,
-        client: {
-          name: user.nome || "Usuário SlotBox",
-          document: user.cpf || "00000000000",
-          email: user.email || "teste@slotbox.shop"
-        },
-        products: [
-          {
-            title: "Depósito em saldo",
-            unitPrice: valorNumerico,
-            quantity: 1
-          }
-        ]
-      };
+      // Criar pagamento via Pixup
+      const result = await pixupService.createPayment({ userId, valor: valorNumerico });
       
-      console.log('[DEBUG] Enviando para VizzionPay:', JSON.stringify(vizzionData, null, 2));
-      
-      // Fazer requisição para VizzionPay
-      const axios = require('axios');
-      const response = await axios.post('https://app.vizzionpay.com/api/v1/gateway/pix/receive', vizzionData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'x-public-key': 'juniorcoxtaa_m5mbahi4jiqphich',
-          'x-secret-key': '6u7lv2h871fn9aepj4hugoxlnldoxhpfqhla2rbcrow7mvq50xzut9xdiimzt513'
-        },
-        timeout: 30000
-      });
-      
-      console.log('[DEBUG] Resposta VizzionPay:', JSON.stringify(response.data, null, 2));
-      
-      // Extrair dados da resposta
-      const responseData = response.data;
-      let qrCode = null;
-      let qrCodeImage = null;
-      
-      // Buscar QR Code na resposta (diferentes formatos possíveis)
-      if (responseData.qrCode) {
-        qrCode = responseData.qrCode;
-      } else if (responseData.pix_copy_paste) {
-        qrCode = responseData.pix_copy_paste;
-      } else if (responseData.qr_code_text) {
-        qrCode = responseData.qr_code_text;
-      } else if (responseData.emv) {
-        qrCode = responseData.emv;
-      }
-      
-      // Buscar imagem do QR Code
-      if (responseData.qrCodeImage) {
-        qrCodeImage = responseData.qrCodeImage;
-      } else if (responseData.qr_code_base64) {
-        qrCodeImage = responseData.qr_code_base64;
-      } else if (responseData.qr_code) {
-        qrCodeImage = responseData.qr_code;
-      }
-      
-      // Salvar transação no banco
-      const transaction = await prisma.transaction.create({
-        data: {
-          user_id: userId,
-          tipo: 'deposito',
-          valor: valorNumerico,
-          status: 'pendente',
-          identifier,
-          criado_em: new Date()
-        }
-      });
-      
-      console.log(`[DEBUG] Transação criada: ${transaction.id} - R$ ${valorNumerico}`);
+      console.log('[DEBUG] Depósito criado com sucesso:', result);
       
       res.json({
         success: true,
-        qrCode,
-        qrCodeImage,
-        identifier
+        qrCode: result.qrCode,
+        qrCodeImage: result.qrCodeImage,
+        identifier: result.external_id,
+        transaction_id: result.transaction_id,
+        amount: result.amount,
+        expires_at: result.expires_at
       });
       
     } catch (error) {
       console.error('[DEBUG] Erro ao criar depósito PIX:', error);
-      
-      if (error.response) {
-        console.error('[DEBUG] Resposta de erro VizzionPay:', JSON.stringify(error.response.data, null, 2));
-      }
       
       res.status(500).json({
         success: false,
@@ -188,8 +118,8 @@ class PaymentController {
         });
       }
       
-      // Criar pagamento via VizzionPay
-      const payment = await vizzionPay.createPayment({
+      // Criar pagamento via Pixup
+      const payment = await pixupService.createPayment({
         userId,
         valor: valorNumerico
       });

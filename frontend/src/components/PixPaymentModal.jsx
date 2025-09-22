@@ -36,11 +36,12 @@ const PixPaymentModal = ({ isOpen, onClose, paymentData, onPaymentComplete }) =>
   };
 
   const checkPaymentStatus = async () => {
-    if (!paymentData?.payment_id) return;
+    if (!paymentData?.transaction_id) return;
     
     setIsChecking(true);
     try {
-      const response = await fetch(`https://slotbox-api.onrender.com/api/payments/status/${paymentData.payment_id}`, {
+      // Usar a nova API do Pixup
+      const response = await fetch(`https://slotbox-api.onrender.com/api/pixup/deposit/status/${paymentData.transaction_id}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -48,14 +49,34 @@ const PixPaymentModal = ({ isOpen, onClose, paymentData, onPaymentComplete }) =>
       const data = await response.json();
       
       if (data.success) {
-        setPaymentStatus(data.payment.status);
-        if (data.payment.status === 'concluido') {
+        const status = data.status?.status || data.status;
+        setPaymentStatus(status);
+        if (status === 'PAID' || status === 'paid' || status === 'APPROVED' || status === 'approved') {
           toast.success('Pagamento confirmado!');
           onPaymentComplete?.();
         }
       }
     } catch (error) {
       console.error('Erro ao verificar status:', error);
+      // Fallback para API antiga se necessário
+      try {
+        const fallbackResponse = await fetch(`https://slotbox-api.onrender.com/api/payments/status/${paymentData.payment_id}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        const fallbackData = await fallbackResponse.json();
+        
+        if (fallbackData.success) {
+          setPaymentStatus(fallbackData.payment.status);
+          if (fallbackData.payment.status === 'concluido') {
+            toast.success('Pagamento confirmado!');
+            onPaymentComplete?.();
+          }
+        }
+      } catch (fallbackError) {
+        console.error('Erro no fallback:', fallbackError);
+      }
     } finally {
       setIsChecking(false);
     }

@@ -23,14 +23,15 @@ module.exports = {
     demoPurchasesEnabled: process.env.DEMO_PURCHASES_ENABLED === 'true'
   },
   
-  // Configurações VizzionPay
-  vizzionpay: {
-    apiKey: process.env.VIZZIONPAY_API_KEY || '',
-    baseUrl: process.env.VIZZIONPAY_BASE_URL || 'https://app.vizzionpay.com/api/v1',
-    webhookSecret: process.env.VIZZIONPAY_WEBHOOK_SECRET || '',
-    pixKey: process.env.VIZZIONPAY_PIX_KEY || '',
-    pixKeyType: process.env.VIZZIONPAY_PIX_KEY_TYPE || 'email'
+  // Configurações Pixup
+  pixup: {
+    clientId: process.env.PIXUP_CLIENT_ID || '',
+    clientSecret: process.env.PIXUP_CLIENT_SECRET || '',
+    apiUrl: process.env.PIXUP_API_URL || 'https://api.pixupbr.com',
+    webhookSecret: process.env.PIXUP_WEBHOOK_SECRET || ''
   },
+  
+  // Configurações VizzionPay removidas - usando apenas Pixup
   
   // URLs
   frontend: {

@@ -79,7 +79,8 @@ const Profile = () => {
       }
       
       // Fazer requisição de saque
-      const response = await api.post('/withdraw/pix', {
+      const response = await api.post('/pixup/withdraw', {
+        userId: user.id,
         amount: amount,
         pixKey: pixKey.trim(),
         pixKeyType: pixKeyType

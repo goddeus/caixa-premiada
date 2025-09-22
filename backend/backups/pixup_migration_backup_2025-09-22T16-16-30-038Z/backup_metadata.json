@@ -1,0 +1,7 @@
+{
+  "timestamp": "2025-09-22T16:16:39.671Z",
+  "branch": "migration/pixup-fullcomplete-20250120",
+  "purpose": "Backup antes da migração VizzionPay -> Pixup",
+  "tables": [],
+  "totalRecords": 0
+}

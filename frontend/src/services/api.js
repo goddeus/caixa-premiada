@@ -143,16 +143,33 @@ class ApiService {
     return this.client.get('/admin/dashboard/stats');
   }
 
-  // ===== PAGAMENTOS =====
-  async criarDeposito(valor) {
-    return this.client.post('/deposit/pix', { valor });
+  // ===== PAGAMENTOS (PIXUP) =====
+  async criarDeposito(userId, amount) {
+    return this.client.post('/pixup/deposit', { userId, amount });
   }
 
-  async criarSaque(valor, pixKey) {
-    return this.client.post('/withdraw/pix', { 
-      valor, 
-      pix_key: pixKey 
+  async criarSaque(userId, amount, pixKey, pixKeyType = 'random', ownerName = null, ownerDocument = null) {
+    return this.client.post('/pixup/withdraw', { 
+      userId, 
+      amount, 
+      pixKey, 
+      pixKeyType,
+      ownerName,
+      ownerDocument
     });
+  }
+
+  // Métodos de compatibilidade (DEPRECATED - usar os novos acima)
+  async criarDepositoLegacy(valor) {
+    const user = this.getCurrentUser();
+    if (!user) throw new Error('Usuário não encontrado');
+    return this.criarDeposito(user.id, valor);
+  }
+
+  async criarSaqueLegacy(valor, pixKey) {
+    const user = this.getCurrentUser();
+    if (!user) throw new Error('Usuário não encontrado');
+    return this.criarSaque(user.id, valor, pixKey);
   }
 
   async getHistoricoPagamentos(page = 1, limit = 20, tipo = null) {
@@ -167,6 +184,15 @@ class ApiService {
 
   async verificarStatusPagamento(id) {
     return this.client.get(`/deposit/${id}/status`);
+  }
+
+  // ===== STATUS PIXUP =====
+  async verificarStatusDepositoPixup(externalId) {
+    return this.client.get(`/pixup/deposit/status/${externalId}`);
+  }
+
+  async verificarStatusSaquePixup(externalId) {
+    return this.client.get(`/pixup/withdraw/status/${externalId}`);
   }
 
   // ===== AFILIADOS =====
