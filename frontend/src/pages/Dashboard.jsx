@@ -252,10 +252,10 @@ const Dashboard = () => {
           data: {
             qr_base64: response.qrCodeImage,
             qr_text: response.qrCode,
-            transaction_id: response.identifier,
+            transaction_id: response.transaction_id || response.identifier,
             valor: parseFloat(depositAmount.replace(',', '.')),
             amount: parseFloat(depositAmount.replace(',', '.')), // Manter compatibilidade
-            expires_at: new Date(Date.now() + 3600000) // 1 hora
+            expires_at: response.expires_at || new Date(Date.now() + 3600000) // 1 hora
           }
         };
         
@@ -323,7 +323,7 @@ const Dashboard = () => {
         pixKeyType
       });
       
-      const response = await api.post('/withdraw/pix', { 
+      const response = await api.post('/pixup/withdraw', { 
         userId: user.id,
         amount: parseFloat(withdrawAmount.replace(',', '.')),
         pixKey: pixKey,

@@ -20,7 +20,7 @@ const FinancialManagement = () => {
   const loadDeposits = async () => {
     try {
       setLoading(true);
-      // Buscar depósitos da nova tabela deposits (VizzionPay)
+      // Buscar depósitos da nova tabela deposits (Pixup)
       const response = await api.get('/admin/deposits');
       console.log('📡 Resposta completa da API Deposits:', response.data);
       
@@ -71,8 +71,8 @@ const FinancialManagement = () => {
   const handleWithdrawalStatus = async (withdrawalId, status) => {
     if (window.confirm(`Tem certeza que deseja ${status === 'concluido' ? 'aprovar' : 'rejeitar'} este saque?`)) {
       try {
-        // Como os saques são automáticos via Vizzion Pay, apenas informamos que não é possível alterar
-        toast.info('Saques são processados automaticamente via Vizzion Pay. Não é possível alterar o status manualmente.');
+        // Como os saques são automáticos via Pixup, apenas informamos que não é possível alterar
+        toast.info('Saques são processados automaticamente via Pixup. Não é possível alterar o status manualmente.');
       } catch (error) {
         console.error('Erro ao atualizar status:', error);
         toast.error('Erro ao atualizar status do saque');
