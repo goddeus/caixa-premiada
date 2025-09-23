@@ -390,3 +390,4 @@ console.log('🎯 Solução direta para prêmios dinâmicos carregada! Use windo
 
 
 
+

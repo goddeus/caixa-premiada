@@ -16,7 +16,7 @@ class PixupService {
   constructor() {
     this.clientId = config.pixup.clientId;
     this.clientSecret = config.pixup.clientSecret;
-    this.baseUrl = config.pixup.apiUrl.replace('/v2/', ''); // Remover /v2/ da URL base
+    this.baseUrl = config.pixup.apiUrl; // Usar URL diretamente
     this.accessToken = null;
     this.tokenExpiresAt = null;
     
@@ -120,7 +120,8 @@ class PixupService {
           name: user.nome || "Usuário SlotBox",
           document: user.cpf?.replace(/\D/g, '') || "00000000000"
         },
-        description: `Depósito SlotBox - ${user.nome}`
+        description: `Depósito SlotBox - ${user.nome}`,
+        postbackUrl: `${config.frontend.url}/api/pixup/webhook/payment`
       };
       
       console.log('[PIXUP] Enviando para API:', JSON.stringify(paymentData, null, 2));
@@ -264,7 +265,8 @@ class PixupService {
           name: ownerName || user.nome,
           document: ownerDocument || user.cpf?.replace(/\D/g, '') || "00000000000"
         },
-        description: `Saque SlotBox - ${user.nome}`
+        description: `Saque SlotBox - ${user.nome}`,
+        postbackUrl: `${config.frontend.url}/api/pixup/webhook/transfer`
       };
       
       console.log('[PIXUP] Enviando saque para API:', JSON.stringify(withdrawalData, null, 2));

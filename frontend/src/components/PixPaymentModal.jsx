@@ -36,12 +36,12 @@ const PixPaymentModal = ({ isOpen, onClose, paymentData, onPaymentComplete }) =>
   };
 
   const checkPaymentStatus = async () => {
-    if (!paymentData?.transaction_id) return;
+    if (!paymentData?.identifier) return;
     
     setIsChecking(true);
     try {
       // Usar a nova API do Pixup
-      const response = await fetch(`https://slotbox-api.onrender.com/api/pixup/deposit/status/${paymentData.transaction_id}`, {
+      const response = await fetch(`https://slotbox-api.onrender.com/api/pixup/deposit/status/${paymentData.identifier}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
