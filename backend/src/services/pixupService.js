@@ -16,7 +16,7 @@ class PixupService {
   constructor() {
     this.clientId = config.pixup.clientId;
     this.clientSecret = config.pixup.clientSecret;
-    this.baseUrl = config.pixup.apiUrl; // Usar URL diretamente
+    this.baseUrl = config.pixup.apiUrl; // URL já inclui /v2/
     this.accessToken = null;
     this.tokenExpiresAt = null;
     
@@ -46,7 +46,7 @@ class PixupService {
       // Pixup usa Basic Auth no header
       const authHeader = Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64');
       
-      const response = await this.client.post('/v2/oauth/token', {}, {
+      const response = await this.client.post('/oauth/token', {}, {
         headers: {
           'Authorization': `Basic ${authHeader}`,
           'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ class PixupService {
       console.log('[PIXUP] Enviando para API:', JSON.stringify(paymentData, null, 2));
       
       // Fazer chamada para o Pixup (endpoint correto)
-      const response = await this.client.post('/v2/pix/qrcode', paymentData, {
+      const response = await this.client.post('/pix/qrcode', paymentData, {
         headers: {
           'Authorization': `Bearer ${this.accessToken}`
         }
@@ -270,7 +270,7 @@ class PixupService {
       console.log('[PIXUP] Enviando saque para API:', JSON.stringify(withdrawalData, null, 2));
       
       // Fazer chamada para o Pixup (endpoint correto para saques)
-      const response = await this.client.post('/v2/pix/payment', withdrawalData, {
+      const response = await this.client.post('/pix/payment', withdrawalData, {
         headers: {
           'Authorization': `Bearer ${this.accessToken}`
         }
