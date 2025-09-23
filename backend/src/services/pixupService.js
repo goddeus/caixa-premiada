@@ -27,9 +27,7 @@ class PixupService {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'User-Agent': 'SlotBox-Render/1.0',
-        'X-Forwarded-For': '35.160.120.126',
-        'X-Real-IP': '35.160.120.126'
+        'User-Agent': 'SlotBox-Render/1.0'
       }
     });
   }
