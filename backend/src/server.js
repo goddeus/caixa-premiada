@@ -1802,8 +1802,13 @@ app.get('/api/pixup-test', (req, res) => {
     const cfRay = req.headers['cf-ray'];
     
     // Verificar qual serviço está sendo usado
-    const PixupController = require('./controllers/pixupController');
-    const serviceType = PixupController.pixupService.constructor.name;
+    let serviceType = 'N/A';
+    try {
+      const PixupController = require('./controllers/pixupController');
+      serviceType = PixupController.pixupService ? PixupController.pixupService.constructor.name : 'undefined';
+    } catch (error) {
+      serviceType = 'Erro ao carregar: ' + error.message;
+    }
     
     // Verificar credenciais reais
     const clientId = config.pixup.clientId;
