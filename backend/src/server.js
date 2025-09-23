@@ -1858,9 +1858,9 @@ app.post('/api/pixup-test-auth', async (req, res) => {
   try {
     console.log('[PIXUP-TEST] Testando autenticação...');
     
-    // Usar o mesmo serviço do controller
-    const PixupController = require('./controllers/pixupController');
-    const pixupService = PixupController.pixupService;
+    // Usar o serviço Pixup diretamente
+    const PixupService = require('./services/pixupService');
+    const pixupService = new PixupService();
     
     // Testar autenticação
     const token = await pixupService.authenticate();
