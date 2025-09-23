@@ -1801,6 +1801,10 @@ app.get('/api/pixup-test', (req, res) => {
     const cfConnectingIP = req.headers['cf-connecting-ip'];
     const cfRay = req.headers['cf-ray'];
     
+    // Verificar qual serviço está sendo usado
+    const PixupController = require('./controllers/pixupController');
+    const serviceType = PixupController.pixupService.constructor.name;
+    
     res.json({
       success: true,
       message: 'Pixup configurações',
@@ -1808,6 +1812,10 @@ app.get('/api/pixup-test', (req, res) => {
         clientId: config.pixup.clientId ? '***configurado***' : 'NÃO CONFIGURADO',
         apiUrl: config.pixup.apiUrl || 'NÃO CONFIGURADO',
         webhookSecret: config.pixup.webhookSecret ? '***configurado***' : 'NÃO CONFIGURADO'
+      },
+      service: {
+        type: serviceType,
+        baseUrl: config.pixup.apiUrl
       },
       ipInfo: {
         clientIP: clientIP,
