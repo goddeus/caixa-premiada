@@ -1794,6 +1794,13 @@ app.post('/api/init-demo-accounts', async (req, res) => {
 // Rota de teste da Pixup
 app.get('/api/pixup-test', (req, res) => {
   try {
+    // Capturar informações de IP
+    const clientIP = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
+    const forwardedFor = req.headers['x-forwarded-for'];
+    const realIP = req.headers['x-real-ip'];
+    const cfConnectingIP = req.headers['cf-connecting-ip'];
+    const cfRay = req.headers['cf-ray'];
+    
     res.json({
       success: true,
       message: 'Pixup configurações',
@@ -1801,6 +1808,15 @@ app.get('/api/pixup-test', (req, res) => {
         clientId: config.pixup.clientId ? '***configurado***' : 'NÃO CONFIGURADO',
         apiUrl: config.pixup.apiUrl || 'NÃO CONFIGURADO',
         webhookSecret: config.pixup.webhookSecret ? '***configurado***' : 'NÃO CONFIGURADO'
+      },
+      ipInfo: {
+        clientIP: clientIP,
+        xForwardedFor: forwardedFor,
+        xRealIP: realIP,
+        cfConnectingIP: cfConnectingIP,
+        cfRay: cfRay,
+        userAgent: req.headers['user-agent'],
+        allHeaders: req.headers
       }
     });
   } catch (error) {
