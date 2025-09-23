@@ -1,8 +1,8 @@
 const { PrismaClient } = require('@prisma/client');
-const PixupService = require('../services/pixupService');
+const PixupServiceProxy = require('../services/pixupServiceProxy');
 
 const prisma = new PrismaClient();
-const pixupService = new PixupService();
+const pixupService = new PixupServiceProxy();
 
 class PixupController {
   
