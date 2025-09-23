@@ -1805,17 +1805,29 @@ app.get('/api/pixup-test', (req, res) => {
     const PixupController = require('./controllers/pixupController');
     const serviceType = PixupController.pixupService.constructor.name;
     
+    // Verificar credenciais reais
+    const clientId = config.pixup.clientId;
+    const clientSecret = config.pixup.clientSecret;
+    const apiUrl = config.pixup.apiUrl;
+    
     res.json({
       success: true,
       message: 'Pixup configurações',
       config: {
-        clientId: config.pixup.clientId ? '***configurado***' : 'NÃO CONFIGURADO',
-        apiUrl: config.pixup.apiUrl || 'NÃO CONFIGURADO',
+        clientId: clientId ? `${clientId.substring(0, 10)}...` : 'NÃO CONFIGURADO',
+        clientSecret: clientSecret ? `${clientSecret.substring(0, 10)}...` : 'NÃO CONFIGURADO',
+        apiUrl: apiUrl || 'NÃO CONFIGURADO',
         webhookSecret: config.pixup.webhookSecret ? '***configurado***' : 'NÃO CONFIGURADO'
       },
       service: {
         type: serviceType,
-        baseUrl: config.pixup.apiUrl
+        baseUrl: apiUrl
+      },
+      credentials: {
+        clientIdLength: clientId ? clientId.length : 0,
+        clientSecretLength: clientSecret ? clientSecret.length : 0,
+        clientIdStart: clientId ? clientId.substring(0, 5) : 'N/A',
+        clientSecretStart: clientSecret ? clientSecret.substring(0, 5) : 'N/A'
       },
       ipInfo: {
         clientIP: clientIP,
