@@ -1853,6 +1853,35 @@ app.get('/api/pixup-test', (req, res) => {
   }
 });
 
+// Rota de teste de autenticação Pixup
+app.post('/api/pixup-test-auth', async (req, res) => {
+  try {
+    console.log('[PIXUP-TEST] Testando autenticação...');
+    
+    // Usar o mesmo serviço do controller
+    const PixupController = require('./controllers/pixupController');
+    const pixupService = PixupController.pixupService;
+    
+    // Testar autenticação
+    const token = await pixupService.authenticate();
+    
+    res.json({
+      success: true,
+      message: 'Autenticação bem-sucedida',
+      token: token ? '✅ Recebido' : '❌ Não recebido',
+      tokenLength: token ? token.length : 0
+    });
+    
+  } catch (error) {
+    console.error('[PIXUP-TEST] Erro na autenticação:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro na autenticação',
+      error: error.message
+    });
+  }
+});
+
 // Rota raiz
 app.get('/', (req, res) => {
   res.json({
