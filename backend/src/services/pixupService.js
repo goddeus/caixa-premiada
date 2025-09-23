@@ -50,7 +50,9 @@ class PixupService {
       
       const response = await this.client.post('/v2/oauth/token', {}, {
         headers: {
-          'Authorization': `Basic ${authHeader}`
+          'Authorization': `Basic ${authHeader}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         }
       });
 
